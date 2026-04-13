@@ -1,0 +1,24 @@
+baseURL = "https://garrolan.github.io/garrosolivagant/"
+languageCode = "zh-tw"
+title = "GARRO的自由人生實驗室"
+theme = "hugo-theme-dream"
+
+[params]
+  enableGitalk = false
+  enableDarkMode = true
+  description = "一個靜靜行走的記錄者"
+  avatar = "images/avatar.png"
+  introTitle = "GARRO的自由人生實驗室"
+  introSubtitle = "探索自由人生的實驗筆記"
+  favicon = "images/favicon.png"
+
+[menu]
+  [[menu.main]]
+    name = "文章"
+    url = "/posts/"
+    weight = 1
+
+  [[menu.main]]
+    name = "關於我"
+    url = "/about/"
+    weight = 2
