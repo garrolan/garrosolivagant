@@ -1,15 +1,1 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-  xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  <url>
-    <loc>https://garrolan.github.io/garrosolivagant/</loc>
-    <lastmod>2025-05-31T16:00:00+08:00</lastmod>
-  </url><url>
-    <loc>https://garrolan.github.io/garrosolivagant/posts/</loc>
-    <lastmod>2025-05-31T16:00:00+08:00</lastmod>
-  </url><url>
-    <loc>https://garrolan.github.io/garrosolivagant/categories/</loc>
-  </url><url>
-    <loc>https://garrolan.github.io/garrosolivagant/tags/</loc>
-  </url>
-</urlset>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml"><url><loc>https://garrolan.github.io/garrosolivagant/categories/</loc><lastmod>2025-05-31T16:00:00+08:00</lastmod></url><url><loc>https://garrolan.github.io/garrosolivagant/</loc><lastmod>2025-05-31T16:00:00+08:00</lastmod></url><url><loc>https://garrolan.github.io/garrosolivagant/posts/hello-world/</loc><lastmod>2025-05-31T16:00:00+08:00</lastmod></url><url><loc>https://garrolan.github.io/garrosolivagant/posts/</loc><lastmod>2025-05-31T16:00:00+08:00</lastmod></url><url><loc>https://garrolan.github.io/garrosolivagant/tags/</loc><lastmod>2025-05-31T16:00:00+08:00</lastmod></url><url><loc>https://garrolan.github.io/garrosolivagant/categories/%E5%80%8B%E4%BA%BA%E8%AA%8C/</loc><lastmod>2025-05-31T16:00:00+08:00</lastmod></url><url><loc>https://garrolan.github.io/garrosolivagant/tags/%E8%87%AA%E6%88%91%E6%9B%B8%E5%AF%AB/</loc><lastmod>2025-05-31T16:00:00+08:00</lastmod></url><url><loc>https://garrolan.github.io/garrosolivagant/tags/%E8%87%AA%E7%94%B1%E4%BA%BA%E7%94%9F/</loc><lastmod>2025-05-31T16:00:00+08:00</lastmod></url><url><loc>https://garrolan.github.io/garrosolivagant/categories/%E8%B5%B7%E9%BB%9E/</loc><lastmod>2025-05-31T16:00:00+08:00</lastmod></url><url><loc>https://garrolan.github.io/garrosolivagant/tags/%E9%83%A8%E8%90%BD%E6%A0%BC%E8%B5%B7%E5%A7%8B/</loc><lastmod>2025-05-31T16:00:00+08:00</lastmod></url></urlset>
