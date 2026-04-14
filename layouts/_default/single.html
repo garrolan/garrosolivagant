@@ -75,8 +75,8 @@
       </header>
 
       <section id="dream-single-post-content" itemprop="articleBody">
-        {{ if and .Params.Cover site.Params.showSummaryCoverInPost }}
-          <img class="w-full z-30" src="{{ .Params.Cover | relURL }}" alt="{{ .Title }}" />
+        {{ if and .Params.cover site.Params.showSummaryCoverInPost }}
+          <img class="w-full z-30" src="{{ .Params.cover | relURL }}" alt="{{ .Title }}" />
         {{ end }}
 
         {{ .Content | emojify }}
