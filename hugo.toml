@@ -11,6 +11,7 @@ theme = "hugo-theme-dream"
   introTitle = "GARRO的自由人生實驗室"
   introSubtitle = "探索自由人生的實驗筆記"
   favicon = "images/favicon.png"
+  showSummaryCoverInPost = true
 
 [menu]
   [[menu.main]]
