@@ -2,6 +2,7 @@ baseURL = "https://garrolan.github.io/garrosolivagant/"
 languageCode = "zh-tw"
 title = "GARRO的自由人生實驗室"
 theme = "hugo-theme-dream"
+hasCJKLanguage = true
 
 [params]
   enableGitalk = false
