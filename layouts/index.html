@@ -2,13 +2,13 @@
 {{ if .Content }}
 <section class="mt-8 px-4">
   <div class="mx-auto max-w-[65ch]">
-    <div class="mb-4 flex items-center gap-3 text-[0.68rem] tracking-[0.35em] text-base-content/35">
+    <div class="mb-4 flex items-center gap-3 text-[0.68rem] font-bold tracking-[0.35em] text-base-content/35">
       <span class="h-px flex-1 bg-base-content/10"></span>
       <span>ABOUT THIS SITE</span>
       <span class="h-px flex-1 bg-base-content/10"></span>
     </div>
 
-    <div class="prose prose-quoteless dark:prose-invert max-w-none border-l border-base-content/10 pl-5 sm:pl-6">
+    <div class="prose prose-quoteless dark:prose-invert max-w-none border-l border-base-content/10 pl-5 sm:pl-6 [&>p]:my-0 [&>p+p]:mt-3">
       {{ .Content }}
     </div>
   </div>
