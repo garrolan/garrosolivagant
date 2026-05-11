@@ -64,6 +64,87 @@
     -webkit-backdrop-filter: blur(12px);
   }
 
+  .home-video-section {
+    margin: 3rem auto 0;
+    padding: 0 1rem;
+    max-width: 72rem;
+  }
+
+  .home-video-heading {
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: rgba(15, 23, 42, 0.68);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+  }
+
+  .home-video-heading::before,
+  .home-video-heading::after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background: rgba(15, 23, 42, 0.1);
+  }
+
+  .home-video-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .home-video-card {
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.55);
+    box-shadow: 0 16px 42px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .home-video-frame {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: rgba(15, 23, 42, 0.08);
+  }
+
+  .home-video-frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .home-video-body {
+    padding: 1rem;
+  }
+
+  .home-video-title {
+    margin: 0;
+    color: rgba(15, 23, 42, 0.86);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.6;
+  }
+
+  .home-video-link {
+    margin-top: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: rgba(15, 23, 42, 0.56);
+    font-size: 0.86rem;
+    text-decoration: none;
+  }
+
+  .home-video-link:hover {
+    color: rgba(15, 23, 42, 0.86);
+  }
+
   .dark .home-search-icon {
     color: rgba(255, 255, 255, 0.58);
   }
@@ -86,6 +167,37 @@
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
   }
 
+  .dark .home-video-heading {
+    color: rgba(255, 255, 255, 0.66);
+  }
+
+  .dark .home-video-heading::before,
+  .dark .home-video-heading::after {
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  .dark .home-video-card {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(17, 24, 39, 0.5);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
+  }
+
+  .dark .home-video-frame {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .dark .home-video-title {
+    color: rgba(255, 255, 255, 0.86);
+  }
+
+  .dark .home-video-link {
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  .dark .home-video-link:hover {
+    color: rgba(255, 255, 255, 0.88);
+  }
+
   @media (min-width: 640px) {
     .home-search-slot {
       display: flex;
@@ -93,6 +205,12 @@
 
     .home-search-mobile {
       display: none;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .home-video-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 </style>
@@ -147,6 +265,50 @@
       </div>
     </section>
     {{ end }}
+
+    <section class="home-video-section">
+      <div class="home-video-heading">VIDEO NOTES</div>
+
+      <div class="home-video-grid">
+        <article class="home-video-card">
+          <div class="home-video-frame">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/CSqsXXL3Mns"
+              title="20260511自由人生實驗室#002：廢話號給我的啟示，低摩擦拍片"
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen>
+            </iframe>
+          </div>
+          <div class="home-video-body">
+            <h2 class="home-video-title">20260511自由人生實驗室#002：廢話號給我的啟示，低摩擦拍片</h2>
+            <a class="home-video-link" href="https://youtu.be/CSqsXXL3Mns" target="_blank" rel="noopener noreferrer">
+              <ion-icon name="logo-youtube"></ion-icon>
+              在 YouTube 開啟
+            </a>
+          </div>
+        </article>
+
+        <article class="home-video-card">
+          <div class="home-video-frame">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/LYiOWGcVN4I"
+              title="20260511自由人生實驗室#001：先做一個MVP最小可行性產品"
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen>
+            </iframe>
+          </div>
+          <div class="home-video-body">
+            <h2 class="home-video-title">20260511自由人生實驗室#001：先做一個MVP最小可行性產品</h2>
+            <a class="home-video-link" href="https://youtu.be/LYiOWGcVN4I" target="_blank" rel="noopener noreferrer">
+              <ion-icon name="logo-youtube"></ion-icon>
+              在 YouTube 開啟
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
 
     {{ if site.Params.zenMode }}
     <div class="dream-zen-posts max-w-[65ch] mt-8 mx-auto px-4 space-y-8">
