@@ -1,0 +1,43 @@
+{{ $youtube := .Params.youtube }}
+<a class="card bg-base-100 hover:bg-base-content/10 shadow-xl cursor-pointer dark:border dark:border-base-content/30" href="{{ .RelPermalink }}">
+  {{ if $youtube }}
+  <figure class="relative">
+    <img class="aspect-video w-full object-cover" src="https://img.youtube.com/vi/{{ $youtube }}/hqdefault.jpg" alt="{{ .Title }}" />
+    <span class="absolute inset-0 flex items-center justify-center bg-black/10">
+      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-black/65 text-white shadow-lg">
+        <ion-icon name="play" class="text-3xl"></ion-icon>
+      </span>
+    </span>
+  </figure>
+  {{ else if .Params.cover }}
+  <figure>
+    <img src="{{ .Params.cover | relURL }}" alt="{{ .Title }}" />
+  </figure>
+  {{ end }}
+
+  <div class="card-body">
+    <div class="mb-1 flex items-center gap-2 text-sm text-base-content/60">
+      <span class="badge badge-outline">影片</span>
+      <span class="date">
+        {{ if site.Params.Experimental.jsDate }}
+          <span data-format="luxon">{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}</span>
+        {{ else }}
+          {{ .Date | time.Format "Monday, Jan 2, 2006" }}
+        {{ end }}
+      </span>
+    </div>
+
+    <h2 class="card-title">{{ .Title }}</h2>
+
+    {{ with .Description }}
+    <p>{{ . }}</p>
+    {{ end }}
+
+    <div class="card-actions justify-end items-center mt-4">
+      <div class="flex items-center">
+        <ion-icon name="play-circle" class="mr-1"></ion-icon>
+        <span>觀看影片</span>
+      </div>
+    </div>
+  </div>
+</a>

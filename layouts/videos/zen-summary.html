@@ -1,0 +1,25 @@
+{{ $youtube := .Params.youtube }}
+<a class="flex justify-between items-center gap-4" href="{{ .RelPermalink }}">
+  <div>
+    <div class="mb-1">
+      <span class="badge badge-outline">影片</span>
+    </div>
+    <h2 class="text-lg font-medium underline">{{ .Title }}</h2>
+    <span class="date text-base-content/60 text-sm">
+    {{ if site.Params.Experimental.jsDate }}
+      <span data-format="luxon">{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}</span>
+    {{ else }}
+      {{ .Date | time.Format "Monday, Jan 2, 2006" }}
+    {{ end }}
+    </span>
+  </div>
+
+  {{ if $youtube }}
+  <figure class="relative shrink-0">
+    <img class="w-24 max-w-none rounded-lg" src="https://img.youtube.com/vi/{{ $youtube }}/hqdefault.jpg" alt="{{ .Title }}" />
+    <span class="absolute inset-0 flex items-center justify-center rounded-lg bg-black/15 text-white">
+      <ion-icon name="play-circle" class="text-3xl drop-shadow"></ion-icon>
+    </span>
+  </figure>
+  {{ end }}
+</a>
