@@ -1,8 +1,14 @@
 {{ $youtube := .Params.youtube }}
+{{ $thumbnail := "" }}
+{{ if .Params.thumbnail }}
+  {{ $thumbnail = .Params.thumbnail }}
+{{ else if $youtube }}
+  {{ $thumbnail = printf "https://img.youtube.com/vi/%s/hqdefault.jpg" $youtube }}
+{{ end }}
 <a class="card bg-base-100 hover:bg-base-content/10 shadow-xl cursor-pointer dark:border dark:border-base-content/30" href="{{ .RelPermalink }}">
-  {{ if $youtube }}
+  {{ if $thumbnail }}
   <figure class="relative">
-    <img class="aspect-video w-full object-cover" src="https://img.youtube.com/vi/{{ $youtube }}/hqdefault.jpg" alt="{{ .Title }}" />
+    <img class="aspect-video w-full object-cover" src="{{ $thumbnail }}" alt="{{ .Title }}" />
     <span class="absolute inset-0 flex items-center justify-center bg-black/10">
       <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-black/65 text-white shadow-lg">
         <ion-icon name="play" class="text-3xl"></ion-icon>
