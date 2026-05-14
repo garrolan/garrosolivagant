@@ -5,7 +5,7 @@ categories: ["生活實驗"]
 tags: ["自由人生實驗室", "想拍就拍", "不要等待", "影片創作", "MVP實驗", "降低摩擦", "自由創作", "生活記錄", "創作實驗", "AI協作"]
 author: "garrolan"
 youtube: "wjdqbsG9zhg"
-thumbnail: "https://i.ytimg.com/vi/wjdqbsG9zhg/hqdefault.jpg?v=20260515"
+thumbnail: "images/20260515-video-004.jpg"
 description: "這是自由人生實驗室的一次影片創作實驗：想拍就拍，不要等待。不要等到設備、收音、腳本與狀態都完美，才允許自己開始。"
 draft: false
 ---

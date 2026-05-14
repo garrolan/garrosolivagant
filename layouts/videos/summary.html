@@ -5,12 +5,16 @@
 {{ else if $youtube }}
   {{ $thumbnail = printf "https://img.youtube.com/vi/%s/hqdefault.jpg" $youtube }}
 {{ end }}
+{{ $thumbnailSrc := $thumbnail }}
+{{ if and $thumbnail (not (hasPrefix $thumbnail "http")) }}
+  {{ $thumbnailSrc = $thumbnail | relURL }}
+{{ end }}
 <a class="card bg-base-100 hover:bg-base-content/10 shadow-xl cursor-pointer dark:border dark:border-base-content/30" href="{{ .RelPermalink }}">
   {{ if $thumbnail }}
   <figure class="relative">
     <img
       class="aspect-video w-full object-cover"
-      src="{{ $thumbnail }}"
+      src="{{ $thumbnailSrc }}"
       alt="{{ .Title }}"
       {{ if $youtube }}onerror="this.onerror=null;this.src='https://img.youtube.com/vi/{{ $youtube }}/hqdefault.jpg';"{{ end }}
     />

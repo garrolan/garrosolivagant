@@ -5,6 +5,10 @@
 {{ else if $youtube }}
   {{ $thumbnail = printf "https://img.youtube.com/vi/%s/hqdefault.jpg" $youtube }}
 {{ end }}
+{{ $thumbnailSrc := $thumbnail }}
+{{ if and $thumbnail (not (hasPrefix $thumbnail "http")) }}
+  {{ $thumbnailSrc = $thumbnail | relURL }}
+{{ end }}
 <a class="flex justify-between items-center gap-4" href="{{ .RelPermalink }}">
   <div>
     <div class="mb-1">
@@ -24,7 +28,7 @@
   <figure class="relative shrink-0">
     <img
       class="w-24 max-w-none rounded-lg"
-      src="{{ $thumbnail }}"
+      src="{{ $thumbnailSrc }}"
       alt="{{ .Title }}"
       {{ if $youtube }}onerror="this.onerror=null;this.src='https://img.youtube.com/vi/{{ $youtube }}/hqdefault.jpg';"{{ end }}
     />

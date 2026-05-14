@@ -8,10 +8,10 @@
 
 - YouTube 影片 ID
 - 影片正式標題
-- YouTube oEmbed 回傳的縮圖網址
+- YouTube oEmbed 回傳的縮圖網址，並下載成本站圖片
 - 使用者提供的影片說明文字
 
-優先用 YouTube oEmbed 確認標題與縮圖。若 PowerShell 網路請求失敗，可用 bundled Python 讀取 oEmbed。
+優先用 YouTube oEmbed 確認標題與縮圖。若 PowerShell 網路請求失敗，可用 bundled Python 讀取 oEmbed。確認縮圖後，下載到 `static/images/`，避免外部縮圖快取或灰色佔位圖。
 
 ## 2. 新增影片內容檔
 
@@ -41,7 +41,7 @@ categories: ["生活實驗"]
 tags: ["自由人生實驗室", "影片創作"]
 author: "garrolan"
 youtube: "YouTube影片ID"
-thumbnail: "https://i.ytimg.com/vi/YouTube影片ID/hqdefault.jpg?v=YYYYMMDD"
+thumbnail: "images/YYYYMMDD-video-集數.jpg"
 description: "首頁卡片用的簡短說明。"
 draft: false
 ---
@@ -55,10 +55,12 @@ draft: false
 
 縮圖注意事項：
 
-- 預設使用 oEmbed 回傳的 `hqdefault.jpg`，最穩定。
+- 預設使用 oEmbed 回傳的 `hqdefault.jpg` 下載成本站圖片，最穩定。
+- 例如下載到 `static/images/20260515-video-004.jpg`，front matter 寫 `thumbnail: "images/20260515-video-004.jpg"`。
+- 避免只外連 YouTube 縮圖，因為瀏覽器或 YouTube 快取可能讓網站繼續顯示舊灰圖。
 - 不要直接預設 `maxresdefault.jpg`，因為不是每支影片都會產生高解析縮圖。
 - 若要使用 `maxresdefault.jpg`，要先確認該圖片實際存在；否則網站會出現 YouTube 灰色佔位圖。
-- 網址後可加 `?v=YYYYMMDD`，降低瀏覽器一直顯示舊縮圖快取的機率。
+- 若臨時外連縮圖，網址後可加 `?v=YYYYMMDD`，降低瀏覽器一直顯示舊縮圖快取的機率。
 
 ## 4. 內文格式
 
