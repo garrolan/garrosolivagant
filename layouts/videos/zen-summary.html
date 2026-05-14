@@ -22,7 +22,12 @@
 
   {{ if $thumbnail }}
   <figure class="relative shrink-0">
-    <img class="w-24 max-w-none rounded-lg" src="{{ $thumbnail }}" alt="{{ .Title }}" />
+    <img
+      class="w-24 max-w-none rounded-lg"
+      src="{{ $thumbnail }}"
+      alt="{{ .Title }}"
+      {{ if $youtube }}onerror="this.onerror=null;this.src='https://img.youtube.com/vi/{{ $youtube }}/hqdefault.jpg';"{{ end }}
+    />
     <span class="absolute inset-0 flex items-center justify-center rounded-lg bg-black/15 text-white">
       <ion-icon name="play-circle" class="text-3xl drop-shadow"></ion-icon>
     </span>
