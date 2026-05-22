@@ -13,13 +13,19 @@ hasCJKLanguage = true
   introSubtitle = "探索自由人生的實驗筆記"
   favicon = "images/favicon.png"
   showSummaryCoverInPost = true
-  reorderNavItems = ["about", "search", "rss", "posts", "videos", "categories", "tags"]
+  reorderNavItems = ["about", "search", "rss", "posts", "videos", "progress", "categories", "tags"]
 
   [params.navItems.videos]
     title = "影片"
     href = "/garrosolivagant/videos/"
     target = "_self"
     icon = "videocam"
+
+  [params.navItems.progress]
+    title = "實驗進度"
+    href = "/garrosolivagant/progress/"
+    target = "_self"
+    icon = "stats-chart"
 
 [menu]
   [[menu.main]]

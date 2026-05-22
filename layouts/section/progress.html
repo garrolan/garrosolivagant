@@ -1,0 +1,671 @@
+{{ define "title" }}
+{{- .Title -}}
+{{ end }}
+
+{{ define "css" }}
+<style>
+  .progress-page {
+    color: rgba(15, 23, 42, 0.86);
+  }
+
+  .progress-wrap {
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+
+  .progress-kicker {
+    margin: 0 0 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: rgba(15, 23, 42, 0.52);
+  }
+
+  .progress-title {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    line-height: 1.12;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .progress-lede {
+    max-width: 46rem;
+    margin: 1rem 0 0;
+    color: rgba(15, 23, 42, 0.62);
+    font-size: 1rem;
+    line-height: 1.9;
+  }
+
+  .progress-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.9rem;
+    margin-top: 2rem;
+  }
+
+  .progress-metric {
+    min-width: 0;
+    padding: 1rem;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.56);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+  }
+
+  .progress-metric-label {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.8rem;
+    color: rgba(15, 23, 42, 0.56);
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  .progress-metric-value {
+    margin: 0;
+    font-size: 2.35rem;
+    line-height: 1;
+    font-weight: 800;
+  }
+
+  .progress-metric-note {
+    margin: 0.65rem 0 0;
+    color: rgba(15, 23, 42, 0.56);
+    font-size: 0.86rem;
+    line-height: 1.6;
+  }
+
+  .progress-section {
+    margin-top: 2.8rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(15, 23, 42, 0.1);
+  }
+
+  .progress-section-head {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .progress-section-title {
+    margin: 0;
+    font-size: 1.35rem;
+    line-height: 1.3;
+    font-weight: 800;
+  }
+
+  .progress-section-note {
+    margin: 0.4rem 0 0;
+    color: rgba(15, 23, 42, 0.56);
+    font-size: 0.92rem;
+    line-height: 1.65;
+  }
+
+  .progress-month-list {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .progress-month-row {
+    display: grid;
+    grid-template-columns: minmax(5.5rem, 7rem) minmax(0, 1fr) minmax(9rem, auto);
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid rgba(15, 23, 42, 0.09);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.44);
+  }
+
+  .progress-month-label {
+    font-weight: 800;
+  }
+
+  .progress-month-bar {
+    display: flex;
+    height: 0.8rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.09);
+  }
+
+  .progress-month-bar-posts {
+    background: #2f8f83;
+  }
+
+  .progress-month-bar-videos {
+    background: #d08a32;
+  }
+
+  .progress-month-counts {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.7rem;
+    color: rgba(15, 23, 42, 0.62);
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .progress-month-toggle-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .progress-month-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.6rem;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.52);
+    color: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .progress-month-toggle:hover {
+    background: rgba(15, 23, 42, 0.05);
+  }
+
+  .progress-month-toggle-icon {
+    transition: transform 0.18s ease;
+  }
+
+  .progress-month-toggle[aria-expanded="true"] .progress-month-toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  .progress-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1.2rem;
+  }
+
+  .progress-panel {
+    min-width: 0;
+    padding: 1.1rem;
+    border: 1px solid rgba(15, 23, 42, 0.09);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.44);
+  }
+
+  .progress-panel-title {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    font-weight: 800;
+  }
+
+  .progress-ratio {
+    display: flex;
+    height: 0.95rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.09);
+  }
+
+  .progress-ratio-posts {
+    background: #2f8f83;
+  }
+
+  .progress-ratio-videos {
+    background: #d08a32;
+  }
+
+  .progress-ratio-labels {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.8rem;
+    color: rgba(15, 23, 42, 0.58);
+    font-size: 0.9rem;
+  }
+
+  .progress-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+  }
+
+  .progress-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    max-width: 100%;
+    padding: 0.45rem 0.65rem;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 999px;
+    color: inherit;
+    background: rgba(255, 255, 255, 0.52);
+    font-size: 0.86rem;
+    line-height: 1.2;
+    text-decoration: none;
+  }
+
+  .progress-chip-count {
+    color: rgba(15, 23, 42, 0.52);
+    font-weight: 700;
+  }
+
+  .progress-recent-list {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .progress-recent-item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid rgba(15, 23, 42, 0.09);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.44);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .progress-recent-item:hover {
+    background: rgba(15, 23, 42, 0.05);
+  }
+
+  .progress-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.32rem;
+    padding: 0.32rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(47, 143, 131, 0.12);
+    color: #256f67;
+    font-size: 0.78rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .progress-type-video {
+    background: rgba(208, 138, 50, 0.14);
+    color: #956122;
+  }
+
+  .progress-recent-title {
+    overflow-wrap: anywhere;
+    font-weight: 750;
+  }
+
+  .progress-recent-date {
+    color: rgba(15, 23, 42, 0.52);
+    font-size: 0.86rem;
+    white-space: nowrap;
+  }
+
+  .dark .progress-page {
+    color: rgba(255, 255, 255, 0.86);
+  }
+
+  .dark .progress-kicker,
+  .dark .progress-lede,
+  .dark .progress-section-note,
+  .dark .progress-metric-label,
+  .dark .progress-metric-note,
+  .dark .progress-month-counts,
+  .dark .progress-ratio-labels,
+  .dark .progress-recent-date,
+  .dark .progress-chip-count {
+    color: rgba(255, 255, 255, 0.58);
+  }
+
+  .dark .progress-metric,
+  .dark .progress-panel,
+  .dark .progress-month-row,
+  .dark .progress-recent-item,
+  .dark .progress-chip,
+  .dark .progress-month-toggle {
+    border-color: rgba(255, 255, 255, 0.13);
+    background: rgba(17, 24, 39, 0.42);
+  }
+
+  .dark .progress-section {
+    border-top-color: rgba(255, 255, 255, 0.13);
+  }
+
+  .dark .progress-month-bar,
+  .dark .progress-ratio {
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .dark .progress-recent-item:hover {
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  .dark .progress-month-toggle:hover {
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  .dark .progress-type {
+    background: rgba(47, 143, 131, 0.22);
+    color: #8bd4ca;
+  }
+
+  .dark .progress-type-video {
+    background: rgba(208, 138, 50, 0.24);
+    color: #f1bf7e;
+  }
+
+  @media (max-width: 900px) {
+    .progress-metric-grid,
+    .progress-split {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .progress-metric-grid,
+    .progress-split {
+      grid-template-columns: 1fr;
+    }
+
+    .progress-section-head,
+    .progress-ratio-labels {
+      display: block;
+    }
+
+    .progress-month-row {
+      grid-template-columns: 1fr;
+      gap: 0.65rem;
+    }
+
+    .progress-month-counts {
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .progress-recent-item {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+
+    .progress-recent-date {
+      white-space: normal;
+    }
+  }
+</style>
+{{ end }}
+
+{{ define "main" }}
+{{ $contentSections := slice "posts" "videos" }}
+{{ $publishedItems := where (where site.RegularPages "Section" "in" $contentSections) "Draft" "ne" true }}
+{{ $publishedPosts := where $publishedItems "Section" "posts" }}
+{{ $publishedVideos := where $publishedItems "Section" "videos" }}
+{{ $totalCount := len $publishedItems }}
+{{ $postCount := len $publishedPosts }}
+{{ $videoCount := len $publishedVideos }}
+{{ $monthGroups := $publishedItems.GroupByDate "2006-01" }}
+{{ $monthCount := len $monthGroups }}
+{{ $firstItem := index ($publishedItems.ByDate | first 1) 0 }}
+{{ $latestItem := index ($publishedItems.ByDate.Reverse | first 1) 0 }}
+{{ $activeDays := 1 }}
+{{ if and $firstItem $latestItem }}
+  {{ $activeDays = add (div (sub $latestItem.Date.Unix $firstItem.Date.Unix) 86400) 1 }}
+{{ end }}
+{{ $averagePerWeek := 0.0 }}
+{{ if gt $activeDays 0 }}
+  {{ $averagePerWeek = div (mul (float $totalCount) 7.0) (float $activeDays) }}
+{{ end }}
+{{ $busiestMonth := "" }}
+{{ $busiestCount := 0 }}
+{{ range $monthGroups }}
+  {{ if gt (len .Pages) $busiestCount }}
+    {{ $busiestCount = len .Pages }}
+    {{ $busiestMonth = .Key }}
+  {{ end }}
+{{ end }}
+{{ $postPercent := 0.0 }}
+{{ $videoPercent := 0.0 }}
+{{ if gt $totalCount 0 }}
+  {{ $postPercent = div (mul (float $postCount) 100.0) (float $totalCount) }}
+  {{ $videoPercent = div (mul (float $videoCount) 100.0) (float $totalCount) }}
+{{ end }}
+
+<div class="progress-page mt-8 lg:mt-12 px-4">
+  <div class="progress-wrap">
+    <header>
+      <p class="progress-kicker">EXPERIMENT PROGRESS</p>
+      <h1 class="progress-title">{{ .Title }}</h1>
+      {{ if .Content }}
+      <div class="progress-lede">
+        {{ .Content }}
+      </div>
+      {{ end }}
+    </header>
+
+    <section class="progress-metric-grid" aria-label="內容總覽">
+      <article class="progress-metric">
+        <div class="progress-metric-label"><ion-icon name="document-text"></ion-icon><span>文章</span></div>
+        <p class="progress-metric-value">{{ $postCount }}</p>
+        <p class="progress-metric-note">已發布文章篇數</p>
+      </article>
+
+      <article class="progress-metric">
+        <div class="progress-metric-label"><ion-icon name="videocam"></ion-icon><span>影片</span></div>
+        <p class="progress-metric-value">{{ $videoCount }}</p>
+        <p class="progress-metric-note">已發布影片則數</p>
+      </article>
+
+      <article class="progress-metric">
+        <div class="progress-metric-label"><ion-icon name="albums"></ion-icon><span>全部內容</span></div>
+        <p class="progress-metric-value">{{ $totalCount }}</p>
+        <p class="progress-metric-note">文章與影片合計</p>
+      </article>
+
+      <article class="progress-metric">
+        <div class="progress-metric-label"><ion-icon name="calendar"></ion-icon><span>最近更新</span></div>
+        <p class="progress-metric-value">{{ with $latestItem }}{{ .Date.Format "01/02" }}{{ else }}--{{ end }}</p>
+        <p class="progress-metric-note">{{ with $latestItem }}{{ .Date.Format "2006-01-02" }}{{ else }}尚無內容{{ end }}</p>
+      </article>
+    </section>
+
+    <section class="progress-section" aria-labelledby="progress-monthly-title">
+      <div class="progress-section-head">
+        <div>
+          <h2 id="progress-monthly-title" class="progress-section-title">月份統計</h2>
+          <p class="progress-section-note">依照每篇內容的正式發布日期計算。</p>
+        </div>
+        <p class="progress-section-note">最密集月份：{{ if $busiestMonth }}{{ $busiestMonth }}，{{ $busiestCount }} 筆{{ else }}尚無資料{{ end }}</p>
+      </div>
+
+      <div class="progress-month-list">
+        {{ range $monthIndex, $monthGroup := $monthGroups }}
+          {{ $monthPosts := where $monthGroup.Pages "Section" "posts" }}
+          {{ $monthVideos := where $monthGroup.Pages "Section" "videos" }}
+          {{ $monthPostCount := len $monthPosts }}
+          {{ $monthVideoCount := len $monthVideos }}
+          {{ $monthTotal := len $monthGroup.Pages }}
+          {{ $postWidth := 0.0 }}
+          {{ $videoWidth := 0.0 }}
+          {{ $isExtraMonth := ge $monthIndex 6 }}
+          {{ if gt $busiestCount 0 }}
+            {{ $postWidth = div (mul (float $monthPostCount) 100.0) (float $busiestCount) }}
+            {{ $videoWidth = div (mul (float $monthVideoCount) 100.0) (float $busiestCount) }}
+          {{ end }}
+        <div class="progress-month-row{{ if $isExtraMonth }} hidden{{ end }}"{{ if $isExtraMonth }} data-month-extra{{ end }}>
+          <div class="progress-month-label">{{ $monthGroup.Key }}</div>
+          <div class="progress-month-bar" aria-label="{{ $monthGroup.Key }}：文章 {{ $monthPostCount }} 篇，影片 {{ $monthVideoCount }} 則">
+            <span class="progress-month-bar-posts" style="{{ printf "width: %.4f%%;" $postWidth | safeCSS }}"></span>
+            <span class="progress-month-bar-videos" style="{{ printf "width: %.4f%%;" $videoWidth | safeCSS }}"></span>
+          </div>
+          <div class="progress-month-counts">
+            <span>文章 {{ $monthPostCount }}</span>
+            <span>影片 {{ $monthVideoCount }}</span>
+            <strong>合計 {{ $monthTotal }}</strong>
+          </div>
+        </div>
+        {{ end }}
+      </div>
+
+      {{ if gt $monthCount 6 }}
+      <div class="progress-month-toggle-wrap">
+        <button
+          class="progress-month-toggle"
+          type="button"
+          aria-expanded="false"
+          data-month-toggle
+          data-collapsed-label="顯示更早月份"
+          data-expanded-label="只顯示最近六個月"
+        >
+          <ion-icon class="progress-month-toggle-icon" name="chevron-down"></ion-icon>
+          <span data-month-toggle-label>顯示更早月份</span>
+        </button>
+      </div>
+      {{ end }}
+    </section>
+
+    <section class="progress-section" aria-labelledby="progress-rhythm-title">
+      <div class="progress-section-head">
+        <div>
+          <h2 id="progress-rhythm-title" class="progress-section-title">創作節奏</h2>
+          <p class="progress-section-note">這裡看的是累積節奏，不是每日打卡。</p>
+        </div>
+      </div>
+
+      <div class="progress-metric-grid">
+        <article class="progress-metric">
+          <div class="progress-metric-label"><ion-icon name="flag"></ion-icon><span>開始日期</span></div>
+          <p class="progress-metric-value">{{ with $firstItem }}{{ .Date.Format "01/02" }}{{ else }}--{{ end }}</p>
+          <p class="progress-metric-note">{{ with $firstItem }}{{ .Date.Format "2006-01-02" }}{{ else }}尚無內容{{ end }}</p>
+        </article>
+
+        <article class="progress-metric">
+          <div class="progress-metric-label"><ion-icon name="calendar-number"></ion-icon><span>涵蓋月份</span></div>
+          <p class="progress-metric-value">{{ $monthCount }}</p>
+          <p class="progress-metric-note">有發布內容的月份</p>
+        </article>
+
+        <article class="progress-metric">
+          <div class="progress-metric-label"><ion-icon name="pulse"></ion-icon><span>平均每週</span></div>
+          <p class="progress-metric-value">{{ printf "%.1f" $averagePerWeek }}</p>
+          <p class="progress-metric-note">以第一篇到最新一篇估算</p>
+        </article>
+
+        <article class="progress-metric">
+          <div class="progress-metric-label"><ion-icon name="trending-up"></ion-icon><span>最密集月</span></div>
+          <p class="progress-metric-value">{{ $busiestCount }}</p>
+          <p class="progress-metric-note">{{ if $busiestMonth }}{{ $busiestMonth }} 的內容數{{ else }}尚無資料{{ end }}</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="progress-section" aria-labelledby="progress-composition-title">
+      <div class="progress-section-head">
+        <div>
+          <h2 id="progress-composition-title" class="progress-section-title">內容組成</h2>
+          <p class="progress-section-note">用分類與標籤看這個網站目前長出來的形狀。</p>
+        </div>
+      </div>
+
+      <div class="progress-split">
+        <div class="progress-panel">
+          <h3 class="progress-panel-title">文章與影片比例</h3>
+          <div class="progress-ratio" aria-label="文章 {{ printf "%.1f" $postPercent }}%，影片 {{ printf "%.1f" $videoPercent }}%">
+            <span class="progress-ratio-posts" style="{{ printf "width: %.4f%%;" $postPercent | safeCSS }}"></span>
+            <span class="progress-ratio-videos" style="{{ printf "width: %.4f%%;" $videoPercent | safeCSS }}"></span>
+          </div>
+          <div class="progress-ratio-labels">
+            <span>文章 {{ $postCount }} 篇（{{ printf "%.1f" $postPercent }}%）</span>
+            <span>影片 {{ $videoCount }} 則（{{ printf "%.1f" $videoPercent }}%）</span>
+          </div>
+        </div>
+
+        <div class="progress-panel">
+          <h3 class="progress-panel-title">熱門分類</h3>
+          <div class="progress-chip-list">
+            {{ range first 8 site.Taxonomies.categories.ByCount }}
+            <a class="progress-chip" href="{{ .Page.RelPermalink }}">
+              <span>{{ .Page.Title }}</span>
+              <span class="progress-chip-count">{{ .Count }}</span>
+            </a>
+            {{ end }}
+          </div>
+        </div>
+
+        <div class="progress-panel">
+          <h3 class="progress-panel-title">熱門標籤</h3>
+          <div class="progress-chip-list">
+            {{ range first 12 site.Taxonomies.tags.ByCount }}
+            <a class="progress-chip" href="{{ .Page.RelPermalink }}">
+              <span>{{ .Page.Title }}</span>
+              <span class="progress-chip-count">{{ .Count }}</span>
+            </a>
+            {{ end }}
+          </div>
+        </div>
+
+        <div class="progress-panel">
+          <h3 class="progress-panel-title">統計範圍</h3>
+          <p class="progress-section-note">只計入網站內已發布的文章與影片。觀看數、訂閱數、外部平台資料不放在這一版。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="progress-section" aria-labelledby="progress-recent-title">
+      <div class="progress-section-head">
+        <div>
+          <h2 id="progress-recent-title" class="progress-section-title">最近更新</h2>
+          <p class="progress-section-note">讓數字可以回到實際作品，而不是只剩抽象統計。</p>
+        </div>
+      </div>
+
+      <div class="progress-recent-list">
+        {{ range first 10 $publishedItems.ByDate.Reverse }}
+        {{ $isVideo := eq .Section "videos" }}
+        <a class="progress-recent-item" href="{{ .RelPermalink }}">
+          <span class="{{ if $isVideo }}progress-type progress-type-video{{ else }}progress-type{{ end }}">
+            <ion-icon name="{{ if $isVideo }}play-circle{{ else }}document-text{{ end }}"></ion-icon>
+            {{ if $isVideo }}影片{{ else }}文章{{ end }}
+          </span>
+          <span class="progress-recent-title">{{ .Title }}</span>
+          <span class="progress-recent-date">{{ .Date.Format "2006-01-02" }}</span>
+        </a>
+        {{ end }}
+      </div>
+    </section>
+  </div>
+</div>
+{{ end }}
+
+{{ define "js" }}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var toggle = document.querySelector('[data-month-toggle]');
+    var extraRows = Array.prototype.slice.call(document.querySelectorAll('[data-month-extra]'));
+
+    if (!toggle || extraRows.length === 0) {
+      return;
+    }
+
+    var label = toggle.querySelector('[data-month-toggle-label]');
+    var collapsedLabel = toggle.dataset.collapsedLabel || '顯示更早月份';
+    var expandedLabel = toggle.dataset.expandedLabel || '只顯示最近六個月';
+
+    toggle.addEventListener('click', function () {
+      var isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+      var nextExpanded = !isExpanded;
+
+      toggle.setAttribute('aria-expanded', nextExpanded ? 'true' : 'false');
+
+      extraRows.forEach(function (row) {
+        row.classList.toggle('hidden', !nextExpanded);
+      });
+
+      if (label) {
+        label.textContent = nextExpanded ? expandedLabel : collapsedLabel;
+      }
+    });
+  });
+</script>
+{{ end }}
