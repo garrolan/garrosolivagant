@@ -5,7 +5,7 @@ categories: ["生活實驗"]
 tags: ["自由人生實驗室", "生活實驗", "影像日誌", "低摩擦創作", "自由人生", "價值觀排序", "無限遊戲", "AI協作"]
 author: "garrolan"
 youtube: "hjUsMMSe4zU"
-thumbnail: "https://i.ytimg.com/vi/hjUsMMSe4zU/hqdefault.jpg?v=20260524"
+thumbnail: "https://i.ytimg.com/vi/hjUsMMSe4zU/maxresdefault.jpg"
 description: "這支影片從 OBS Studio 與麥克風收音的煩惱出發，重新思考自由人生實驗室最需要守住的價值觀排序與長期可持續原則。"
 draft: false
 ---
