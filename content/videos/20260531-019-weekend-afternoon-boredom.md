@@ -5,7 +5,7 @@ categories: ["生活實驗"]
 tags: ["自由人生實驗室", "生活實驗", "週末午後", "無聊", "自由人生", "FIRE", "退休預演", "影像日誌", "低摩擦創作"]
 author: "garrolan"
 youtube: "XapTrygfAOE"
-thumbnail: "https://i.ytimg.com/vi/XapTrygfAOE/maxresdefault.jpg?v=20260531"
+thumbnail: "images/20260531-video-019-cover.jpg"
 description: "這支影片記錄一個週末午後面對無聊、空白與自責的狀態，並把它連回自由人生、FIRE 與退休後如何承接大量空白時間的思考。"
 draft: false
 ---
