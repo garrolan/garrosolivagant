@@ -1,0 +1,132 @@
+{{ define "title" }}
+{{- .Title -}}
+{{ end }}
+
+{{ define "css" }}
+<style>
+  .lab-about-page {
+    color: rgba(15, 23, 42, 0.84);
+  }
+
+  .lab-about-wrap {
+    max-width: 64rem;
+  }
+
+  .lab-about-header {
+    max-width: 65ch;
+  }
+
+  .lab-about-kicker {
+    margin: 0 0 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: rgba(15, 23, 42, 0.48);
+  }
+
+  .lab-about-title {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    line-height: 1.12;
+    letter-spacing: 0;
+  }
+
+  .lab-about-copy {
+    margin-top: 2rem;
+    max-width: 65ch;
+    border-left: 1px solid rgba(15, 23, 42, 0.1);
+    padding-left: 1.25rem;
+  }
+
+  .lab-about-film {
+    margin-top: 3rem;
+  }
+
+  .lab-about-film-heading {
+    margin: 0 0 0.9rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    color: rgba(15, 23, 42, 0.62);
+  }
+
+  .lab-about-film-frame {
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.52);
+    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.1);
+  }
+
+  .lab-about-film-video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: rgba(15, 23, 42, 0.08);
+  }
+
+  .dark .lab-about-page {
+    color: rgba(255, 255, 255, 0.84);
+  }
+
+  .dark .lab-about-kicker {
+    color: rgba(255, 255, 255, 0.52);
+  }
+
+  .dark .lab-about-copy {
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .dark .lab-about-film-heading {
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  .dark .lab-about-film-frame {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(17, 24, 39, 0.48);
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+  }
+
+  .dark .lab-about-film-video {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  @media (min-width: 640px) {
+    .lab-about-copy {
+      padding-left: 1.5rem;
+    }
+  }
+</style>
+{{ end }}
+
+{{ define "main" }}
+<section class="lab-about-page mt-8 lg:mt-12 px-4">
+  <div class="lab-about-wrap mx-auto">
+    <header class="lab-about-header">
+      <p class="lab-about-kicker">ABOUT THIS SITE</p>
+      <h1 class="lab-about-title">{{ .Title }}</h1>
+    </header>
+
+    <div class="lab-about-copy prose prose-quoteless dark:prose-invert">
+      {{ .Content }}
+    </div>
+
+    <section class="lab-about-film" aria-labelledby="lab-about-film-title">
+      <h2 id="lab-about-film-title" class="lab-about-film-heading">15 秒認識自由人生實驗室</h2>
+      <div class="lab-about-film-frame">
+        <video
+          class="lab-about-film-video"
+          controls
+          playsinline
+          preload="metadata"
+          poster="{{ "images/freelife-brand-promo-poster.png" | relURL }}"
+          aria-label="自由人生實驗室 15 秒品牌影片"
+        >
+          <source src="{{ "videos/freelife-brand-promo-final.mp4" | relURL }}" type="video/mp4">
+          你的瀏覽器不支援播放這支影片。
+        </video>
+      </div>
+    </section>
+  </div>
+</section>
+{{ end }}

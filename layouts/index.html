@@ -64,37 +64,6 @@
     -webkit-backdrop-filter: blur(12px);
   }
 
-  .home-brand-film {
-    color: rgba(15, 23, 42, 0.82);
-  }
-
-  .home-brand-film-inner {
-    max-width: 64rem;
-  }
-
-  .home-brand-film-heading {
-    margin: 0 0 0.9rem;
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0;
-    color: rgba(15, 23, 42, 0.56);
-  }
-
-  .home-brand-film-frame {
-    overflow: hidden;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    border-radius: 0.5rem;
-    background: rgba(255, 255, 255, 0.52);
-    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.1);
-  }
-
-  .home-brand-film-video {
-    display: block;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    background: rgba(15, 23, 42, 0.08);
-  }
-
   .dark .home-search-icon {
     color: rgba(255, 255, 255, 0.58);
   }
@@ -115,24 +84,6 @@
     background: rgba(17, 24, 39, 0.52);
     color: rgba(255, 255, 255, 0.72);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
-  }
-
-  .dark .home-brand-film {
-    color: rgba(255, 255, 255, 0.82);
-  }
-
-  .dark .home-brand-film-heading {
-    color: rgba(255, 255, 255, 0.58);
-  }
-
-  .dark .home-brand-film-frame {
-    border-color: rgba(255, 255, 255, 0.14);
-    background: rgba(17, 24, 39, 0.48);
-    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
-  }
-
-  .dark .home-brand-film-video {
-    background: rgba(255, 255, 255, 0.08);
   }
 
   @media (min-width: 640px) {
@@ -182,41 +133,6 @@
   </section>
 
   <div id="home-default-content">
-    {{ if .Content }}
-    <section class="mt-8 px-4">
-      <div class="mx-auto max-w-[65ch]">
-        <div class="mb-4 flex items-center gap-3 text-[0.68rem] font-bold tracking-[0.35em] text-base-content/35">
-          <span class="h-px flex-1 bg-base-content/10"></span>
-          <span>ABOUT THIS SITE</span>
-          <span class="h-px flex-1 bg-base-content/10"></span>
-        </div>
-
-        <div class="prose prose-quoteless dark:prose-invert max-w-none border-l border-base-content/10 pl-5 sm:pl-6 [&>p]:my-0 [&>p+p]:mt-3">
-          {{ .Content }}
-        </div>
-      </div>
-    </section>
-    {{ end }}
-
-    <section class="home-brand-film mt-8 px-4">
-      <div class="home-brand-film-inner mx-auto">
-        <h2 class="home-brand-film-heading">15 秒認識自由人生實驗室</h2>
-        <div class="home-brand-film-frame">
-          <video
-            class="home-brand-film-video"
-            controls
-            playsinline
-            preload="metadata"
-            poster="{{ "images/freelife-brand-promo-poster.png" | relURL }}"
-            aria-label="自由人生實驗室 15 秒品牌影片"
-          >
-            <source src="{{ "videos/freelife-brand-promo-final.mp4" | relURL }}" type="video/mp4">
-            你的瀏覽器不支援播放這支影片。
-          </video>
-        </div>
-      </div>
-    </section>
-
     {{ if site.Params.zenMode }}
     <div class="dream-zen-posts max-w-[65ch] mt-8 mx-auto px-4 space-y-8">
     {{ range $paginator.Pages }}

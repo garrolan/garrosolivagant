@@ -13,7 +13,13 @@ hasCJKLanguage = true
   introSubtitle = "探索自由人生的實驗筆記"
   favicon = "images/favicon.png"
   showSummaryCoverInPost = true
-  reorderNavItems = ["about", "search", "rss", "posts", "videos", "progress", "categories", "tags"]
+  reorderNavItems = ["lab", "search", "rss", "posts", "videos", "progress", "categories", "tags"]
+
+  [params.navItems.lab]
+    title = "關於這個實驗室"
+    href = "/garrosolivagant/about/"
+    target = "_self"
+    icon = "information-circle"
 
   [params.navItems.videos]
     title = "影片"
@@ -34,6 +40,6 @@ hasCJKLanguage = true
     weight = 1
 
   [[menu.main]]
-    name = "關於我"
+    name = "關於這個實驗室"
     url = "/about/"
     weight = 2
