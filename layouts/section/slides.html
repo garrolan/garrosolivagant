@@ -1,0 +1,232 @@
+{{ define "title" }}
+{{- .Title -}}
+{{ end }}
+
+{{ define "css" }}
+<style>
+  .slides-page {
+    padding: 2rem 1rem 0;
+  }
+
+  .slides-intro {
+    max-width: 48rem;
+    margin: 0 auto 2rem;
+  }
+
+  .slides-intro h1 {
+    margin: 0;
+    font-size: 2rem;
+    line-height: 1.2;
+    font-weight: 700;
+  }
+
+  .slides-intro-copy {
+    margin-top: 0.75rem;
+    color: rgba(15, 23, 42, 0.68);
+    line-height: 1.8;
+  }
+
+  .slides-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+
+  .slides-card {
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  }
+
+  .slides-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(15, 23, 42, 0.18);
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
+  }
+
+  .slides-preview {
+    position: relative;
+    height: 13.5rem;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+    background: rgba(15, 23, 42, 0.04);
+  }
+
+  .slides-preview-frame {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    pointer-events: none;
+  }
+
+  .slides-preview-link {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+
+  .slides-preview-fallback {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    color: rgba(15, 23, 42, 0.62);
+    text-align: center;
+  }
+
+  .slides-card-body {
+    padding: 1rem;
+  }
+
+  .slides-card-title {
+    margin: 0;
+    font-size: 1.15rem;
+    line-height: 1.4;
+    font-weight: 700;
+  }
+
+  .slides-card-title a {
+    text-decoration: none;
+  }
+
+  .slides-card-description {
+    margin: 0.75rem 0 0;
+    min-height: 3.3rem;
+    color: rgba(15, 23, 42, 0.68);
+    line-height: 1.65;
+  }
+
+  .slides-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+    color: rgba(15, 23, 42, 0.58);
+    font-size: 0.9rem;
+  }
+
+  .slides-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1rem;
+  }
+
+  .slides-button {
+    display: inline-flex;
+    min-height: 2.5rem;
+    align-items: center;
+    gap: 0.45rem;
+    border-radius: 8px;
+    padding: 0.55rem 0.85rem;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+  }
+
+  .slides-button-primary {
+    background: #1f2937;
+    color: #fff;
+  }
+
+  .slides-button-secondary {
+    border: 1px solid rgba(15, 23, 42, 0.16);
+    color: inherit;
+  }
+
+  .dark .slides-intro-copy,
+  .dark .slides-card-description {
+    color: rgba(255, 255, 255, 0.68);
+  }
+
+  .dark .slides-card {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(17, 24, 39, 0.58);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+  }
+
+  .dark .slides-card:hover {
+    border-color: rgba(255, 255, 255, 0.24);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.3);
+  }
+
+  .dark .slides-preview {
+    border-bottom-color: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .dark .slides-preview-fallback {
+    color: rgba(255, 255, 255, 0.68);
+  }
+
+  .dark .slides-meta {
+    color: rgba(255, 255, 255, 0.58);
+  }
+
+  .dark .slides-button-primary {
+    background: #f8fafc;
+    color: #111827;
+  }
+
+  .dark .slides-button-secondary {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+</style>
+{{ end }}
+
+{{ define "main"}}
+
+<div class="slides-page">
+  <header class="slides-intro prose dark:prose-invert">
+    <h1>{{ .Title }}</h1>
+    {{ with .Content }}
+    <div class="slides-intro-copy">{{ . }}</div>
+    {{ end }}
+  </header>
+
+  <section class="slides-grid" aria-label="簡報列表">
+    {{ range .Pages.ByDate.Reverse }}
+      {{ $pdf := .Params.pdf | relURL }}
+      <article class="slides-card">
+        <div class="slides-preview" aria-label="{{ .Title }} PDF 預覽">
+          <object class="slides-preview-frame" data="{{ $pdf }}#page=1&view=FitH&toolbar=0&navpanes=0" type="application/pdf">
+            <div class="slides-preview-fallback">
+              這個瀏覽器沒有顯示 PDF 預覽，可以點擊卡片進入簡報頁。
+            </div>
+          </object>
+          <a class="slides-preview-link" href="{{ .RelPermalink }}" aria-label="檢視 {{ .Title }}"></a>
+        </div>
+        <div class="slides-card-body">
+          <h2 class="slides-card-title">
+            <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+          </h2>
+          <p class="slides-card-description">{{ .Description }}</p>
+          <div class="slides-meta">
+            {{ with .Params.pages }}<span>{{ . }} 頁</span>{{ end }}
+            <span>{{ .Date.Format "2006-01-02" }}</span>
+          </div>
+          <div class="slides-actions">
+            <a class="slides-button slides-button-primary" href="{{ .RelPermalink }}">
+              <ion-icon name="open-outline"></ion-icon>
+              <span>檢視簡報</span>
+            </a>
+            <a class="slides-button slides-button-secondary" href="{{ $pdf }}" download>
+              <ion-icon name="download-outline"></ion-icon>
+              <span>下載 PDF</span>
+            </a>
+          </div>
+        </div>
+      </article>
+    {{ end }}
+  </section>
+</div>
+
+{{ end }}

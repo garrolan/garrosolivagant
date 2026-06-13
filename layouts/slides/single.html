@@ -1,0 +1,192 @@
+{{ define "title" }}{{ .Title }}{{ end }}
+
+{{ define "css" }}
+<style>
+  .slide-detail {
+    padding: 2rem 1rem 0;
+  }
+
+  .slide-detail-inner {
+    max-width: 70rem;
+    margin: 0 auto;
+  }
+
+  .slide-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 1rem;
+    color: rgba(15, 23, 42, 0.62);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .slide-detail-header {
+    display: grid;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .slide-detail-title {
+    margin: 0;
+    font-size: 2rem;
+    line-height: 1.2;
+    font-weight: 700;
+  }
+
+  .slide-detail-description {
+    margin: 0.75rem 0 0;
+    max-width: 48rem;
+    color: rgba(15, 23, 42, 0.68);
+    line-height: 1.8;
+  }
+
+  .slide-detail-body {
+    margin-top: 0.75rem;
+    max-width: 48rem;
+    color: rgba(15, 23, 42, 0.68);
+    line-height: 1.8;
+  }
+
+  .slide-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.9rem;
+    color: rgba(15, 23, 42, 0.58);
+  }
+
+  .slide-detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .slide-detail-button {
+    display: inline-flex;
+    min-height: 2.6rem;
+    align-items: center;
+    gap: 0.45rem;
+    border-radius: 8px;
+    padding: 0.65rem 0.9rem;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+  }
+
+  .slide-detail-button-primary {
+    background: #1f2937;
+    color: #fff;
+  }
+
+  .slide-detail-button-secondary {
+    border: 1px solid rgba(15, 23, 42, 0.16);
+    color: inherit;
+  }
+
+  .slide-pdf-frame {
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.05);
+    box-shadow: 0 16px 44px rgba(15, 23, 42, 0.1);
+  }
+
+  .slide-pdf-object {
+    display: block;
+    width: 100%;
+    height: min(78vh, 900px);
+    min-height: 520px;
+    border: 0;
+  }
+
+  .slide-pdf-fallback {
+    padding: 1.25rem;
+    line-height: 1.8;
+  }
+
+  .dark .slide-back-link,
+  .dark .slide-detail-description,
+  .dark .slide-detail-body {
+    color: rgba(255, 255, 255, 0.68);
+  }
+
+  .dark .slide-detail-meta {
+    color: rgba(255, 255, 255, 0.58);
+  }
+
+  .dark .slide-detail-button-primary {
+    background: #f8fafc;
+    color: #111827;
+  }
+
+  .dark .slide-detail-button-secondary,
+  .dark .slide-pdf-frame {
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  .dark .slide-pdf-frame {
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.28);
+  }
+
+  @media (max-width: 640px) {
+    .slide-detail-title {
+      font-size: 1.65rem;
+    }
+
+    .slide-pdf-object {
+      height: 68vh;
+      min-height: 420px;
+    }
+  }
+</style>
+{{ end }}
+
+{{ define "main" }}
+{{ $pdf := .Params.pdf | relURL }}
+
+<div class="slide-detail">
+  <div class="slide-detail-inner">
+    <a class="slide-back-link" href="{{ "slides" | relLangURL }}">
+      <ion-icon name="chevron-back-outline"></ion-icon>
+      <span>回到簡報</span>
+    </a>
+
+    <header class="slide-detail-header">
+      <div>
+        <h1 class="slide-detail-title">{{ .Title }}</h1>
+        <p class="slide-detail-description">{{ .Description }}</p>
+        <div class="slide-detail-meta">
+          {{ with .Params.pages }}<span>{{ . }} 頁</span>{{ end }}
+          <span>{{ .Date.Format "2006-01-02" }}</span>
+        </div>
+        {{ with .Content }}
+        <div class="slide-detail-body">{{ . }}</div>
+        {{ end }}
+      </div>
+
+      <div class="slide-detail-actions">
+        <a class="slide-detail-button slide-detail-button-primary" href="{{ $pdf }}" target="_blank" rel="noopener">
+          <ion-icon name="expand-outline"></ion-icon>
+          <span>放大檢視</span>
+        </a>
+        <a class="slide-detail-button slide-detail-button-secondary" href="{{ $pdf }}" download>
+          <ion-icon name="download-outline"></ion-icon>
+          <span>下載 PDF</span>
+        </a>
+      </div>
+    </header>
+
+    <section class="slide-pdf-frame" aria-label="{{ .Title }} PDF 檢視器">
+      <object class="slide-pdf-object" data="{{ $pdf }}" type="application/pdf">
+        <iframe class="slide-pdf-object" src="{{ $pdf }}" title="{{ .Title }} PDF"></iframe>
+        <p class="slide-pdf-fallback">
+          如果你的瀏覽器沒有顯示 PDF，可以使用上方的下載按鈕，或另開 PDF 閱讀。
+        </p>
+      </object>
+    </section>
+  </div>
+</div>
+
+{{ end }}
