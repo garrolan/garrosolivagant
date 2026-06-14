@@ -1,0 +1,354 @@
+{{ define "title" }}
+{{- .Title -}}
+{{ end }}
+
+{{ define "css" }}
+<style>
+  .tools-page {
+    color: rgba(15, 23, 42, 0.86);
+  }
+
+  .tools-wrap {
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+
+  .tools-header {
+    max-width: 48rem;
+  }
+
+  .tools-kicker {
+    margin: 0 0 0.75rem;
+    color: rgba(15, 23, 42, 0.52);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+  }
+
+  .tools-title {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    line-height: 1.12;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .tools-copy {
+    margin-top: 1rem;
+    color: rgba(15, 23, 42, 0.64);
+    line-height: 1.9;
+  }
+
+  .tools-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .tools-search {
+    display: flex;
+    min-height: 3rem;
+    width: min(100%, 32rem);
+    align-items: center;
+    gap: 0.65rem;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.58);
+    padding: 0 0.9rem;
+  }
+
+  .tools-search ion-icon {
+    flex: 0 0 auto;
+    color: rgba(15, 23, 42, 0.52);
+  }
+
+  .tools-search-input {
+    min-width: 0;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    outline: 0;
+  }
+
+  .tools-search-input::placeholder {
+    color: rgba(15, 23, 42, 0.48);
+  }
+
+  .tools-count {
+    color: rgba(15, 23, 42, 0.52);
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .tool-card {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-height: 18rem;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.62);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  }
+
+  .tool-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(15, 23, 42, 0.18);
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
+  }
+
+  .tool-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1rem 1rem 0;
+  }
+
+  .tool-icon {
+    display: inline-flex;
+    width: 2.65rem;
+    height: 2.65rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    background: rgba(47, 143, 131, 0.12);
+    color: #256f67;
+    font-size: 1.35rem;
+  }
+
+  .tool-category {
+    margin: 0;
+    border: 1px solid rgba(208, 138, 50, 0.24);
+    border-radius: 999px;
+    padding: 0.28rem 0.58rem;
+    color: #8b5a1f;
+    background: rgba(208, 138, 50, 0.1);
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .tool-card-body {
+    padding: 1rem;
+  }
+
+  .tool-title {
+    margin: 0;
+    font-size: 1.25rem;
+    line-height: 1.35;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+  }
+
+  .tool-description {
+    margin: 0.8rem 0 0;
+    color: rgba(15, 23, 42, 0.64);
+    line-height: 1.75;
+  }
+
+  .tool-action {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    margin: 0 1rem 1rem;
+    border-radius: 0.5rem;
+    background: #1f2937;
+    color: #fff;
+    font-weight: 800;
+    line-height: 1.1;
+    text-decoration: none;
+  }
+
+  .tool-action:hover {
+    background: #111827;
+  }
+
+  .tools-empty {
+    display: none;
+    margin-top: 1.5rem;
+    border: 1px dashed rgba(15, 23, 42, 0.18);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    color: rgba(15, 23, 42, 0.58);
+    text-align: center;
+  }
+
+  .tools-empty.is-visible {
+    display: block;
+  }
+
+  .tool-card.is-hidden {
+    display: none;
+  }
+
+  .dark .tools-page {
+    color: rgba(255, 255, 255, 0.86);
+  }
+
+  .dark .tools-kicker,
+  .dark .tools-copy,
+  .dark .tools-count,
+  .dark .tool-description,
+  .dark .tools-empty {
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  .dark .tools-search,
+  .dark .tool-card {
+    border-color: rgba(255, 255, 255, 0.13);
+    background: rgba(17, 24, 39, 0.44);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+  }
+
+  .dark .tool-card:hover {
+    border-color: rgba(255, 255, 255, 0.24);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.3);
+  }
+
+  .dark .tools-search ion-icon,
+  .dark .tools-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.48);
+  }
+
+  .dark .tool-icon {
+    background: rgba(47, 143, 131, 0.24);
+    color: #8bd4ca;
+  }
+
+  .dark .tool-category {
+    border-color: rgba(208, 138, 50, 0.36);
+    background: rgba(208, 138, 50, 0.18);
+    color: #f1bf7e;
+  }
+
+  .dark .tool-action {
+    background: #f8fafc;
+    color: #111827;
+  }
+
+  .dark .tool-action:hover {
+    background: #e2e8f0;
+  }
+
+  @media (max-width: 640px) {
+    .tools-controls {
+      display: block;
+    }
+
+    .tools-count {
+      display: block;
+      margin-top: 0.75rem;
+    }
+  }
+</style>
+{{ end }}
+
+{{ define "main" }}
+{{ $tools := .Params.tools }}
+<section class="tools-page mt-8 lg:mt-12 px-4">
+  <div class="tools-wrap">
+    <header class="tools-header">
+      <p class="tools-kicker">TOOLBOX</p>
+      <h1 class="tools-title">{{ .Title }}</h1>
+      {{ if .Content }}
+      <div class="tools-copy prose prose-quoteless dark:prose-invert">
+        {{ .Content }}
+      </div>
+      {{ end }}
+    </header>
+
+    <div class="tools-controls" aria-label="工具篩選">
+      <label class="tools-search">
+        <ion-icon name="search"></ion-icon>
+        <input
+          class="tools-search-input"
+          type="search"
+          placeholder="搜尋工具"
+          aria-label="搜尋工具"
+          data-tool-search-input
+        >
+      </label>
+      <span class="tools-count" data-tool-count>{{ len $tools }} 個工具</span>
+    </div>
+
+    <div class="tools-grid" data-tool-grid>
+      {{ range $tools }}
+      {{ $searchText := printf "%s %s %s" .title .category .description | lower }}
+      <article class="tool-card" data-tool-card data-tool-search="{{ $searchText }}">
+        <div class="tool-card-head">
+          <span class="tool-icon" aria-hidden="true">
+            <ion-icon name="{{ .icon | default "apps" }}"></ion-icon>
+          </span>
+          <p class="tool-category">{{ .category }}</p>
+        </div>
+        <div class="tool-card-body">
+          <h2 class="tool-title">{{ .title }}</h2>
+          <p class="tool-description">{{ .description }}</p>
+        </div>
+        <a class="tool-action" href="{{ .url }}" target="_blank" rel="noopener noreferrer">
+          <ion-icon name="open-outline"></ion-icon>
+          <span>開啟工具</span>
+        </a>
+      </article>
+      {{ end }}
+    </div>
+
+    <p class="tools-empty" data-tool-empty>目前沒有符合的工具。</p>
+  </div>
+</section>
+{{ end }}
+
+{{ define "js" }}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var input = document.querySelector('[data-tool-search-input]');
+    var cards = Array.prototype.slice.call(document.querySelectorAll('[data-tool-card]'));
+    var count = document.querySelector('[data-tool-count]');
+    var empty = document.querySelector('[data-tool-empty]');
+
+    if (!input || cards.length === 0) {
+      return;
+    }
+
+    function updateTools() {
+      var query = input.value.trim().toLowerCase();
+      var visibleCount = 0;
+
+      cards.forEach(function (card) {
+        var text = card.dataset.toolSearch || '';
+        var isVisible = !query || text.indexOf(query) !== -1;
+        card.classList.toggle('is-hidden', !isVisible);
+
+        if (isVisible) {
+          visibleCount += 1;
+        }
+      });
+
+      if (count) {
+        count.textContent = visibleCount + ' 個工具';
+      }
+
+      if (empty) {
+        empty.classList.toggle('is-visible', visibleCount === 0);
+      }
+    }
+
+    input.addEventListener('input', updateTools);
+  });
+</script>
+{{ end }}
