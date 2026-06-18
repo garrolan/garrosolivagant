@@ -1,0 +1,4 @@
+interface:
+  display_name: "自由人生實驗室網站發文"
+  short_description: "發布自由人生實驗室網站文章與YouTube影片文章"
+  default_prompt: "Use $freelife-lab-website-publish to publish a new site article or create a website article from a YouTube link."
