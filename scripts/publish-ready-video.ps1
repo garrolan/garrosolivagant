@@ -202,11 +202,21 @@ if (-not $SkipLiveCheck) {
 
   if ($node) {
     Write-Host "Quick live check. A 404 here usually means GitHub Pages is still deploying."
+    $targetsJson = @(
+      @{
+        label = "page"
+        url = $pageUrl
+        expect = $title
+      },
+      @{
+        label = "image"
+        url = $imageUrl
+        image = $true
+      }
+    ) | ConvertTo-Json -Compress
+
     $script = @"
-const targets = [
-  { label: "page", url: "$pageUrl", expect: "$($title.Replace('\', '\\').Replace('"', '\"'))" },
-  { label: "image", url: "$imageUrl", image: true }
-];
+const targets = $targetsJson;
 (async () => {
   for (const target of targets) {
     const res = await fetch(target.url, { headers: { "cache-control": "no-cache" } });
@@ -229,7 +239,13 @@ const targets = [
   process.exit(0);
 });
 "@
-    & node -e $script
+    $tempScript = Join-Path ([System.IO.Path]::GetTempPath()) "publish-ready-video-live-check.mjs"
+    Set-Content -LiteralPath $tempScript -Value $script -Encoding UTF8
+    try {
+      & node $tempScript
+    } finally {
+      Remove-Item -LiteralPath $tempScript -Force -ErrorAction SilentlyContinue
+    }
   }
 }
 
