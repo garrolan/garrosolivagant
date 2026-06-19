@@ -194,34 +194,50 @@
 
   <section class="slides-grid" aria-label="簡報列表">
     {{ range .Pages.ByDate.Reverse }}
-      {{ $pdf := .Params.pdf | relURL }}
+      {{ $pdf := "" }}
+      {{ with .Params.pdf }}{{ $pdf = . | relURL }}{{ end }}
+      {{ $html := "" }}
+      {{ with .Params.html }}{{ $html = . | relURL }}{{ end }}
+      {{ $primaryHref := .RelPermalink }}
+      {{ if $html }}{{ $primaryHref = $html }}{{ end }}
       <article class="slides-card">
-        <div class="slides-preview" aria-label="{{ .Title }} PDF 預覽">
-          <object class="slides-preview-frame" data="{{ $pdf }}#page=1&view=FitH&toolbar=0&navpanes=0" type="application/pdf">
+        <div class="slides-preview" aria-label="{{ .Title }} 簡報預覽">
+          {{ if $html }}
+            <iframe class="slides-preview-frame" src="{{ $html }}" title="{{ .Title }} HTML 簡報預覽" loading="lazy"></iframe>
+          {{ else if $pdf }}
+            <object class="slides-preview-frame" data="{{ $pdf }}#page=1&view=FitH&toolbar=0&navpanes=0" type="application/pdf">
+              <div class="slides-preview-fallback">
+                這個瀏覽器沒有顯示 PDF 預覽，可以點擊卡片進入簡報頁。
+              </div>
+            </object>
+          {{ else }}
             <div class="slides-preview-fallback">
-              這個瀏覽器沒有顯示 PDF 預覽，可以點擊卡片進入簡報頁。
+              這份簡報目前沒有可預覽的檔案。
             </div>
-          </object>
-          <a class="slides-preview-link" href="{{ .RelPermalink }}" aria-label="檢視 {{ .Title }}"></a>
+          {{ end }}
+          <a class="slides-preview-link" href="{{ $primaryHref }}"{{ if $html }} target="_blank" rel="noopener"{{ end }} aria-label="檢視 {{ .Title }}"></a>
         </div>
         <div class="slides-card-body">
           <h2 class="slides-card-title">
-            <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+            <a href="{{ $primaryHref }}"{{ if $html }} target="_blank" rel="noopener"{{ end }}>{{ .Title }}</a>
           </h2>
           <p class="slides-card-description">{{ .Description }}</p>
           <div class="slides-meta">
+            {{ if $html }}<span>HTML</span>{{ else if $pdf }}<span>PDF</span>{{ end }}
             {{ with .Params.pages }}<span>{{ . }} 頁</span>{{ end }}
             <span>{{ .Date.Format "2006-01-02" }}</span>
           </div>
           <div class="slides-actions">
-            <a class="slides-button slides-button-primary" href="{{ .RelPermalink }}">
+            <a class="slides-button slides-button-primary" href="{{ $primaryHref }}"{{ if $html }} target="_blank" rel="noopener"{{ end }}>
               <ion-icon name="open-outline"></ion-icon>
-              <span>檢視簡報</span>
+              <span>{{ if $html }}開啟 HTML{{ else }}檢視簡報{{ end }}</span>
             </a>
+            {{ if $pdf }}
             <a class="slides-button slides-button-secondary" href="{{ $pdf }}" download>
               <ion-icon name="download-outline"></ion-icon>
               <span>下載 PDF</span>
             </a>
+            {{ end }}
           </div>
         </div>
       </article>

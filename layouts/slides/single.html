@@ -144,7 +144,10 @@
 {{ end }}
 
 {{ define "main" }}
-{{ $pdf := .Params.pdf | relURL }}
+{{ $pdf := "" }}
+{{ with .Params.pdf }}{{ $pdf = . | relURL }}{{ end }}
+{{ $html := "" }}
+{{ with .Params.html }}{{ $html = . | relURL }}{{ end }}
 
 <div class="slide-detail">
   <div class="slide-detail-inner">
@@ -158,6 +161,7 @@
         <h1 class="slide-detail-title">{{ .Title }}</h1>
         <p class="slide-detail-description">{{ .Description }}</p>
         <div class="slide-detail-meta">
+          {{ if $html }}<span>HTML</span>{{ else if $pdf }}<span>PDF</span>{{ end }}
           {{ with .Params.pages }}<span>{{ . }} 頁</span>{{ end }}
           <span>{{ .Date.Format "2006-01-02" }}</span>
         </div>
@@ -167,6 +171,12 @@
       </div>
 
       <div class="slide-detail-actions">
+        {{ if $html }}
+        <a class="slide-detail-button slide-detail-button-primary" href="{{ $html }}" target="_blank" rel="noopener">
+          <ion-icon name="expand-outline"></ion-icon>
+          <span>另開 HTML 簡報</span>
+        </a>
+        {{ else if $pdf }}
         <a class="slide-detail-button slide-detail-button-primary" href="{{ $pdf }}" target="_blank" rel="noopener">
           <ion-icon name="expand-outline"></ion-icon>
           <span>放大檢視</span>
@@ -175,9 +185,15 @@
           <ion-icon name="download-outline"></ion-icon>
           <span>下載 PDF</span>
         </a>
+        {{ end }}
       </div>
     </header>
 
+    {{ if $html }}
+    <section class="slide-pdf-frame" aria-label="{{ .Title }} HTML 簡報檢視器">
+      <iframe class="slide-pdf-object" src="{{ $html }}" title="{{ .Title }} HTML 簡報"></iframe>
+    </section>
+    {{ else if $pdf }}
     <section class="slide-pdf-frame" aria-label="{{ .Title }} PDF 檢視器">
       <object class="slide-pdf-object" data="{{ $pdf }}" type="application/pdf">
         <iframe class="slide-pdf-object" src="{{ $pdf }}" title="{{ .Title }} PDF"></iframe>
@@ -186,6 +202,13 @@
         </p>
       </object>
     </section>
+    {{ else }}
+    <section class="slide-pdf-frame" aria-label="{{ .Title }} 簡報檢視器">
+      <p class="slide-pdf-fallback">
+        這份簡報目前沒有可顯示的檔案。
+      </p>
+    </section>
+    {{ end }}
   </div>
 </div>
 
