@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>得到大腦測試提示詞簡報 · 自由人生實驗室</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@300;400;500;600&family=Noto+Serif+SC:wght@300;400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ============ 主题色(默认:🖋 墨水经典) ============
+       切换主题:从 references/themes.md 复制对应的 :root 块
+       整体替换这几行(--ink / --ink-rgb / --paper / --paper-rgb)
+       其他地方散落的 rgba() 都走 var(--ink-rgb) / var(--paper-rgb),无需逐处改 */
+    --ink:#0a1f3d;
+    --ink-rgb:10,31,61;
+    --paper:#f1f3f5;
+    --paper-rgb:241,243,245;
+    --paper-tint:#e4e8ec;
+    --ink-tint:#152a4a;
+
+    /* ============ 字体(跨主题固定) ============ */
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+    --serif-en:"Playfair Display","Source Serif 4",Georgia,serif;
+    --serif-body-en:"Source Serif 4",Georgia,serif;
+    --serif-zh:"Noto Serif SC",source-han-serif-sc,serif;
+    --sans-zh:"Noto Sans SC",source-han-sans-sc,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--ink);color:var(--paper);font-family:var(--sans-zh);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+
+  /* ============ WebGL 双背景 ============ */
+  canvas.bg{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;display:block;transition:opacity 1.2s ease}
+  canvas#bg-light{opacity:0}
+  canvas#bg-dark{opacity:1}
+  body.light-bg canvas#bg-light{opacity:1}
+  body.light-bg canvas#bg-dark{opacity:0}
+  body.low-power canvas.bg{display:none!important}
+
+  /* ============ Deck 容器 + 翻页 ============ */
+  /* width: NSLIDES * 100vw，会在 JS 里动态矫正 */
+  #deck{position:fixed;inset:0;width:10000vw;height:100vh;display:flex;flex-wrap:nowrap;transition:transform .9s cubic-bezier(.77,0,.175,1);z-index:10;will-change:transform}
+  .slide{width:100vw;height:100vh;flex:0 0 100vw;position:relative;padding:6vh 6vw 10vh 6vw;display:flex;flex-direction:column;overflow:hidden}
+  .slide.light{color:var(--ink);background:var(--paper)}
+  .slide.dark{color:var(--paper);background:var(--ink)}
+
+  /* 默认页：遮罩较厚，保证文字可读 */
+  .slide::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;transition:background .7s ease}
+  .slide.light::before{background:rgba(var(--paper-rgb),.78);backdrop-filter:blur(3px)}
+  .slide.dark::before{background:rgba(var(--ink-rgb),.78);backdrop-filter:blur(3px)}
+  /* Hero 页：遮罩大幅降低，让 WebGL 背景明显透出 */
+  .slide.hero.light::before{background:rgba(var(--paper-rgb),.16);backdrop-filter:none}
+  .slide.hero.dark::before{background:rgba(var(--ink-rgb),.12);backdrop-filter:none}
+  /* Hero 页顶底微弱渐隐，保证 chrome/foot 区域可读 */
+  .slide.hero::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none}
+  .slide.hero.light::after{background:linear-gradient(180deg,rgba(var(--paper-rgb),.28) 0%,rgba(var(--paper-rgb),0) 14%,rgba(var(--paper-rgb),0) 86%,rgba(var(--paper-rgb),.28) 100%)}
+  .slide.hero.dark::after{background:linear-gradient(180deg,rgba(var(--ink-rgb),.32) 0%,rgba(var(--ink-rgb),0) 14%,rgba(var(--ink-rgb),0) 86%,rgba(var(--ink-rgb),.32) 100%)}
+
+  /* ============ Magazine chrome：顶部 meta + 底部 foot ============ */
+  .chrome{display:flex;justify-content:space-between;align-items:flex-start;font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:.7}
+  .chrome .left,.chrome .right{display:flex;gap:2.4em;align-items:center}
+  .chrome .sep{width:40px;height:1px;background:currentColor;opacity:.4}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.55}
+  .foot .title{font-family:var(--serif-zh);font-weight:400;letter-spacing:.05em;text-transform:none;opacity:.75;font-size:13px}
+
+  .tag{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;padding:6px 14px;border:1px solid currentColor;opacity:.85}
+  .rule{width:100%;height:1px;background:currentColor;opacity:.25;margin:3vh 0}
+  .rule.v{width:1px;height:100%;margin:0}
+
+  /* ============ 字体规则 ============
+     · 衬线（Noto Serif SC / Playfair）：大标题、重点金句、数字
+     · 非衬线（Noto Sans SC）：正文描述、body、补充说明
+     · 等宽（IBM Plex Mono）：kicker、meta 小标签、foot 右侧
+  */
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.3em;text-transform:uppercase;opacity:.6;margin-bottom:2.6vh}
+  .display{font-family:var(--serif-en);font-weight:700;font-size:11vw;line-height:.92;letter-spacing:-.025em}
+  .display-zh{font-family:var(--serif-zh);font-weight:700;font-size:7.8vw;line-height:1.04;letter-spacing:-.005em}
+  .h1-zh{font-family:var(--serif-zh);font-weight:700;font-size:4.6vw;line-height:1.12;letter-spacing:-.005em}
+  .h2-zh{font-family:var(--serif-zh);font-weight:600;font-size:3.2vw;line-height:1.2;letter-spacing:0}
+  .h3-zh{font-family:var(--serif-zh);font-weight:500;font-size:1.9vw;line-height:1.35}
+  .body-zh{font-family:var(--sans-zh);font-weight:400;font-size:max(15px,1.22vw);line-height:1.75;opacity:.82;letter-spacing:.01em}
+  .body-serif{font-family:var(--serif-zh);font-weight:400;font-size:max(15px,1.3vw);line-height:1.65;opacity:.88}
+  .lead{font-family:var(--serif-zh);font-weight:400;font-size:1.9vw;line-height:1.4;opacity:.85}
+  .meta{font-family:var(--mono);font-size:max(11px,.88vw);letter-spacing:.16em;text-transform:uppercase;opacity:.6}
+  .big-num{font-family:var(--serif-en);font-weight:800;font-size:10vw;line-height:.85;letter-spacing:-.03em;font-feature-settings:"tnum"}
+  .mid-num{font-family:var(--serif-en);font-weight:700;font-size:5.5vw;line-height:.88;letter-spacing:-.02em;font-feature-settings:"tnum"}
+  .ghost{font-family:var(--serif-en);font-weight:900;font-size:34vw;line-height:.8;opacity:.06;letter-spacing:-.04em;position:absolute;font-feature-settings:"tnum"}
+  em{font-style:italic;font-family:var(--serif-en)}
+  .en{font-family:var(--serif-en);font-style:italic;font-weight:500}
+
+  /* ============ 布局工具 ============ */
+  .col{display:flex;flex-direction:column;gap:2.4vh}
+  .row{display:flex;align-items:center;gap:3vw}
+  .grid-6{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:4vw 6vw;flex:1;align-content:center;padding:2vh 0}
+  .grid-9{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3vh 4vw;flex:1;align-content:center}
+  .grid-4{display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,1fr);gap:4vh 6vw;flex:1;align-content:center}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:4vw;flex:1;align-content:center}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:4vw;flex:1;align-items:center}
+  .split-55{display:grid;grid-template-columns:55fr 45fr;gap:5vw;flex:1;align-items:stretch}
+  .fill{flex:1}
+  .center{align-items:center;justify-content:center;text-align:center}
+  .bottom-left{position:absolute;left:6vw;bottom:9vh;max-width:50vw}
+  .bottom-right{position:absolute;right:6vw;bottom:9vh;max-width:50vw;text-align:right}
+  .top-right{position:absolute;right:6vw;top:6vh;text-align:right}
+
+  /* ============ Stat（数字矩阵） ============ */
+  .stat{display:flex;flex-direction:column;gap:1vh;align-items:flex-start}
+  .stat .n{font-family:var(--serif-en);font-weight:800;font-size:8vw;line-height:.88;letter-spacing:-.03em;font-feature-settings:"tnum"}
+  .stat .l{font-family:var(--sans-zh);font-size:max(13px,1.05vw);opacity:.7;margin-top:1vh;font-weight:400;line-height:1.5}
+  .stat .m{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;opacity:.5;margin-bottom:.2vh}
+
+  /* ============ Callout（引用框） ============ */
+  .callout{padding:3vh 2.4vw;border-left:3px solid currentColor;position:relative;font-family:var(--serif-zh);font-size:max(15px,1.2vw);line-height:1.55;opacity:.92}
+  .slide.light .callout{background:rgba(var(--ink-rgb),.05)}
+  .slide.dark .callout{background:rgba(var(--paper-rgb),.06)}
+  .callout .cite{display:block;margin-top:1.6vh;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.6}
+  .callout .q-big{font-family:var(--serif-zh);font-weight:600;font-size:max(17px,1.6vw);line-height:1.42}
+
+  /* ============ Platform（平台卡） ============ */
+  .plat{display:flex;flex-direction:column;justify-content:flex-end;padding:2vh 0;border-top:1px solid currentColor;border-color:rgba(127,127,127,.35)}
+  .plat .name{font-family:var(--serif-zh);font-weight:700;font-size:1.8vw;margin-bottom:.6vh}
+  .plat .nb{font-family:var(--serif-en);font-weight:700;font-size:3.2vw;letter-spacing:-.02em;line-height:1;font-feature-settings:"tnum"}
+  .plat .sub{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;opacity:.55;margin-top:.6vh}
+  .plat .fill{font-family:var(--sans-zh);font-weight:300;font-size:2.4vw;opacity:.28;letter-spacing:-.01em;line-height:1}
+
+  /* ============ Rowline（表格行） ============ */
+  .rowline{display:grid;grid-template-columns:1fr 2fr 1fr;gap:2vw;padding:2.2vh 0;border-top:1px solid currentColor;align-items:center;border-color:rgba(127,127,127,.25)}
+  .rowline:last-child{border-bottom:1px solid currentColor;border-color:rgba(127,127,127,.25)}
+  .rowline .k{font-family:var(--serif-zh);font-weight:700;font-size:1.7vw}
+  .rowline .v{font-family:var(--sans-zh);font-weight:400;font-size:max(14px,1.2vw);opacity:.85;line-height:1.55}
+  .rowline .m{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.6;justify-self:end}
+
+  /* ============ Pillar（支柱卡片） ============ */
+  .pillar{display:flex;flex-direction:column;gap:1.8vh}
+  .pillar .ic{font-family:var(--serif-en);font-style:italic;font-size:2.6vw;opacity:.45;font-weight:400}
+  .pillar .ic svg{width:2.8vw;height:2.8vw;stroke-width:1.2;opacity:.7}
+  .pillar .t{font-family:var(--serif-zh);font-weight:700;font-size:2.4vw;line-height:1.1}
+  .pillar .d{font-family:var(--sans-zh);font-weight:400;font-size:max(14px,1.1vw);opacity:.76;line-height:1.6}
+
+  /* ============ Signature / Highlight ============ */
+  .sign{font-family:var(--serif-en);font-style:italic;font-weight:500;font-size:2vw;opacity:.7}
+  .hi{position:relative;display:inline}
+  .slide.dark .hi::after{content:"";position:absolute;left:-.1em;right:-.1em;bottom:-.05em;height:.28em;background:rgba(var(--paper-rgb),.15);z-index:-1}
+  .slide.light .hi::after{content:"";position:absolute;left:-.1em;right:-.1em;bottom:-.05em;height:.28em;background:rgba(var(--ink-rgb),.08);z-index:-1}
+
+  /* ============ Icons（Lucide via CDN） ============ */
+  .ico{width:1em;height:1em;display:inline-block;vertical-align:-.12em;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+  .ico-lg,.ico-md,.ico-sm{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
+  .ico-lg{width:2.6vw;height:2.6vw;stroke-width:1.2;display:inline-block}
+  .ico-md{width:1.8vw;height:1.8vw;stroke-width:1.3;display:inline-block;vertical-align:-.4em}
+  .ico-sm{width:1.1vw;height:1.1vw;stroke-width:1.4;display:inline-block;vertical-align:-.15em;opacity:.7}
+
+  /* ============ 图片占位（虚线框，提示设计师位置） ============ */
+  .img-slot{border:1.5px dashed rgba(127,127,127,.4);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1vh;padding:2vh 2vw;font-family:var(--mono);font-size:10px;letter-spacing:.28em;text-transform:uppercase;opacity:.55;position:relative;aspect-ratio:16/9;width:100%;max-height:56vh;margin-inline:auto;box-sizing:border-box}
+  .img-slot::before{content:"";position:absolute;inset:8px;border:1px solid currentColor;opacity:.2}
+  .img-slot .plus{font-size:2vw;font-weight:300;opacity:.5;letter-spacing:0}
+  .img-slot .label{position:relative;z-index:2;text-align:center}
+  .img-slot.r-4x3{aspect-ratio:4/3}
+  .img-slot.r-3x2{aspect-ratio:3/2}
+  .img-slot.r-1x1{aspect-ratio:1/1}
+
+  /* ============ 图片实填框（关键：固定高度 + 只裁底部） ============
+     重要约束：高度用内联 height:Nvh 精确控制，不要用 aspect-ratio（会撑破布局）
+     object-position:top center 保证严禁裁剪顶部和左右，只裁剪底部
+  */
+  .frame-img{overflow:hidden;position:relative;background:rgba(0,0,0,.04);box-sizing:border-box;width:100%;border-radius:4px}
+  .slide.dark .frame-img{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)}
+  .frame-img > img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
+  .frame-img.fit-contain > img{object-fit:contain;object-position:center center}
+  .frame-img.r-16x9{aspect-ratio:16/9;max-height:64vh}
+  .frame-img.r-16x10{aspect-ratio:16/10;max-height:56vh}
+  .frame-img.r-4x3{aspect-ratio:4/3;max-height:56vh}
+  .frame-img.r-3x2{aspect-ratio:3/2;max-height:46vh}
+  .frame-img.r-3x4{aspect-ratio:3/4;max-height:60vh}
+  .frame-img.r-1x1{aspect-ratio:1/1;max-height:50vh}
+  .frame-img.h-16{height:16vh}
+  .frame-img.h-18{height:18vh}
+  .frame-img.h-22{height:22vh}
+  .frame-img.h-26{height:26vh}
+  .frame-img.h-28{height:28vh}
+  .frame-cap{display:flex;justify-content:space-between;align-items:baseline;gap:1vw;margin-top:.8vh;font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;opacity:.72}
+  .frame-cap .pf{font-family:var(--serif-zh);font-weight:600;font-size:max(13px,1vw);letter-spacing:.04em;text-transform:none;opacity:.94}
+  .frame-cap .nb{font-family:var(--serif-en);font-style:italic;font-size:max(15px,1.2vw);letter-spacing:.02em;text-transform:none;opacity:.88}
+  .frame-cap .idx{font-family:var(--mono);opacity:.5}
+  figure.tile{display:flex;flex-direction:column;margin:0;min-width:0}
+  figure.tile > .frame-img{flex:0 0 auto}
+
+  /* ============ 导航 ============ */
+  #nav{position:fixed;left:50%;bottom:2.6vh;transform:translateX(-50%);z-index:30;display:flex;gap:10px;padding:8px 14px;border-radius:999px;background:rgba(0,0,0,.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  #nav .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;transition:all .3s ease;border:0;padding:0}
+  #nav .dot:hover{background:rgba(255,255,255,.5);transform:scale(1.15)}
+  #nav .dot.active{background:rgba(255,255,255,.95);width:22px;border-radius:999px}
+  body.light-bg #nav{background:rgba(255,255,255,.25)}
+  body.light-bg #nav .dot{background:rgba(var(--ink-rgb),.25)}
+  body.light-bg #nav .dot.active{background:rgba(var(--ink-rgb),.9)}
+  #hint{position:fixed;bottom:3vh;right:3vw;z-index:30;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.4;mix-blend-mode:difference;color:#aaa}
+  body.low-power #hint{opacity:.72;color:var(--paper);mix-blend-mode:normal}
+  body.light-bg.low-power #hint{color:var(--ink)}
+
+  /* ============================================================
+     ============ LAYOUTS API · 面向 agent 的类（v2）============
+     所有 layouts.md 中的骨架都基于下面这套命名。
+     如果你在 layouts.md 里看到某个类，它必须在下面有定义。
+     ============================================================ */
+
+  /* ---------- .frame：每页主内容容器 ---------- */
+  .frame{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+  /* 当 .frame 同时加了 grid 类时，grid 的 display:grid 覆盖 flex */
+  .frame.grid-2-7-5,
+  .frame.grid-2-6-6,
+  .frame.grid-2-8-4,
+  .frame.grid-3-3,
+  .frame.grid-6{display:grid}
+
+  /* ---------- 标题层级（API 名称，衬线为主） ---------- */
+  .h-hero{
+    font-family:var(--serif-zh);
+    font-weight:900;
+    font-size:10vw;
+    line-height:.96;
+    letter-spacing:-.02em;
+  }
+  .h-xl{
+    font-family:var(--serif-zh);
+    font-weight:700;
+    font-size:6.2vw;
+    line-height:1.08;
+    letter-spacing:-.01em;
+  }
+  .h-sub{
+    font-family:var(--serif-zh);
+    font-weight:500;
+    font-size:3.1vw;
+    line-height:1.25;
+    letter-spacing:0;
+    opacity:.7;
+  }
+  .h-md{
+    font-family:var(--serif-zh);
+    font-weight:600;
+    font-size:2.3vw;
+    line-height:1.3;
+  }
+  /* 英文标题专用（Playfair 衬线） */
+  .h-hero-en,.h-xl-en{font-family:var(--serif-en);letter-spacing:-.025em}
+
+  /* ---------- lead 引语 ---------- */
+  .lead{
+    font-family:var(--serif-zh);
+    font-weight:400;
+    font-size:1.75vw;
+    line-height:1.5;
+    opacity:.86;
+  }
+
+  /* ---------- meta-row 底部元数据 ---------- */
+  .meta-row{
+    display:flex;
+    gap:1.2em;
+    align-items:baseline;
+    flex-wrap:wrap;
+    font-family:var(--mono);
+    font-size:max(12px,.92vw);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    opacity:.6;
+  }
+
+  /* ---------- stat-card（数据大字报用） ---------- */
+  .stat-card{
+    display:flex;
+    flex-direction:column;
+    gap:.8vh;
+    align-items:flex-start;
+    padding-top:1.6vh;
+    border-top:1px solid currentColor;
+    border-color:rgba(127,127,127,.3);
+  }
+  .stat-card .stat-label{
+    font-family:var(--mono);
+    font-size:max(10px,.78vw);
+    letter-spacing:.24em;
+    text-transform:uppercase;
+    opacity:.55;
+  }
+  .stat-card .stat-nb{
+    font-family:var(--serif-en);
+    font-weight:800;
+    font-size:5.8vw;
+    line-height:.9;
+    letter-spacing:-.03em;
+    font-feature-settings:"tnum";
+    margin-top:.4vh;
+  }
+  .stat-card .stat-nb .stat-unit{
+    font-family:var(--serif-zh);
+    font-weight:500;
+    font-size:.38em;
+    letter-spacing:0;
+    opacity:.72;
+    margin-left:.14em;
+  }
+  .stat-card .stat-note{
+    font-family:var(--sans-zh);
+    font-weight:400;
+    font-size:max(13px,1.05vw);
+    line-height:1.5;
+    opacity:.72;
+    margin-top:.6vh;
+  }
+  /* 当 stat-card 用于 grid-4（2x2），数字适度放大；若页面有标题+引文在上方，可内联 style 覆盖为更小值 */
+  .grid-4 .stat-card .stat-nb{font-size:5vw}
+  /* 当只有 3 个，字也可以稍大 */
+  .grid-3 .stat-card .stat-nb{font-size:6.8vw}
+
+  /* ---------- pipeline（流水线） ---------- */
+  .pipeline-section{
+    margin-top:4.4vh;
+    padding-top:2.8vh;
+    border-top:1px dashed rgba(127,127,127,.32);
+  }
+  .pipeline-section:first-of-type{
+    border-top:0;
+    padding-top:0;
+    margin-top:3vh;
+  }
+  .pipeline-label{
+    font-family:var(--mono);
+    font-size:max(11px,.85vw);
+    letter-spacing:.24em;
+    text-transform:uppercase;
+    opacity:.62;
+    margin-bottom:2.2vh;
+  }
+  .pipeline{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:1.2vw;
+  }
+  .pipeline[data-cols="3"]{grid-template-columns:repeat(3,1fr)}
+  .pipeline[data-cols="4"]{grid-template-columns:repeat(4,1fr)}
+  .pipeline[data-cols="6"]{grid-template-columns:repeat(6,1fr)}
+  .step{
+    display:flex;
+    flex-direction:column;
+    gap:.8vh;
+    padding-top:1.4vh;
+    border-top:1px solid currentColor;
+    border-color:rgba(127,127,127,.35);
+  }
+  .step-nb{
+    font-family:var(--serif-en);
+    font-style:italic;
+    font-weight:500;
+    font-size:1.15vw;
+    opacity:.45;
+  }
+  .step-title{
+    font-family:var(--sans-zh);
+    font-weight:700;
+    font-size:1.55vw;
+    letter-spacing:.01em;
+    line-height:1.2;
+  }
+  .step-desc{
+    font-family:var(--sans-zh);
+    font-weight:400;
+    font-size:max(12px,.95vw);
+    line-height:1.45;
+    opacity:.72;
+  }
+
+  /* ---------- 网格（layouts.md 所用） ---------- */
+  /* 这些类独立挂到任何容器上都能生效，不依赖 .frame 复合选择器 */
+  .grid-2-7-5{display:grid;grid-template-columns:7fr 5fr;gap:3vw 4vh;align-items:start}
+  .grid-2-6-6{display:grid;grid-template-columns:1fr 1fr;gap:3vw 4vh;align-items:start}
+  .grid-2-8-4{display:grid;grid-template-columns:8fr 4fr;gap:3vw 4vh;align-items:start}
+  .grid-3-3{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    grid-auto-rows:minmax(0,1fr);
+    gap:2.4vh 2vw;
+  }
+  /* grid-6 已在旧样式里定义为 3x2，这里仅补 align */
+
+  /* ---------- 图片 frame-img（layouts.md 主命名） ---------- */
+  /* 在旧样式里已定义，这里补 img-cap 命名别名与增强 */
+  figure.frame-img{margin:0;display:flex;flex-direction:column;min-width:0}
+  .img-cap{
+    display:block;
+    margin-top:.8vh;
+    font-family:var(--mono);
+    font-size:max(10px,.8vw);
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    opacity:.6;
+  }
+
+  /* ============ Copyable prompt deck additions ============ */
+  .prompt-layout{
+    display:grid;
+    grid-template-columns:5fr 7fr;
+    gap:4vw;
+    align-items:start;
+    padding-top:5vh;
+  }
+  .prompt-summary{
+    display:flex;
+    min-height:58vh;
+    flex-direction:column;
+    justify-content:space-between;
+    gap:3vh;
+  }
+  .prompt-summary-block{
+    display:grid;
+    gap:1.4vh;
+  }
+  .prompt-eyebrow{
+    font-family:var(--mono);
+    font-size:max(11px,.8vw);
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    opacity:.55;
+  }
+  .prompt-copy{
+    font-family:var(--sans-zh);
+    font-size:max(15px,1.08vw);
+    line-height:1.7;
+    opacity:.78;
+  }
+  .scene-list{
+    display:grid;
+    gap:1.1vh;
+    margin-top:.8vh;
+    padding-left:1.1em;
+    font-family:var(--sans-zh);
+    font-size:max(15px,1.04vw);
+    line-height:1.55;
+    opacity:.78;
+  }
+  .prompt-stack{
+    display:flex;
+    flex-direction:column;
+    gap:1.2vh;
+  }
+  .prompt-card{
+    position:relative;
+    min-height:11vh;
+    padding:1.35vh 4.8vw 1.35vh 1.25vw;
+    border-top:1px solid currentColor;
+    border-color:rgba(127,127,127,.34);
+  }
+  .slide.light .prompt-card{background:rgba(var(--ink-rgb),.04)}
+  .slide.dark .prompt-card{background:rgba(var(--paper-rgb),.06)}
+  .prompt-card code{
+    display:block;
+    color:inherit;
+    font-family:var(--sans-zh);
+    font-size:max(15px,1.05vw);
+    line-height:1.55;
+    white-space:pre-wrap;
+  }
+  .copy-btn{
+    position:absolute;
+    top:.85vh;
+    right:.8vw;
+    display:inline-flex;
+    min-height:2rem;
+    align-items:center;
+    gap:.38rem;
+    border:1px solid currentColor;
+    border-radius:999px;
+    background:transparent;
+    color:inherit;
+    cursor:pointer;
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:.12em;
+    line-height:1;
+    padding:.5rem .62rem;
+    text-transform:uppercase;
+    opacity:.74;
+    transition:opacity .18s ease, background .18s ease, transform .18s ease;
+  }
+  .copy-btn:hover,.copy-btn:focus-visible{
+    opacity:1;
+    transform:translateY(-1px);
+  }
+  .slide.light .copy-btn.copied{background:rgba(var(--ink-rgb),.08)}
+  .slide.dark .copy-btn.copied{background:rgba(var(--paper-rgb),.12)}
+  .copy-status{
+    position:fixed;
+    left:50%;
+    bottom:7vh;
+    z-index:40;
+    transform:translateX(-50%);
+    border:1px solid rgba(127,127,127,.28);
+    border-radius:999px;
+    background:rgba(var(--ink-rgb),.82);
+    color:var(--paper);
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.16em;
+    opacity:0;
+    padding:.65rem .9rem;
+    pointer-events:none;
+    text-transform:uppercase;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .copy-status.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(-4px);
+  }
+  .guide-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:2vw;
+    margin-top:6vh;
+  }
+  .guide-card{
+    border-top:1px solid currentColor;
+    padding-top:1.6vh;
+  }
+  .guide-card .step-nb{font-size:1.3vw}
+  .guide-card .step-title{font-size:1.65vw}
+  .guide-card .step-desc{font-size:max(14px,1.02vw)}
+  /* callout src 命名别名 */
+  .callout-src{
+    display:block;
+    margin-top:1.6vh;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    opacity:.6;
+  }
+
+  /* ---------- chrome & foot 补位（layouts.md 简单写法） ---------- */
+  .chrome{font-family:var(--mono);font-size:max(11px,.78vw);letter-spacing:.2em;text-transform:uppercase;opacity:.62}
+  .foot{font-family:var(--mono);font-size:max(11px,.78vw);letter-spacing:.18em;text-transform:uppercase;opacity:.5}
+
+  /* ============ 动效系统(Motion One 驱动) ============
+     所有 [data-anim] 元素默认隐藏,进入页面时由 JS 逐个揭示。
+     - cascade(默认):按 DOM 顺序 stagger 120ms 淡入 + y:16→0
+     - hero(hero 页自动):慢一点的 stagger 180ms
+     - quote(含 [data-anim="line"]):逐行 600ms 淡入
+     - directional(含 [data-anim="left|right"]):左→分隔线→右
+     - pipeline(data-animate="pipeline"):Space/→ 手动推进
+     Motion One 没加载成功时(CDN 断 + 本地丢),所有 [data-anim] 会兜底显示。
+  */
+  [data-anim]{opacity:1}
+  body.motion-ready [data-anim]{opacity:0}
+  body.motion-ready [data-anim="left"]{transform:translateX(-24px)}
+  body.motion-ready [data-anim="right"]{transform:translateX(24px)}
+  body.motion-ready [data-anim="line"]{opacity:0;transform:translateY(10px)}
+  body.motion-ready [data-animate="pipeline"] [data-anim]{opacity:.15}
+  body.low-power #deck{transition:none!important}
+  body.low-power *,
+  body.low-power *::before,
+  body.low-power *::after{animation:none!important;transition:none!important}
+  body.low-power.motion-ready [data-anim],
+  body.low-power [data-anim]{opacity:1!important;transform:none!important}
+
+  /* ---------- 响应式降级 ---------- */
+  @media (max-width:900px){
+    .display{font-size:16vw}
+    .display-zh{font-size:12vw}
+    .h1-zh{font-size:7vw}
+    .h-hero{font-size:14vw}
+    .h-xl{font-size:9vw}
+    .pipeline{grid-template-columns:repeat(2,1fr)}
+    .grid-2-7-5,.grid-2-6-6,.grid-2-8-4{grid-template-columns:1fr}
+    .prompt-layout{grid-template-columns:1fr;padding-top:3vh}
+    .prompt-summary{min-height:auto}
+    .prompt-card{padding-right:6.5rem}
+    .guide-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<script>
+  (function(){
+    const KEY = 'guizang-ppt-low-power';
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const stored = localStorage.getItem(KEY);
+    window.__lowPowerMode = stored === '1' || (stored === null && reduced);
+    function updateHint(){
+      const hint = document.getElementById('hint');
+      if(hint) hint.textContent = `← → 翻頁 · B ${window.__lowPowerMode ? '動態' : '靜態'} · ESC 索引`;
+    }
+    window.__setLowPowerMode = function(on, opts={}){
+      window.__lowPowerMode = !!on;
+      document.body.classList.toggle('low-power', window.__lowPowerMode);
+      if(opts.persist !== false) localStorage.setItem(KEY, window.__lowPowerMode ? '1' : '0');
+      if(window.__lowPowerMode && document.getAnimations){
+        document.getAnimations().forEach(a=>a.cancel());
+      }
+      updateHint();
+      dispatchEvent(new CustomEvent('ppt-low-power-change', {detail:{on:window.__lowPowerMode}}));
+      if(window.__playSlide) window.__playSlide(window.__currentSlideIndex || 0);
+    };
+    document.body.classList.toggle('low-power', window.__lowPowerMode);
+    addEventListener('DOMContentLoaded', updateHint, {once:true});
+  })();
+</script>
+
+<canvas id="bg-dark" class="bg"></canvas>
+<canvas id="bg-light" class="bg"></canvas>
+<div id="hint">← → 翻頁 · B 靜態 · ESC 索引</div>
+<div id="copy-status" class="copy-status" aria-live="polite"></div>
+
+<div id="deck">
+
+<!-- ============================================================
+     SLIDES 插入区 · 在此处填充所有 <section class="slide ..."> 页面
+     每页模板参考 references/page-patterns.md
+     页面组件参考 references/components.md
+     ============================================================ -->
+
+<section class="slide hero dark">
+  <div class="chrome">
+    <div>自由人生實驗室 · Prompt Test Deck</div>
+    <div>Vol.01</div>
+  </div>
+  <div class="frame" style="display:grid; gap:4vh; align-content:center; min-height:80vh">
+    <div class="kicker" data-anim>得到大腦 · 小步測試</div>
+    <h1 class="h-hero" style="font-size:7.2vw; line-height:1.08" data-anim>
+      <span style="display:block">得到大腦</span>
+      <span style="display:block">測試提示詞</span>
+    </h1>
+    <p class="lead" style="max-width:58vw" data-anim>
+      12 種能力場景，從內容搜尋、個人筆記定位，到綜合實戰；每一條提示詞都可以直接複製，方便拍攝與測試。
+    </p>
+    <div class="meta-row" data-anim>
+      <span>Garro Lan</span><span>·</span><span>2026.06.21</span><span>·</span><span>HTML Slides</span>
+    </div>
+  </div>
+  <div class="foot">
+    <div>自由人生實驗室 · 得到大腦測試材料</div>
+    <div>— 2026 —</div>
+  </div>
+</section>
+
+<section class="slide light">
+  <div class="chrome">
+    <div>使用方式 · How to test</div>
+    <div>02 / 17</div>
+  </div>
+  <div class="frame" style="padding-top:6vh">
+    <div class="kicker" data-anim>拍攝時的最短路徑</div>
+    <h2 class="h-xl" style="font-size:5.6vw" data-anim>打開、複製、貼上、觀察。</h2>
+    <p class="lead" style="max-width:64vw; margin-top:2vh" data-anim>
+      這份簡報不是要背稿，而是把測試流程放在螢幕上。你只需要翻到某一頁，按「複製」，再貼到得到大腦裡看它怎麼回答。
+    </p>
+    <div class="guide-grid">
+      <div class="guide-card" data-anim>
+        <div class="step-nb">01</div>
+        <div class="step-title">選一頁</div>
+        <div class="step-desc">每頁是一個測試能力，例如搜尋、金句定位、跨時間回顧。</div>
+      </div>
+      <div class="guide-card" data-anim>
+        <div class="step-nb">02</div>
+        <div class="step-title">複製提示詞</div>
+        <div class="step-desc">每張提示詞卡右上角都有按鈕，點一下就會把原句放到剪貼簿。</div>
+      </div>
+      <div class="guide-card" data-anim>
+        <div class="step-nb">03</div>
+        <div class="step-title">記錄反應</div>
+        <div class="step-desc">觀察它是精準、發散、卡住，還是意外給出有價值的回答。</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 02 · 使用方式</div>
+    <div>Copyable Prompt Cards</div>
+  </div>
+</section>
+
+<section class="slide dark">
+  <div class="chrome">
+    <div>基礎搜尋 · Content Search</div>
+    <div>03 / 17</div>
+  </div>
+  <div class="frame prompt-layout">
+    <div class="prompt-summary">
+      <div>
+        <div class="kicker" data-anim>Test 01</div>
+        <h2 class="h-xl" style="font-size:5.2vw" data-anim>基礎搜尋能力</h2>
+        <p class="lead" style="margin-top:2vh" data-anim>
+          驗證小步能否精準搜尋得到 APP 內容，而不是只丟出一串連結。
+        </p>
+      </div>
+      <div class="prompt-summary-block" data-anim>
+        <div class="prompt-eyebrow">適用場景</div>
+        <ul class="scene-list">
+          <li>確認小步對得到內容的熟悉度。</li>
+          <li>測試能否直接回答定義性問題，而非返回列表。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="prompt-stack" aria-label="基礎搜尋能力測試提示詞">
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 01-1"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>幫我找萬維鋼《精英日課》裡關於刻意練習的內容</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 01-2"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>吳軍的財商課裡，他怎麼定義財商？</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 01-3"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>得到上有沒有《納瓦爾寶典》？是電子書還是聽書？</code>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 03 · 基礎搜尋能力測試</div>
+    <div>Search / Definition</div>
+  </div>
+</section>
+
+<section class="slide light">
+  <div class="chrome">
+    <div>個人筆記 · Quote Recall</div>
+    <div>04 / 17</div>
+  </div>
+  <div class="frame prompt-layout">
+    <div class="prompt-summary">
+      <div>
+        <div class="kicker" data-anim>Test 02</div>
+        <h2 class="h-xl" style="font-size:5.2vw" data-anim>個人金句定位</h2>
+        <p class="lead" style="margin-top:2vh" data-anim>
+          驗證小步能否從大量筆記中，精準定位到你曾經記下的具體金句。
+        </p>
+      </div>
+      <div class="prompt-summary-block" data-anim>
+        <div class="prompt-eyebrow">適用場景</div>
+        <ul class="scene-list">
+          <li>想找回之前記過的某句洞察。</li>
+          <li>測試個人筆記的調用精準度。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="prompt-stack" aria-label="個人金句定位測試提示詞">
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 02-1"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>我之前記過關於金錢的金句，幫我找出來</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 02-2"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>我最近記過哪句關於代價的洞察？</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 02-3"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>幫我找那句"最快的致富之道是慢慢來"是從哪來的</code>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 04 · 個人金句定位測試</div>
+    <div>Personal Notes</div>
+  </div>
+</section>
+
+<section class="slide hero light">
+  <div class="chrome">
+    <div>Act I · Memory</div>
+    <div>05 / 17</div>
+  </div>
+  <div class="frame" style="display:grid; gap:5vh; align-content:center; min-height:80vh">
+    <div class="kicker" data-anim>從內容搜尋，進到個人記憶。</div>
+    <h1 class="h-hero" style="font-size:7.2vw; line-height:1.12" data-anim>能不能找回<br>某一天的你？</h1>
+    <p class="lead" style="max-width:56vw" data-anim>
+      下一組測試，重點不只是「知道」，而是能否沿著時間與情境，把你的長期記錄重新接起來。
+    </p>
+  </div>
+  <div class="foot">
+    <div>Act I · 個人記憶與時間線</div>
+    <div>— · —</div>
+  </div>
+</section>
+
+<section class="slide dark">
+  <div class="chrome">
+    <div>跨時間 · Time Recall</div>
+    <div>06 / 17</div>
+  </div>
+  <div class="frame prompt-layout">
+    <div class="prompt-summary">
+      <div>
+        <div class="kicker" data-anim>Test 03</div>
+        <h2 class="h-xl" style="font-size:5.2vw" data-anim>跨時間資料調用</h2>
+        <p class="lead" style="margin-top:2vh" data-anim>
+          驗證小步能否精確定位到特定日期的筆記或學習記錄。
+        </p>
+      </div>
+      <div class="prompt-summary-block" data-anim>
+        <div class="prompt-eyebrow">適用場景</div>
+        <ul class="scene-list">
+          <li>想找回某天散步時的錄音內容。</li>
+          <li>測試長期記憶的精確度。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="prompt-stack" aria-label="跨時間資料調用測試提示詞">
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 03-1"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>我2026年5月21日散步時錄的那條關於GETSEEDAI錄音卡的筆記，核心觀點是什麼？</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 03-2"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>我今天聽了萬維鋼的《探索與利用》那講，跟我之前記的創作筆記有什麼關聯？</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 03-3"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>我2026年3月5日那天主要做了什麼？幫我回顧一下</code>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 06 · 跨時間資料調用測試</div>
+    <div>Long Memory</div>
+  </div>
+</section>
+
+<section class="slide light">
+  <div class="chrome">
+    <div>私董會 · Role Play</div>
+    <div>07 / 17</div>
+  </div>
+  <div class="frame prompt-layout">
+    <div class="prompt-summary">
+      <div>
+        <div class="kicker" data-anim>Test 04</div>
+        <h2 class="h-xl" style="font-size:5.2vw" data-anim>私董會角色扮演</h2>
+        <p class="lead" style="margin-top:2vh" data-anim>
+          驗證小步能否模擬特定老師的語氣，把學過的內容轉成可用建議。
+        </p>
+      </div>
+      <div class="prompt-summary-block" data-anim>
+        <div class="prompt-eyebrow">適用場景</div>
+        <ul class="scene-list">
+          <li>遇到創作瓶頸時想聽聽老師怎麼說。</li>
+          <li>測試能否把內容轉化成人物風格。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="prompt-stack" aria-label="私董會角色扮演測試提示詞">
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 04-1"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>我現在面臨YouTube創作瓶頸，覺得內容沒人看很受挫，如果萬維鋼當我私董會顧問，他會怎麼說？</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 04-2"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>吳軍會怎麼看我的財商學習路徑？</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 04-3"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>如果李松蔚來分析我現在的自由焦慮，他會從什麼角度切入？</code>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 07 · 私董會角色扮演測試</div>
+    <div>Advisor Mode</div>
+  </div>
+</section>
+
+<section class="slide dark">
+  <div class="chrome">
+    <div>碰撞式提問 · Connection</div>
+    <div>08 / 17</div>
+  </div>
+  <div class="frame prompt-layout">
+    <div class="prompt-summary">
+      <div>
+        <div class="kicker" data-anim>Test 05</div>
+        <h2 class="h-xl" style="font-size:5.2vw" data-anim>碰撞式提問</h2>
+        <p class="lead" style="margin-top:2vh" data-anim>
+          驗證小步能否發現不同領域內容之間的關聯，幫你看見自己沒注意到的模式。
+        </p>
+      </div>
+      <div class="prompt-summary-block" data-anim>
+        <div class="prompt-eyebrow">適用場景</div>
+        <ul class="scene-list">
+          <li>想看見自己沒注意到的模式。</li>
+          <li>測試深度思考能力。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="prompt-stack" aria-label="碰撞式提問測試提示詞">
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 05-1"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>我剛聽完吳軍說財商和智力是乘數關係，跟我之前記的「創作是自我教育」那條筆記有什麼關聯？</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 05-2"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>端午連假我體會到自由盡頭的虛無，這跟我記過的「想上班不等於熱愛工作」怎麼呼應？</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 05-3"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>我最近關注的AI工具跟萬維鋼講的「探索與利用」有什麼關係？</code>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 08 · 碰撞式提問測試</div>
+    <div>Pattern / Link</div>
+  </div>
+</section>
+
+<section class="slide hero dark">
+  <div class="chrome">
+    <div>Act II · Output</div>
+    <div>09 / 17</div>
+  </div>
+  <div class="frame" style="display:grid; gap:5vh; align-content:center; min-height:80vh">
+    <div class="kicker" data-anim>從連結，到產出。</div>
+    <h1 class="h-hero" style="font-size:7.4vw; line-height:1.12" data-anim>站在你這邊，<br>但不只是哄你。</h1>
+    <p class="lead" style="max-width:58vw" data-anim>
+      接下來測試它能不能指出漏洞、整理表達，並且讓一段粗糙想法變成可以對外分享的內容。
+    </p>
+  </div>
+  <div class="foot">
+    <div>Act II · 拷問、潤色與點評</div>
+    <div>— · —</div>
+  </div>
+</section>
+
+<section class="slide light">
+  <div class="chrome">
+    <div>深度拷問 · Critical Review</div>
+    <div>10 / 17</div>
+  </div>
+  <div class="frame prompt-layout">
+    <div class="prompt-summary">
+      <div>
+        <div class="kicker" data-anim>Test 06</div>
+        <h2 class="h-xl" style="font-size:5.2vw" data-anim>深度拷問</h2>
+        <p class="lead" style="margin-top:2vh" data-anim>
+          驗證小步能否站在你這邊但不哄你，指出想法中的漏洞。
+        </p>
+      </div>
+      <div class="prompt-summary-block" data-anim>
+        <div class="prompt-eyebrow">適用場景</div>
+        <ul class="scene-list">
+          <li>想提前看見計畫的風險。</li>
+          <li>測試批判性思考能力。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="prompt-stack" aria-label="深度拷問測試提示詞">
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 06-1"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>我想做一個關於「自由人生實驗室」的系列影片，幫我拷問一下這個想法有什麼漏洞？</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 06-2"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>我覺得現在YouTube創作沒人看反而解脫了，這個心態有什麼問題？</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 06-3"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>我打算把所有時間都投入AI工具測試，幫我審一下這個策略</code>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 10 · 深度拷問測試</div>
+    <div>Risk / Blind Spot</div>
+  </div>
+</section>
+
+<section class="slide dark">
+  <div class="chrome">
+    <div>潤色功能 · Polish</div>
+    <div>11 / 17</div>
+  </div>
+  <div class="frame prompt-layout">
+    <div class="prompt-summary">
+      <div>
+        <div class="kicker" data-anim>Test 07</div>
+        <h2 class="h-xl" style="font-size:5.2vw" data-anim>潤色功能</h2>
+        <p class="lead" style="margin-top:2vh" data-anim>
+          驗證小步能否把碎片錄音或筆記，變成文從字順的專業輸出。
+        </p>
+      </div>
+      <div class="prompt-summary-block" data-anim>
+        <div class="prompt-eyebrow">適用場景</div>
+        <ul class="scene-list">
+          <li>有錄音筆記想整理成可分享的內容。</li>
+          <li>測試文字處理能力。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="prompt-stack" aria-label="潤色功能測試提示詞">
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 07-1"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>我剛錄了一段關於YouTube創作的散步錄音，幫我潤色成一條可以發朋友圈的筆記</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 07-2"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>把我今天記的這三條關於自由的筆記，整理成一篇小紅書貼文</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 07-3"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>這段上課錄音幫我潤色一下，變成專業的教學反思</code>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 11 · 潤色功能測試</div>
+    <div>Draft to Share</div>
+  </div>
+</section>
+
+<section class="slide light">
+  <div class="chrome">
+    <div>點評功能 · Review</div>
+    <div>12 / 17</div>
+  </div>
+  <div class="frame prompt-layout">
+    <div class="prompt-summary">
+      <div>
+        <div class="kicker" data-anim>Test 08</div>
+        <h2 class="h-xl" style="font-size:5.2vw" data-anim>點評功能</h2>
+        <p class="lead" style="margin-top:2vh" data-anim>
+          驗證小步能否識別內容中的亮點，說出好在哪裡。
+        </p>
+      </div>
+      <div class="prompt-summary-block" data-anim>
+        <div class="prompt-eyebrow">適用場景</div>
+        <ul class="scene-list">
+          <li>想知道自己某條筆記的價值。</li>
+          <li>測試能否發現你沒意識到的閃光點。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="prompt-stack" aria-label="點評功能測試提示詞">
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 08-1"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>點評一下我這條關於「創作是自我教育」的筆記</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 08-2"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>我剛寫的這段關於自由生活的思考，你覺得怎麼樣？</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 08-3"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>幫我看看這段上課反思有什麼值得保留的地方</code>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 12 · 點評功能測試</div>
+    <div>Value / Highlight</div>
+  </div>
+</section>
+
+<section class="slide dark">
+  <div class="chrome">
+    <div>發芽功能 · Cross-domain</div>
+    <div>13 / 17</div>
+  </div>
+  <div class="frame prompt-layout">
+    <div class="prompt-summary">
+      <div>
+        <div class="kicker" data-anim>Test 09</div>
+        <h2 class="h-xl" style="font-size:5.2vw" data-anim>發芽功能</h2>
+        <p class="lead" style="margin-top:2vh" data-anim>
+          驗證小步能否讓想法跨界碰撞，產生新的聯想與知識。
+        </p>
+      </div>
+      <div class="prompt-summary-block" data-anim>
+        <div class="prompt-eyebrow">適用場景</div>
+        <ul class="scene-list">
+          <li>想看某個想法在別的領域有什麼類比。</li>
+          <li>測試異步聯想能力；發芽是異步推送，不會立即顯示結果。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="prompt-stack" aria-label="發芽功能測試提示詞">
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 09-1"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>讓我這條關於「自由盡頭的虛無」的想法發芽一下</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 09-2"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>這條關於AI工具測試的筆記，幫我跨界聯想一下</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 09-3"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>我剛聽完的這段關於代價的思考，讓它發芽</code>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 13 · 發芽功能測試</div>
+    <div>Async Idea Growth</div>
+  </div>
+</section>
+
+<section class="slide light">
+  <div class="chrome">
+    <div>GET 日報 · Daily Review</div>
+    <div>14 / 17</div>
+  </div>
+  <div class="frame prompt-layout">
+    <div class="prompt-summary">
+      <div>
+        <div class="kicker" data-anim>Test 10</div>
+        <h2 class="h-xl" style="font-size:5.2vw" data-anim>GET 日報回顧</h2>
+        <p class="lead" style="margin-top:2vh" data-anim>
+          驗證小步能否從昨天的記錄中發現模式、呼應和盲區。
+        </p>
+      </div>
+      <div class="prompt-summary-block" data-anim>
+        <div class="prompt-eyebrow">適用場景</div>
+        <ul class="scene-list">
+          <li>想回顧昨天的時間分佈和關鍵事件。</li>
+          <li>測試能否看見「我不知道的自己」。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="prompt-stack" aria-label="GET 日報回顧測試提示詞">
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 10-1"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>幫我回顧一下昨天</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 10-2"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>寫個昨天的日報給我</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 10-3"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>我昨天主要在忙什麼？有什麼模式嗎？</code>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 14 · GET 日報回顧測試</div>
+    <div>Yesterday / Pattern</div>
+  </div>
+</section>
+
+<section class="slide dark">
+  <div class="chrome">
+    <div>時效性 · Live Web</div>
+    <div>15 / 17</div>
+  </div>
+  <div class="frame prompt-layout">
+    <div class="prompt-summary">
+      <div>
+        <div class="kicker" data-anim>Test 11</div>
+        <h2 class="h-xl" style="font-size:5.2vw" data-anim>時效性測試</h2>
+        <p class="lead" style="margin-top:2vh" data-anim>
+          驗證小步能否聯網查最新資訊，而不是只給舊內容。
+        </p>
+      </div>
+      <div class="prompt-summary-block" data-anim>
+        <div class="prompt-eyebrow">適用場景</div>
+        <ul class="scene-list">
+          <li>想了解某個主題的最新動態。</li>
+          <li>測試即時資訊獲取能力。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="prompt-stack" aria-label="時效性測試提示詞">
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 11-1"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>OpenAI最近有什麼新動態？</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 11-2"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>現在YouTube上關於AI錄音卡的熱門影片是什麼類型？</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 11-3"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>幫我查一下今天的A股行情</code>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 15 · 時效性測試</div>
+    <div>Online / Latest</div>
+  </div>
+</section>
+
+<section class="slide light">
+  <div class="chrome">
+    <div>綜合實戰 · Full Scenario</div>
+    <div>16 / 17</div>
+  </div>
+  <div class="frame prompt-layout">
+    <div class="prompt-summary">
+      <div>
+        <div class="kicker" data-anim>Test 12</div>
+        <h2 class="h-xl" style="font-size:5.2vw" data-anim>綜合實戰</h2>
+        <p class="lead" style="margin-top:2vh" data-anim>
+          把多個功能串起來，模擬真實使用場景，也是影片最適合收束或高潮的段落。
+        </p>
+      </div>
+      <div class="prompt-summary-block" data-anim>
+        <div class="prompt-eyebrow">適用場景</div>
+        <ul class="scene-list">
+          <li>想看小步在複雜場景下的綜合能力。</li>
+          <li>適合做為影片高潮段落。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="prompt-stack" aria-label="綜合實戰測試提示詞">
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 12-1"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>我剛聽完萬維鋼的課，記了幾條筆記，又想起之前關於創作的思考，幫我：1）找出這些內容的關聯 2）拷問一下我的創作策略 3）把結論整理成一條可發的筆記</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 12-2"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>我這週學了財商課，又記了關於自由的思考，幫我回顧這週的學習，然後看看這兩個主題有什麼碰撞</code>
+      </div>
+      <div class="prompt-card" data-anim>
+        <button class="copy-btn" type="button" aria-label="複製提示詞 12-3"><i data-lucide="copy" class="ico-sm"></i><span>複製</span></button>
+        <code>我剛錄了一段關於YouTube計畫的思考，幫我：潤色一下→點評亮點→拷問漏洞→最後整理成可分享的內容</code>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 16 · 綜合實戰測試</div>
+    <div>Multi-step Workflow</div>
+  </div>
+</section>
+
+<section class="slide hero light">
+  <div class="chrome">
+    <div>拍攝建議 · Production Notes</div>
+    <div>17 / 17</div>
+  </div>
+  <div class="frame" style="display:grid; gap:4vh; align-content:center; min-height:80vh">
+    <div class="kicker" data-anim>最後提醒</div>
+    <h1 class="h-hero" style="font-size:6.4vw; line-height:1.14" data-anim>失敗也是內容。</h1>
+    <p class="lead" style="max-width:64vw" data-anim>
+      每頁一個測試，每個測試拍 1-2 分鐘。可以從簡單到複雜：基礎搜尋、金句定位、跨時間調用、私董會、碰撞、拷問、潤色、點評、發芽、GET 日報、時效性、綜合實戰。
+    </p>
+    <div class="grid-3" style="margin-top:2vh">
+      <div class="stat-card" data-anim>
+        <div class="stat-label">Async</div>
+        <div class="stat-note">發芽功能是異步推送，拍攝時要說明結果會稍後推送到卡片。</div>
+      </div>
+      <div class="stat-card" data-anim>
+        <div class="stat-label">Daily Review</div>
+        <div class="stat-note">GET 日報基於昨天的記錄，拍攝前要確保昨天有足夠內容。</div>
+      </div>
+      <div class="stat-card" data-anim>
+        <div class="stat-label">Real Test</div>
+        <div class="stat-note">如果某個測試沒答好，反而能讓影片更真實，也更有觀察價值。</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>自由人生實驗室 · 得到大腦測試提示詞</div>
+    <div>End</div>
+  </div>
+</section>
+
+</div>
+
+<div id="nav"></div>
+
+<script>
+/* =============== WebGL 双背景 ===============
+   深色页：Holographic Dispersion（全息色散 · 钛金暗流）—— 彩虹微扰、鼠标径向涟漪
+   浅色页：Spiral Vortex（旋转涡流 · 银色珍珠）—— domain-warp 流动、无中心
+   修改风格请参考 references/webgl-backgrounds.md
+*/
+const VS = `attribute vec2 position;void main(){gl_Position=vec4(position,0.0,1.0);}`;
+
+const FS_DARK = `precision highp float;
+uniform vec2 u_resolution;uniform float u_time;uniform vec2 u_mouse;
+vec3 palette(float t,vec3 a,vec3 b,vec3 c,vec3 d){return a+b*cos(6.28318*(c*t+d));}
+void main(){
+  vec2 uv=gl_FragCoord.xy/u_resolution.xy;
+  vec2 p=uv*2.0-1.0;p.x*=u_resolution.x/u_resolution.y;
+  vec2 m=u_mouse*2.0-1.0;m.x*=u_resolution.x/u_resolution.y;
+  float md=length(p-m);
+  float mr=sin(md*15.0-u_time*4.0)*exp(-md*3.0);p+=mr*0.08;
+  vec2 p0=p;
+  for(float i=1.0;i<4.0;i++){
+    p.x+=0.1/i*sin(i*3.0*p.y+u_time*0.4)+0.05;
+    p.y+=0.1/i*cos(i*2.0*p.x+u_time*0.3)-0.05;
+  }
+  float r=length(p);float ang=atan(p.y,p.x);
+  vec3 a=vec3(0.12,0.12,0.13);
+  vec3 b=vec3(0.03,0.04,0.05);
+  vec3 c=vec3(1.0,1.0,1.0);
+  vec3 d=vec3(0.1,0.2,0.4);
+  vec3 col=palette(r*1.5+p0.x*0.5+u_time*0.1,a,b,c,d);
+  float disp=sin(r*25.0-u_time*1.5+ang*2.0)*0.5+0.5;
+  col+=vec3(disp*0.015,disp*0.01,disp*0.02);
+  float hi=pow(sin(p.x*4.0+p.y*3.0+u_time)*0.5+0.5,8.0);
+  col+=hi*0.08;
+  vec3 base=vec3(0.05,0.05,0.06);
+  col=mix(base,col,0.85);
+  gl_FragColor=vec4(col,1.0);
+}`;
+
+const FS_LIGHT = `precision highp float;
+uniform vec2 u_resolution;uniform float u_time;uniform vec2 u_mouse;
+float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float noise(vec2 p){
+  vec2 i=floor(p),f=fract(p);
+  float a=hash(i),b=hash(i+vec2(1,0));
+  float c=hash(i+vec2(0,1)),d=hash(i+vec2(1,1));
+  vec2 u=f*f*(3.0-2.0*f);
+  return mix(a,b,u.x)+(c-a)*u.y*(1.0-u.x)+(d-b)*u.x*u.y;
+}
+float fbm(vec2 p){
+  float v=0.0,a=0.5;
+  mat2 m=mat2(0.80,0.60,-0.60,0.80);
+  for(int i=0;i<5;i++){v+=a*noise(p);p=m*p*2.02;a*=0.5;}
+  return v;
+}
+void main(){
+  vec2 uv=gl_FragCoord.xy/u_resolution.xy;
+  vec2 p=uv;p.x*=u_resolution.x/u_resolution.y;
+  vec2 m=u_mouse;m.x*=u_resolution.x/u_resolution.y;
+  vec2 md=p-m;float dl=length(md);
+  p+=normalize(md+vec2(0.0001))*exp(-dl*5.0)*0.03;
+  vec2 q=vec2(fbm(p*1.8+u_time*0.07),fbm(p*1.8+vec2(5.2,1.3)+u_time*0.06));
+  vec2 r=vec2(fbm(p*2.0+q*1.3+vec2(1.7,9.2)+u_time*0.05),
+              fbm(p*2.0+q*1.3+vec2(8.3,2.8)+u_time*0.04));
+  float f=fbm(p*2.2+r*1.5);
+  vec3 silverDark=vec3(0.86,0.85,0.84);
+  vec3 paper=vec3(0.955,0.945,0.925);
+  vec3 col=mix(silverDark,paper,f);
+  float ph=r.x*2.2+u_time*0.35;
+  col+=vec3(0.78,0.62,0.92)*sin(ph)*0.055;
+  col+=vec3(0.55,0.72,0.95)*sin(ph*0.8+2.0)*0.05;
+  float hl=smoothstep(0.48,0.92,f);
+  col+=hl*0.06;
+  gl_FragColor=vec4(col,1.0);
+}`;
+
+const mouse={x:0.5,y:0.5};
+addEventListener('mousemove',e=>{mouse.x=e.clientX/innerWidth;mouse.y=e.clientY/innerHeight});
+
+function bootGL(canvasId, fsSrc){
+  const canvas=document.getElementById(canvasId);
+  const gl=canvas.getContext('webgl',{alpha:false,antialias:true});
+  if(!gl) return ()=>false;
+  const mk=(t,s)=>{const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);return sh};
+  const prog=gl.createProgram();
+  gl.attachShader(prog,mk(gl.VERTEX_SHADER,VS));
+  gl.attachShader(prog,mk(gl.FRAGMENT_SHADER,fsSrc));
+  gl.linkProgram(prog);gl.useProgram(prog);
+  const buf=gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
+  const pos=gl.getAttribLocation(prog,'position');
+  gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
+  const lRes=gl.getUniformLocation(prog,'u_resolution');
+  const lT=gl.getUniformLocation(prog,'u_time');
+  const lM=gl.getUniformLocation(prog,'u_mouse');
+  const resize=()=>{
+    const d=Math.min(window.devicePixelRatio||1,2);
+    canvas.width=innerWidth*d;canvas.height=innerHeight*d;
+    gl.viewport(0,0,canvas.width,canvas.height);
+  };
+  addEventListener('resize',resize);resize();
+  return (tSec)=>{
+    gl.uniform2f(lRes,canvas.width,canvas.height);
+    gl.uniform1f(lT,tSec);
+    gl.uniform2f(lM,mouse.x,1-mouse.y);
+    gl.drawArrays(gl.TRIANGLES,0,6);
+    return true;
+  };
+}
+let drawDark=null, drawLight=null, glRAF=0, glT0=Date.now();
+function startGL(){
+  if(window.__lowPowerMode || glRAF) return;
+  if(!drawDark) drawDark=bootGL('bg-dark',FS_DARK);
+  if(!drawLight) drawLight=bootGL('bg-light',FS_LIGHT);
+  glT0=Date.now();
+  function loop(){
+    if(window.__lowPowerMode){glRAF=0;return;}
+    const t=(Date.now()-glT0)/1000;
+    drawDark(t);drawLight(t);
+    glRAF=requestAnimationFrame(loop);
+  }
+  glRAF=requestAnimationFrame(loop);
+}
+function stopGL(){
+  if(glRAF) cancelAnimationFrame(glRAF);
+  glRAF=0;
+}
+startGL();
+addEventListener('ppt-low-power-change', e=>{e.detail.on ? stopGL() : startGL();});
+
+// =============== 导航（翻页 / 圆点 / 键盘 / 滚轮 / 触屏） ===============
+const deck=document.getElementById('deck');
+const slides=deck.querySelectorAll('.slide');
+const nav=document.getElementById('nav');
+let idx=0,total=slides.length,lock=false;
+
+// 关键：矫正 deck 宽度为 total * 100vw，否则翻页会错位
+deck.style.width=(total*100)+'vw';
+
+slides.forEach((s,i)=>{
+  const b=document.createElement('button');
+  b.className='dot';b.dataset.i=i;b.setAttribute('aria-label','Page '+(i+1));
+  b.onclick=()=>go(i);
+  nav.appendChild(b);
+});
+
+function go(n){
+  if(lock)return;
+  idx=Math.max(0,Math.min(total-1,n));
+  window.__currentSlideIndex = idx;
+  deck.style.transform=`translateX(${-idx*100}vw)`;
+  nav.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+  /* 主题切换：优先读 data-theme，其次从 class（light/dark）推断 */
+  const el=slides[idx];
+  const th=el.dataset.theme || (el.classList.contains('light')?'light':(el.classList.contains('dark')?'dark':'dark'));
+  document.body.classList.toggle('light-bg',th==='light');
+  /* 动效：翻页过渡中段触发当前页的入场动画（由 motion-boot 注册） */
+  if(window.__playSlide) setTimeout(()=>window.__playSlide(idx), 450);
+  lock=true;setTimeout(()=>lock=false,700);
+}
+
+/* =============== ESC 索引视图 =============== */
+let overviewOn=false;
+const ov=document.createElement('div');
+ov.id='overview';
+ov.style.cssText='position:fixed;inset:0;z-index:100;background:rgba(var(--ink-rgb),.92);backdrop-filter:blur(12px);display:none;overflow-y:auto;padding:4vh 4vw';
+document.body.appendChild(ov);
+
+function buildOverview(){
+  ov.innerHTML='';
+  const grid=document.createElement('div');
+  grid.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:2vh 1.6vw;max-width:90vw;margin:0 auto';
+  slides.forEach((s,i)=>{
+    const card=document.createElement('div');
+    card.style.cssText='cursor:pointer;border-radius:6px;overflow:hidden;border:2px solid '+(i===idx?'rgba(var(--paper-rgb),.8)':'rgba(var(--paper-rgb),.15)')+';transition:border-color .2s';
+    card.onmouseenter=()=>card.style.borderColor='rgba(var(--paper-rgb),.6)';
+    card.onmouseleave=()=>card.style.borderColor=i===idx?'rgba(var(--paper-rgb),.8)':'rgba(var(--paper-rgb),.15)';
+    const wrap=document.createElement('div');
+    wrap.style.cssText='width:100%;aspect-ratio:16/9;overflow:hidden;position:relative;pointer-events:none;background:'+(s.classList.contains('light')?'var(--paper)':'var(--ink)');
+    const clone=s.cloneNode(true);
+    clone.style.cssText='width:100vw;height:100vh;transform:scale('+(1/4.5)+');transform-origin:top left;position:absolute;top:0;left:0;pointer-events:none';
+    wrap.appendChild(clone);
+    const label=document.createElement('div');
+    label.style.cssText='padding:6px 10px;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--paper);opacity:.7';
+    label.textContent=(i+1)+' / '+total;
+    card.appendChild(wrap);
+    card.appendChild(label);
+    card.onclick=()=>{toggleOverview();go(i)};
+    grid.appendChild(card);
+  });
+  ov.appendChild(grid);
+}
+
+function toggleOverview(){
+  overviewOn=!overviewOn;
+  if(overviewOn){buildOverview();ov.style.display='block';}
+  else{ov.style.display='none';}
+}
+
+addEventListener('keydown',e=>{
+  if(e.key==='Escape'){e.preventDefault();toggleOverview();return;}
+  if(e.key && e.key.toLowerCase()==='b' && !e.metaKey && !e.ctrlKey && !e.altKey){
+    e.preventDefault();
+    window.__setLowPowerMode(!window.__lowPowerMode);
+    return;
+  }
+  if(overviewOn)return;
+  if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '||e.key==='ArrowDown'){
+    if(window.__pipeAdvance && window.__pipeAdvance()) return;
+    go(idx+1);
+    return;
+  }
+  if(e.key==='ArrowLeft'||e.key==='PageUp'||e.key==='ArrowUp')go(idx-1);
+  if(e.key==='Home')go(0);
+  if(e.key==='End')go(total-1);
+});
+
+let wheelTO=null,wheelAcc=0;
+addEventListener('wheel',e=>{
+  wheelAcc+=e.deltaY+e.deltaX;
+  if(Math.abs(wheelAcc)>50){
+    if(wheelAcc>0 && window.__pipeAdvance && window.__pipeAdvance()){
+      wheelAcc=0;
+    }else{
+      go(idx+(wheelAcc>0?1:-1));wheelAcc=0;
+    }
+  }
+  clearTimeout(wheelTO);wheelTO=setTimeout(()=>wheelAcc=0,150);
+},{passive:true});
+
+let tx=0,ty=0;
+addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
+addEventListener('touchend',e=>{
+  const dx=(e.changedTouches[0].clientX-tx);
+  const dy=(e.changedTouches[0].clientY-ty);
+  if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){
+    if(dx<0 && window.__pipeAdvance && window.__pipeAdvance()) return;
+    go(idx+(dx<0?1:-1));
+  }
+},{passive:true});
+
+go(0);
+</script>
+<script>
+(function(){
+  const status = document.getElementById('copy-status');
+
+  async function copyText(text){
+    if(navigator.clipboard && window.isSecureContext){
+      try{
+        await navigator.clipboard.writeText(text);
+        return;
+      }catch(error){
+        console.warn('[copy] clipboard api denied, using fallback', error);
+      }
+    }
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.left = '-9999px';
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand('copy');
+    area.remove();
+  }
+
+  function flashStatus(message){
+    if(!status) return;
+    status.textContent = message;
+    status.classList.add('show');
+    clearTimeout(status._timer);
+    status._timer = setTimeout(()=>status.classList.remove('show'), 1400);
+  }
+
+  document.addEventListener('click', async (event)=>{
+    const button = event.target.closest('.copy-btn');
+    if(!button) return;
+    const card = button.closest('.prompt-card');
+    const code = card ? card.querySelector('code') : null;
+    const text = code ? code.textContent.trim() : '';
+    if(!text) return;
+    const label = button.querySelector('span');
+    const oldLabel = label ? label.textContent : '';
+    try{
+      await copyText(text);
+      button.classList.add('copied');
+      if(label) label.textContent = '已複製';
+      flashStatus('提示詞已複製');
+      setTimeout(()=>{
+        button.classList.remove('copied');
+        if(label) label.textContent = oldLabel || '複製';
+      }, 1300);
+    }catch(error){
+      console.warn('[copy] failed', error);
+      flashStatus('請手動選取文字');
+    }
+  });
+})();
+</script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
+
+<!-- ============ Motion One 动效引擎（本地优先,CDN 兜底） ============
+     加载策略:先 ./assets/motion.min.js(本地,离线可用),失败 fallback 到 jsDelivr CDN
+     加载完成后挂 window.__playSlide / window.__pipeAdvance,
+     导航脚本会在翻页中段调用 __playSlide(idx),键盘/滚轮/触屏会在翻页前调用 __pipeAdvance()
+     双双失败时会兜底把所有 [data-anim] 设为可见,不让动效破坏阅读
+-->
+<script type="module">
+let motion;
+try {
+  motion = await import('./assets/motion.min.js');
+} catch(e1) {
+  try {
+    motion = await import('https://cdn.jsdelivr.net/npm/motion@11.11.17/+esm');
+  } catch(e2) {
+    console.warn('[motion] local + CDN both failed, disabling animations', e1, e2);
+    document.querySelectorAll('[data-anim]').forEach(el=>{el.style.opacity='1';el.style.transform='none'});
+    document.querySelectorAll('[data-animate="pipeline"] [data-anim]').forEach(el=>el.style.opacity='1');
+  }
+}
+
+if(motion){
+  const { animate, stagger } = motion;
+  document.body.classList.add('motion-ready');
+  const EASE = [.22, 1, .36, 1];
+  const slides = [...document.querySelectorAll('.slide')];
+  let pipeStep = -1;
+  let lastIdx = -1;
+
+  function resetAnims(slide){
+    slide.querySelectorAll('[data-anim]').forEach(el=>{
+      el.style.opacity='';
+      el.style.transform='';
+    });
+  }
+
+  function revealStatic(slide){
+    resetAnims(slide);
+    document.getAnimations?.().forEach(a=>a.cancel());
+    slide.querySelectorAll('[data-anim]').forEach(el=>{
+      el.style.opacity='1';
+      el.style.transform='none';
+    });
+  }
+
+  function playSlide(i){
+    const slide = slides[i];
+    if(!slide) return;
+    lastIdx = i;
+    const recipe = slide.dataset.animate || (slide.classList.contains('hero') ? 'hero' : 'cascade');
+
+    if(window.__lowPowerMode){
+      revealStatic(slide);
+      return;
+    }
+
+    if(recipe === 'pipeline'){
+      pipeStep = -1;
+      slide.querySelectorAll('[data-anim]').forEach(el=>{
+        el.style.opacity='0.15';
+        el.style.transform='none';
+      });
+      return;
+    }
+
+    resetAnims(slide);
+    const all = [...slide.querySelectorAll('[data-anim]')];
+    if(!all.length) return;
+
+    if(recipe === 'directional'){
+      const lefts  = all.filter(el=>el.dataset.anim==='left');
+      const divs   = all.filter(el=>el.dataset.anim==='divider');
+      const rights = all.filter(el=>el.dataset.anim==='right');
+      const others = all.filter(el=>!['left','right','divider'].includes(el.dataset.anim));
+      if(others.length) animate(others, {opacity:[0,1], y:[12,0]}, {duration:.6, delay:stagger(.1, {start:.15}), easing:EASE});
+      if(lefts.length)  animate(lefts,  {opacity:[0,1], x:[-24,0]}, {duration:.8, delay:.35, easing:EASE});
+      if(divs.length)   animate(divs,   {opacity:[0,.25]},          {duration:.5, delay:.9});
+      if(rights.length) animate(rights, {opacity:[0,1], x:[24,0]},  {duration:.8, delay:1.0, easing:EASE});
+      return;
+    }
+
+    if(recipe === 'quote'){
+      const lines = all.filter(el=>el.dataset.anim==='line');
+      const others = all.filter(el=>el.dataset.anim!=='line');
+      if(others.length) animate(others, {opacity:[0,1], y:[8,0]},    {duration:.6, delay:stagger(.12, {start:.2}), easing:EASE});
+      if(lines.length)  animate(lines,  {opacity:[.35,1], y:[10,0]}, {duration:.8, delay:stagger(.55, {start:.5}), easing:EASE});
+      return;
+    }
+
+    if(recipe === 'hero'){
+      animate(all, {opacity:[0,1], y:[14,0]}, {duration:.9, delay:stagger(.16, {start:.2}), easing:EASE});
+      return;
+    }
+
+    // default: cascade
+    animate(all, {opacity:[0,1], y:[16,0]}, {duration:.75, delay:stagger(.1, {start:.15}), easing:EASE});
+  }
+
+  function pipeAdvance(){
+    if(window.__lowPowerMode) return false;
+    const slide = slides[lastIdx];
+    if(!slide || slide.dataset.animate !== 'pipeline') return false;
+    const steps  = [...slide.querySelectorAll('[data-anim="step"]')];
+    const arrows = [...slide.querySelectorAll('[data-anim="arrow"]')];
+    if(pipeStep >= steps.length - 1) return false;
+    pipeStep++;
+    animate(steps[pipeStep], {opacity:[0.15,1], y:[8,0]}, {duration:.5, easing:EASE});
+    if(pipeStep > 0 && arrows[pipeStep-1]){
+      animate(arrows[pipeStep-1], {opacity:[0.15,.7]}, {duration:.3, delay:.15});
+    }
+    return true;
+  }
+
+  window.__playSlide = playSlide;
+  window.__pipeAdvance = pipeAdvance;
+
+  // 首屏:go(0) 已跑过(同步),没来得及触发动效 → 这里补一下
+  playSlide(0);
+}
+</script>
+</body>
+</html>
