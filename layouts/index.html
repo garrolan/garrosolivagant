@@ -109,7 +109,11 @@
     <div class="mx-auto max-w-[65ch] space-y-8">
       {{ range $homeItems }}
         {{ $excerpt := or .Description (.Summary | plainify) }}
-        {{ $searchText := lower (printf "%s %s %s" .Title $excerpt .Plain) }}
+        {{ $tags := "" }}
+        {{ with .Params.tags }}{{ $tags = delimit . " " }}{{ end }}
+        {{ $categories := "" }}
+        {{ with .Params.categories }}{{ $categories = delimit . " " }}{{ end }}
+        {{ $searchText := lower (printf "%s %s %s %s %s" .Title $excerpt $tags $categories .Section) }}
       <div {{ printf "data-search-text=%q" $searchText | safeHTMLAttr }} data-search-card>
         {{ .Render "zen-summary" }}
       </div>
@@ -119,7 +123,11 @@
     <div class="flex flex-wrap">
         {{ range $homeItems }}
           {{ $excerpt := or .Description (.Summary | plainify) }}
-          {{ $searchText := lower (printf "%s %s %s" .Title $excerpt .Plain) }}
+          {{ $tags := "" }}
+          {{ with .Params.tags }}{{ $tags = delimit . " " }}{{ end }}
+          {{ $categories := "" }}
+          {{ with .Params.categories }}{{ $categories = delimit . " " }}{{ end }}
+          {{ $searchText := lower (printf "%s %s %s %s %s" .Title $excerpt $tags $categories .Section) }}
         <div class="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 p-4" {{ printf "data-search-text=%q" $searchText | safeHTMLAttr }} data-search-card>
           {{ .Render "summary" }}
         </div>
