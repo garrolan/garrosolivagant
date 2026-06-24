@@ -18,6 +18,11 @@ tools:
     category: "圖片處理"
     description: "把圖片檔案變小，方便上傳網站、寄送或放進文章裡。"
     icon: "contract"
+  - title: "PDF 壓縮工具"
+    url: "https://freedom-lab-pdf-compressor.netlify.app/"
+    category: "PDF 處理"
+    description: "把 PDF 檔案壓小，方便上傳網站、寄送或保留成比較輕的版本。"
+    icon: "document-text"
 ---
 
 這裡先收集自由人生實驗室常用的小工具。之後如果又長出新的小程式，就可以繼續補在這一頁，讓工具入口集中在同一個地方。
