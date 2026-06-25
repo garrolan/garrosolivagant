@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>資訊狀態導航器｜找答案、開地圖、補能量，還是被捲走？</title>
+  <style>
+    :root {
+      --bg-1: #fff8f1;
+      --bg-2: #eef8ff;
+      --card: rgba(255, 255, 255, 0.86);
+      --card-solid: #ffffff;
+      --ink: #334155;
+      --muted: #64748b;
+      --line: rgba(148, 163, 184, 0.28);
+      --primary: #7c9cff;
+      --primary-dark: #526fe6;
+      --pink: #ff9dbb;
+      --mint: #7bd8bd;
+      --sun: #ffd06b;
+      --lav: #b8a7ff;
+      --danger: #ff8d8d;
+      --shadow: 0 24px 80px rgba(103, 116, 151, 0.18);
+      --radius: 28px;
+      --max: 880px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(255, 208, 107, 0.28), transparent 30%),
+        radial-gradient(circle at top right, rgba(124, 156, 255, 0.24), transparent 28%),
+        radial-gradient(circle at 80% 86%, rgba(123, 216, 189, 0.24), transparent 30%),
+        linear-gradient(135deg, var(--bg-1), var(--bg-2));
+      overflow-x: hidden;
+    }
+
+    .floaty {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .bubble {
+      position: absolute;
+      border-radius: 999px;
+      opacity: .32;
+      filter: blur(.2px);
+      animation: drift 16s infinite ease-in-out;
+    }
+
+    .bubble.b1 { width: 130px; height: 130px; background: #ffbdd0; left: -35px; top: 18%; animation-delay: 0s; }
+    .bubble.b2 { width: 90px; height: 90px; background: #a8e7d5; right: 8%; top: 10%; animation-delay: -4s; }
+    .bubble.b3 { width: 180px; height: 180px; background: #cfc5ff; right: -62px; bottom: 12%; animation-delay: -8s; }
+    .bubble.b4 { width: 70px; height: 70px; background: #ffdd93; left: 12%; bottom: 10%; animation-delay: -12s; }
+
+    @keyframes drift {
+      0%, 100% { transform: translateY(0) translateX(0) scale(1); }
+      50% { transform: translateY(-22px) translateX(12px) scale(1.05); }
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      width: min(var(--max), calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 40px;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+    }
+
+    .app-shell {
+      width: 100%;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      letter-spacing: .03em;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #fff, #f6efff);
+      box-shadow: 0 10px 28px rgba(124, 156, 255, .18);
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.56);
+      border-radius: 999px;
+      padding: 8px 12px;
+      backdrop-filter: blur(12px);
+    }
+
+    .card {
+      width: 100%;
+      min-height: 620px;
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.72);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      padding: clamp(22px, 4vw, 46px);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      right: -130px;
+      top: -130px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(255, 157, 187, .24), transparent 70%);
+    }
+
+    .screen {
+      display: none;
+      animation: appear .35s ease both;
+      position: relative;
+      z-index: 1;
+    }
+
+    .screen.active { display: block; }
+
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      display: grid;
+      gap: 24px;
+      align-items: center;
+      grid-template-columns: 1.1fr .9fr;
+      min-height: 520px;
+    }
+
+    h1 {
+      font-size: clamp(38px, 7vw, 68px);
+      line-height: 1.03;
+      margin: 0;
+      letter-spacing: -0.06em;
+      color: #22314b;
+    }
+
+    h2 {
+      font-size: clamp(26px, 4vw, 40px);
+      line-height: 1.18;
+      margin: 0;
+      letter-spacing: -0.035em;
+      color: #24324a;
+    }
+
+    h3 {
+      font-size: 20px;
+      margin: 0 0 10px;
+      color: #29364f;
+    }
+
+    p {
+      line-height: 1.85;
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .subtitle {
+      font-size: clamp(19px, 2.5vw, 27px);
+      color: #52627b;
+      margin-top: 14px;
+      line-height: 1.45;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+    }
+
+    .lead {
+      margin-top: 22px;
+      max-width: 580px;
+    }
+
+    .hero-art {
+      min-height: 360px;
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+
+    .compass {
+      width: min(330px, 72vw);
+      aspect-ratio: 1;
+      border-radius: 42% 58% 50% 50%;
+      background:
+        radial-gradient(circle at 45% 42%, #fff 0 28%, transparent 29%),
+        conic-gradient(from 10deg, #ff9dbb, #ffd06b, #7bd8bd, #7c9cff, #b8a7ff, #ff9dbb);
+      box-shadow: 0 26px 70px rgba(82, 111, 230, .22);
+      position: relative;
+      display: grid;
+      place-items: center;
+      animation: breathe 6s infinite ease-in-out;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: rotate(-3deg) scale(1); }
+      50% { transform: rotate(3deg) scale(1.035); }
+    }
+
+    .compass-inner {
+      width: 54%;
+      aspect-ratio: 1;
+      border-radius: 999px;
+      background: rgba(255,255,255,.88);
+      display: grid;
+      place-items: center;
+      font-size: 58px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.8), 0 14px 30px rgba(51,65,85,.1);
+    }
+
+    .mini-tag {
+      position: absolute;
+      background: rgba(255,255,255,.88);
+      border: 1px solid rgba(255,255,255,.8);
+      border-radius: 999px;
+      padding: 9px 13px;
+      font-weight: 800;
+      color: #475569;
+      box-shadow: 0 10px 30px rgba(51,65,85,.10);
+      font-size: 14px;
+    }
+    .t1 { left: 4%; top: 13%; transform: rotate(-8deg); }
+    .t2 { right: 0; top: 26%; transform: rotate(6deg); }
+    .t3 { left: 1%; bottom: 20%; transform: rotate(5deg); }
+    .t4 { right: 7%; bottom: 12%; transform: rotate(-7deg); }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    button {
+      font: inherit;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 20px;
+      min-height: 52px;
+      border-radius: 999px;
+      background: var(--primary);
+      color: white;
+      font-weight: 800;
+      box-shadow: 0 14px 32px rgba(82, 111, 230, .26);
+      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 18px 38px rgba(82,111,230,.32); filter: brightness(1.02); }
+    .btn:active { transform: translateY(0); }
+
+    .btn.secondary {
+      color: #52627b;
+      background: rgba(255,255,255,.78);
+      box-shadow: none;
+      border: 1px solid var(--line);
+    }
+
+    .btn.ghost {
+      color: var(--primary-dark);
+      background: transparent;
+      box-shadow: none;
+      padding-inline: 8px;
+    }
+
+    .progress-area {
+      margin-bottom: 28px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .progress-track {
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, .18);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.7);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--pink), var(--sun), var(--mint), var(--primary));
+      transition: width .28s ease;
+    }
+
+    .question-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(124, 156, 255, .10);
+      color: #526fe6;
+      font-weight: 800;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .question-text {
+      max-width: 720px;
+    }
+
+    .options {
+      display: grid;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .option {
+      width: 100%;
+      text-align: left;
+      padding: 18px 18px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.72);
+      border: 1px solid rgba(148, 163, 184, .20);
+      color: #334155;
+      display: grid;
+      grid-template-columns: 42px 1fr 24px;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 10px 28px rgba(51,65,85,.06);
+      transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+
+    .option:hover {
+      transform: translateY(-2px);
+      border-color: rgba(124, 156, 255, .55);
+      background: rgba(255,255,255,.94);
+      box-shadow: 0 16px 36px rgba(82,111,230,.12);
+    }
+
+    .option-emoji {
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(255,255,255,.9), rgba(238,248,255,.9));
+      font-size: 22px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.7);
+    }
+
+    .option-title {
+      font-weight: 850;
+      font-size: 17px;
+      line-height: 1.35;
+      color: #2d3a54;
+    }
+
+    .option-desc {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .option-arrow {
+      color: #94a3b8;
+      font-weight: 900;
+    }
+
+    .nav-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .hint {
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, .55);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+      margin-top: 20px;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr .82fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .result-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-weight: 850;
+      margin-bottom: 14px;
+      background: rgba(255,255,255,.78);
+      border: 1px solid var(--line);
+    }
+
+    .result-title {
+      margin-bottom: 12px;
+    }
+
+    .result-copy {
+      margin-top: 12px;
+    }
+
+    .result-panel {
+      border-radius: 24px;
+      background: rgba(255,255,255,.66);
+      border: 1px solid rgba(148, 163, 184, .18);
+      padding: 20px;
+      box-shadow: 0 14px 32px rgba(51,65,85,.06);
+    }
+
+    .result-panel + .result-panel { margin-top: 14px; }
+
+    .list {
+      display: grid;
+      gap: 10px;
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .list li {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 8px;
+      align-items: start;
+      color: #52627b;
+      line-height: 1.6;
+    }
+
+    .list li span:first-child {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: rgba(124,156,255,.10);
+    }
+
+    .action-card {
+      margin-top: 18px;
+      border-radius: 24px;
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(255,255,255,.92), rgba(238,248,255,.74));
+      border: 1px solid rgba(255,255,255,.86);
+      box-shadow: 0 16px 36px rgba(51,65,85,.08);
+    }
+
+    .action-card strong {
+      color: #24324a;
+    }
+
+    .switch-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .switch-btn {
+      border-radius: 18px;
+      padding: 13px 12px;
+      background: rgba(255,255,255,.76);
+      border: 1px solid var(--line);
+      color: #475569;
+      font-weight: 850;
+      transition: transform .18s ease, background .18s ease;
+    }
+
+    .switch-btn:hover { transform: translateY(-2px); background: white; }
+
+    .copy-box {
+      width: 100%;
+      min-height: 116px;
+      resize: vertical;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.72);
+      padding: 13px 14px;
+      color: #475569;
+      font: inherit;
+      line-height: 1.6;
+      margin-top: 12px;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%) translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      background: rgba(35, 49, 75, .92);
+      color: white;
+      border-radius: 999px;
+      padding: 12px 16px;
+      z-index: 10;
+      transition: .25s ease;
+      box-shadow: 0 14px 32px rgba(51,65,85,.22);
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 14px;
+      line-height: 1.5;
+    }
+
+    .route-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 850;
+      color: #52627b;
+      background: rgba(255,255,255,.62);
+      border: 1px solid var(--line);
+    }
+
+    .mini-map {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 760px) {
+      main { width: min(100% - 20px, var(--max)); padding: 16px 0 28px; }
+      .topbar { padding: 0 4px; }
+      .pill { display: none; }
+      .card { min-height: auto; border-radius: 24px; padding: 22px; }
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-art { min-height: 280px; order: -1; }
+      .compass { width: min(240px, 70vw); }
+      .compass-inner { font-size: 42px; }
+      .mini-tag { font-size: 12px; padding: 7px 10px; }
+      .option { grid-template-columns: 38px 1fr 18px; padding: 15px; border-radius: 19px; }
+      .option-emoji { width: 38px; height: 38px; border-radius: 14px; }
+      .result-grid { grid-template-columns: 1fr; }
+      .switch-grid { grid-template-columns: 1fr; }
+      .nav-row { align-items: stretch; }
+      .nav-row .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="floaty" aria-hidden="true">
+    <span class="bubble b1"></span>
+    <span class="bubble b2"></span>
+    <span class="bubble b3"></span>
+    <span class="bubble b4"></span>
+  </div>
+
+  <main>
+    <div class="app-shell">
+      <div class="topbar">
+        <div class="brand"><span class="brand-mark">🧭</span><span>資訊狀態導航器</span></div>
+        <div class="pill">找答案・開地圖・補能量・被捲走</div>
+      </div>
+
+      <section class="card" aria-live="polite">
+        <div id="home" class="screen active">
+          <div class="hero">
+            <div>
+              <h1>資訊狀態導航器</h1>
+              <div class="subtitle">找答案、開地圖、補能量，還是被捲走？</div>
+              <p class="lead">
+                這不是人格測驗，而是一個「此刻狀態」判斷器。當你準備打開新聞、YouTube、FB、小紅書、Podcast、課程或文章時，先花一分鐘看看：現在是你在使用資訊，還是資訊正在使用你？
+              </p>
+              <div class="mini-map" aria-label="四種資訊狀態">
+                <span class="route-chip">🎯 利用／VOI</span>
+                <span class="route-chip">🗺️ 探索／擴展</span>
+                <span class="route-chip">🌿 調節／休閒</span>
+                <span class="route-chip">🌪️ 漂流／逃避</span>
+              </div>
+              <div class="actions">
+                <button class="btn" onclick="startFlow()">開始判斷 ✨</button>
+                <button class="btn secondary" onclick="showGuide()">先看使用方式</button>
+              </div>
+              <div id="guide" class="hint" style="display:none;">
+                每次只要依照當下直覺選擇即可。結果沒有好壞，只有提醒：你現在比較適合繼續查、慢慢探索、安心休息，或先中斷一下，重新拿回主權。
+              </div>
+            </div>
+            <div class="hero-art" aria-hidden="true">
+              <div class="compass">
+                <div class="compass-inner">🧭</div>
+                <span class="mini-tag t1">找答案</span>
+                <span class="mini-tag t2">開地圖</span>
+                <span class="mini-tag t3">補能量</span>
+                <span class="mini-tag t4">被捲走？</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="quiz" class="screen">
+          <div class="progress-area">
+            <div class="progress-meta">
+              <span id="stepLabel">第 1 題</span>
+              <span id="routeLabel">正在判斷入口狀態</span>
+            </div>
+            <div class="progress-track" aria-hidden="true"><div id="progressFill" class="progress-fill"></div></div>
+          </div>
+
+          <div class="question-kicker" id="questionKicker">🧭 先拿回方向盤</div>
+          <h2 id="questionText" class="question-text"></h2>
+          <p id="questionDesc" class="lead"></p>
+          <div id="options" class="options"></div>
+          <div class="nav-row">
+            <button class="btn secondary" id="backBtn" onclick="goBack()">← 上一步</button>
+            <button class="btn ghost" onclick="restart()">重新開始</button>
+          </div>
+        </div>
+
+        <div id="result" class="screen"></div>
+      </section>
+
+      <div class="footer-note">給自己一點清醒，也給自己一點餘裕。資訊可以很多，但方向盤要在你手上。</div>
+    </div>
+  </main>
+
+  <div id="toast" class="toast">已複製摘要</div>
+
+  <script>
+    const state = {
+      current: 'q1',
+      history: [],
+      answers: []
+    };
+
+    const maxDepth = 5;
+
+    const questions = {
+      q1: {
+        step: 1,
+        route: '入口判斷',
+        kicker: '🧭 先拿回方向盤',
+        text: '你現在打開資訊，最接近下面哪一句？',
+        desc: '先不用評價自己，只要選最接近此刻真實狀態的那一個。',
+        options: [
+          { emoji: '🎯', title: '我想解決一個具體問題，或做一個決定。', desc: '例如查資料、比選項、確認下一步。', next: 'a2' },
+          { emoji: '🗺️', title: '我想理解某個主題，看看能不能得到新觀點。', desc: '例如學習、思考、找靈感、擴大視野。', next: 'b2' },
+          { emoji: '🌿', title: '我想放鬆一下、換個心情。', desc: '例如看點輕鬆的、讓腦袋轉換一下。', next: 'c2' },
+          { emoji: '☁️', title: '我也說不清，只是想看看有沒有什麼新東西。', desc: '例如好無聊、手癢、怕錯過、想滑一下。', next: 'd2' }
+        ]
+      },
+
+      a2: {
+        step: 2,
+        route: '找答案路線',
+        kicker: '🎯 利用／VOI 檢查',
+        text: '這些資訊，會影響你接下來幾小時或幾天內的行動嗎？',
+        desc: 'VOI 的重點是：資訊是否真的能改善判斷或行動。',
+        options: [
+          { emoji: '✅', title: '會，而且很明確。', desc: '我知道這會影響下一步。', next: 'a3' },
+          { emoji: '🤔', title: '有點會，但還不太清楚。', desc: '可能有幫助，但我還需要收斂。', next: 'a3' },
+          { emoji: '🌫️', title: '不太會。', desc: '好像只是想多看一點，不一定會改變行動。', next: 'a_shift' }
+        ]
+      },
+
+      a3: {
+        step: 3,
+        route: '找答案路線',
+        kicker: '🎯 停止條件檢查',
+        text: '你知道查到什麼程度就可以停嗎？',
+        desc: '找答案模式的風險，是從「降低不確定」滑到「焦慮查資料」。',
+        options: [
+          { emoji: '🧩', title: '知道，我知道要找到哪些資訊。', desc: '我有明確停止條件。', result: 'voi' },
+          { emoji: '📝', title: '大概知道，但有點不確定。', desc: '我需要幫這次查詢補一個停止條件。', result: 'voi_soft' },
+          { emoji: '🌀', title: '不知道，總覺得還要再查一點。', desc: '停不下來，怕漏掉什麼。', next: 'a4' }
+        ]
+      },
+
+      a_shift: {
+        step: 3,
+        route: '找答案路線',
+        kicker: '🔁 重新分流',
+        text: '如果它不太會改變行動，那它比較接近哪一種？',
+        desc: '有些資訊不是 VOI，但仍然可能是探索或休閒。',
+        options: [
+          { emoji: '🗺️', title: '它能幫我理解某個問題或累積素材。', desc: '我想把它當成探索。', next: 'b3' },
+          { emoji: '🌿', title: '其實我只是想休息一下。', desc: '我想把它當成放鬆。', next: 'c3' },
+          { emoji: '🌪️', title: '我也不知道，只是停不下來。', desc: '有點被資訊拖著走。', result: 'drift' }
+        ]
+      },
+
+      a4: {
+        step: 4,
+        route: '找答案路線',
+        kicker: '🌀 焦慮查詢檢查',
+        text: '如果現在不繼續查，你最擔心的是什麼？',
+        desc: '這題用來分辨：你是在補關鍵資訊，還是在用查資料逃避拍板。',
+        options: [
+          { emoji: '😟', title: '我怕做錯決定。', desc: '我需要更多確定感才敢行動。', result: 'drift_from_voi' },
+          { emoji: '📡', title: '我怕漏掉重要資訊。', desc: '總覺得還有一個關鍵消息沒看到。', result: 'drift_from_voi' },
+          { emoji: '🌀', title: '其實沒有，只是停不下來。', desc: '我知道夠了，但還是一直看。', result: 'drift' },
+          { emoji: '🚶', title: '我覺得資訊已經夠了，可以先行動。', desc: '我願意先做最小下一步。', result: 'voi_soft' }
+        ]
+      },
+
+      b2: {
+        step: 2,
+        route: '開地圖路線',
+        kicker: '🗺️ 探索／擴展檢查',
+        text: '你心裡有一個想理解的主題、問題或概念嗎？',
+        desc: '探索不必馬上有答案，但至少要有一點問題意識。',
+        options: [
+          { emoji: '💡', title: '有，而且我大概說得出來。', desc: '我知道自己正在靠近什麼問題。', next: 'b3' },
+          { emoji: '🌱', title: '有一點，但還很模糊。', desc: '它還在發芽，但不是完全亂看。', next: 'b3' },
+          { emoji: '🌫️', title: '沒有，只是想隨便看看。', desc: '我不太知道自己在找什麼。', next: 'b4' }
+        ]
+      },
+
+      b3: {
+        step: 3,
+        route: '開地圖路線',
+        kicker: '🗺️ 回收方式檢查',
+        text: '看完之後，你願意至少帶回一樣東西嗎？',
+        desc: '探索的停止條件不是「立刻有用」，而是「有回收」。',
+        options: [
+          { emoji: '📝', title: '一句筆記。', desc: '留下我自己的觀察或摘要。', result: 'explore' },
+          { emoji: '❓', title: '一個新問題。', desc: '讓下一輪思考更清楚。', result: 'explore' },
+          { emoji: '🔗', title: '一個靈感或連結。', desc: '把新資訊接回自己的生活或創作。', result: 'explore' },
+          { emoji: '👀', title: '不打算，只是想看一看。', desc: '我不想回收，只想繼續看。', next: 'b4' }
+        ]
+      },
+
+      b4: {
+        step: 4,
+        route: '開地圖路線',
+        kicker: '🌫️ 探索或漂流？',
+        text: '你現在比較像哪一種？',
+        desc: '這題用來分辨：你是在開地圖，還是只是被入口吸住。',
+        options: [
+          { emoji: '🌿', title: '我其實是想放鬆一下。', desc: '不是探索，只是需要休息。', next: 'c3' },
+          { emoji: '🍬', title: '我只是有點無聊，不想空著。', desc: '我想被刺激填滿一下。', next: 'd_bored' },
+          { emoji: '📡', title: '我怕錯過新東西。', desc: '感覺不看就會落後。', result: 'drift' },
+          { emoji: '👆', title: '我只是手滑進來的。', desc: '沒有目的，入口自己打開了。', result: 'drift' }
+        ]
+      },
+
+      c2: {
+        step: 2,
+        route: '補能量路線',
+        kicker: '🌿 調節／休閒檢查',
+        text: '你清楚知道自己現在是在休息，而不是假裝在學習嗎？',
+        desc: '健康休閒不需要偽裝成有用，它本來就有價值。',
+        options: [
+          { emoji: '😌', title: '是，我就是想休息。', desc: '我承認自己現在需要放鬆。', next: 'c3' },
+          { emoji: '🤔', title: '有點不確定。', desc: '我可能想休息，也可能在逃避。', next: 'c3' },
+          { emoji: '😣', title: '不是，我其實有點內疚。', desc: '我怕自己又在浪費時間。', next: 'c4' }
+        ]
+      },
+
+      c3: {
+        step: 3,
+        route: '補能量路線',
+        kicker: '🌿 邊界檢查',
+        text: '你有沒有設定一個休息邊界？',
+        desc: '調節不是問題，沒有邊界才容易滑向漂流。',
+        options: [
+          { emoji: '⏰', title: '有，時間邊界。', desc: '例如 10 分鐘或一集。', next: 'c4' },
+          { emoji: '📚', title: '有，內容邊界。', desc: '只看某個清單、頻道或收藏，不進推薦流。', next: 'c4' },
+          { emoji: '🌊', title: '目前沒有。', desc: '先滑再說，停哪裡算哪裡。', next: 'c4' }
+        ]
+      },
+
+      c4: {
+        step: 4,
+        route: '補能量路線',
+        kicker: '🌿 補充或掏空？',
+        text: '你通常看完這類內容後，會比較像哪一種感覺？',
+        desc: '真正的休息會讓你回來；偽裝的休息常讓你更空。',
+        options: [
+          { emoji: '🫧', title: '被補充、比較放鬆。', desc: '看完會比較舒服。', result: 'rest' },
+          { emoji: '🍃', title: '還好，沒特別感覺。', desc: '可以休息，但最好加一點邊界。', result: 'rest_soft' },
+          { emoji: '🕳️', title: '更空虛或更焦慮。', desc: '它可能不是休息，而是消耗。', result: 'drift' }
+        ]
+      },
+
+      d2: {
+        step: 2,
+        route: '模糊入口路線',
+        kicker: '☁️ 模糊入口檢查',
+        text: '現在最接近你的感覺是什麼？',
+        desc: '「說不清」很常見。先把底層感覺抓出來，就比較不容易被拖走。',
+        options: [
+          { emoji: '🍬', title: '無聊，想找點新鮮感。', desc: '我想被刺激一下。', next: 'd_bored' },
+          { emoji: '😟', title: '焦慮，想看點東西讓自己安心。', desc: '我想用資訊壓住不安。', next: 'd_rescue' },
+          { emoji: '📡', title: '怕錯過，怕跟不上。', desc: '感覺世界一直在跑。', next: 'd_rescue' },
+          { emoji: '🥱', title: '累了，只想隨便放鬆一下。', desc: '我需要休息，不一定需要資訊。', next: 'd_tired' },
+          { emoji: '🫣', title: '拖延，不想面對某件事。', desc: '我知道有事情在等我。', next: 'd_rescue' }
+        ]
+      },
+
+      d_bored: {
+        step: 3,
+        route: '模糊入口路線',
+        kicker: '🍬 無聊岔路口',
+        text: '你比較想要的是哪一種？',
+        desc: '無聊本身沒有錯，重點是它要通往哪裡。',
+        options: [
+          { emoji: '💡', title: '找靈感。', desc: '想看看能不能遇到新想法。', next: 'b3' },
+          { emoji: '⚡', title: '找刺激。', desc: '想要下一個、再下一個、再下一個。', result: 'drift' },
+          { emoji: '🌿', title: '找點輕鬆的東西。', desc: '我只是想轉換心情。', next: 'c3' }
+        ]
+      },
+
+      d_tired: {
+        step: 3,
+        route: '模糊入口路線',
+        kicker: '🥱 累了，要怎麼休息？',
+        text: '你願意幫這次休息加上一個小邊界嗎？',
+        desc: '累的時候最容易被推薦流捲走；一個小邊界就能保護你。',
+        options: [
+          { emoji: '⏰', title: '願意，看一集或 10 分鐘就停。', desc: '我想讓休息有結束點。', result: 'rest' },
+          { emoji: '📚', title: '願意，只看自己選的內容，不看推薦流。', desc: '我不把自己交給演算法。', result: 'rest' },
+          { emoji: '🌊', title: '不想設，先滑再說。', desc: '我現在不太想拿方向盤。', result: 'drift' }
+        ]
+      },
+
+      d_rescue: {
+        step: 3,
+        route: '模糊入口路線',
+        kicker: '🛟 切換狀態',
+        text: '你願意先停 30 秒，改成一個更清楚的目的嗎？',
+        desc: '這不是禁止你看資訊，而是先把方向盤拿回來。',
+        options: [
+          { emoji: '🎯', title: '願意，我想改成找答案。', desc: '我把焦慮改成一個具體問題。', next: 'a2' },
+          { emoji: '🗺️', title: '願意，我想改成開地圖。', desc: '我把焦慮改成探索問題。', next: 'b2' },
+          { emoji: '🌿', title: '願意，我只是想補能量。', desc: '我承認自己需要休息。', next: 'c2' },
+          { emoji: '🌪️', title: '不想，我現在只想滑一下。', desc: '我知道可能會被捲走，但還是想滑。', result: 'drift' }
+        ]
+      }
+    };
+
+    const results = {
+      voi: {
+        key: 'voi',
+        emoji: '🎯',
+        label: '利用／VOI',
+        nickname: '找答案模式',
+        color: '#7c9cff',
+        title: '你現在很可能在「利用／VOI 模式」。',
+        intro: '你不是隨便亂看，而是在找能幫助你判斷與行動的資訊。這是資訊價值最高、最容易落地的一種狀態。',
+        value: ['有助於做決策', '能降低不確定性', '容易把資訊轉成下一步行動'],
+        risk: '如果一直查、一直比，卻不行動，這個模式可能滑向焦慮型漂流。',
+        actionTitle: '現在最適合做的事',
+        action: '寫下：我這次要解決的問題是什麼？接著設定停止條件：查到什麼程度就停？最後做出一個最小下一步。',
+        summary: '我現在是利用／VOI 模式：我正在找能改善行動或決策的資訊。下一步是設定停止條件，查到足夠就行動。'
+      },
+      voi_soft: {
+        key: 'voi',
+        emoji: '🎯',
+        label: '利用／VOI',
+        nickname: '找答案模式・需要收斂',
+        color: '#7c9cff',
+        title: '你接近「利用／VOI 模式」，但需要補一個停止條件。',
+        intro: '你有明確問題，也願意行動，只是現在還有一點「再查一下比較安心」的慣性。這不是壞事，但要小心不要被不確定感拖走。',
+        value: ['能讓行動更穩', '能把焦慮轉成具體問題', '適合做低成本下一步'],
+        risk: '如果沒有停止條件，查資料會從幫助決策變成延後決策。',
+        actionTitle: '現在最適合做的事',
+        action: '請補完這句話：我只需要再確認＿＿，就可以先做下一步。下一步不用完美，只要足夠小、足夠安全。',
+        summary: '我現在接近利用／VOI 模式，但需要收斂。我要先補一個停止條件，再做最小下一步。'
+      },
+      explore: {
+        key: 'explore',
+        emoji: '🗺️',
+        label: '探索／擴展',
+        nickname: '開地圖模式',
+        color: '#b8a7ff',
+        title: '你現在很可能在「探索／擴展模式」。',
+        intro: '你不是急著找答案，而是在擴大自己的理解地圖。這種狀態很適合學習、創作、思考與發現新問題。',
+        value: ['帶來新觀點', '幫助發現新問題', '累積創作與思考素材'],
+        risk: '如果沒有回收方式，探索很容易變成散漫的漂流。',
+        actionTitle: '現在最適合做的事',
+        action: '給這次探索一個小回收：看完後留下一句筆記、一個新問題，或一個能接回自己生活的靈感。',
+        summary: '我現在是探索／擴展模式：我正在開地圖、找新觀點。下一步是設定回收方式，帶回一句筆記、一個問題或一個靈感。'
+      },
+      rest: {
+        key: 'rest',
+        emoji: '🌿',
+        label: '調節／休閒',
+        nickname: '補能量模式',
+        color: '#7bd8bd',
+        title: '你現在很可能在「調節／休閒模式」。',
+        intro: '你現在需要的，不一定是更多知識，而是恢復一點能量。健康的休息不是浪費，它是讓你回到生活的方式。',
+        value: ['讓大腦休息', '幫助情緒調節', '讓人更有餘裕回到生活'],
+        risk: '如果沒有邊界，休閒也可能慢慢滑向漂流。',
+        actionTitle: '現在最適合做的事',
+        action: '安心休息，但加一個小邊界：一集、10 分鐘，或只看自己選的內容。看完後問自己：我有比較舒服嗎？',
+        summary: '我現在是調節／休閒模式：我需要補能量。下一步是安心休息，但加一個小邊界，避免被推薦流捲走。'
+      },
+      rest_soft: {
+        key: 'rest',
+        emoji: '🌿',
+        label: '調節／休閒',
+        nickname: '補能量模式・待觀察',
+        color: '#7bd8bd',
+        title: '你可能是在「調節／休閒模式」，但需要多一點邊界。',
+        intro: '你不一定是在漂流，但現在的休息效果還不算明確。可以休息，只是最好別把自己交給無限推薦。',
+        value: ['允許自己轉換狀態', '降低對休息的內疚', '讓資訊消費更有界線'],
+        risk: '若看完沒有比較舒服，或越看越空，就要改成低刺激休息。',
+        actionTitle: '現在最適合做的事',
+        action: '先設定一個很小的邊界：10 分鐘、只看一集，或只看收藏清單。看完後用一句話檢查：我現在比較舒服，還是更空？',
+        summary: '我現在可能是調節／休閒模式，但需要邊界。我要限時或限制內容，結束後檢查自己有沒有真的恢復。'
+      },
+      drift: {
+        key: 'drift',
+        emoji: '🌪️',
+        label: '漂流／逃避',
+        nickname: '被捲走模式',
+        color: '#ff8d8d',
+        title: '你現在可能有點進入「漂流／逃避模式」。',
+        intro: '這不代表你很糟，只是代表你此刻可能不是在選擇資訊，而是被無聊、焦慮、比較或演算法牽著走。',
+        value: ['提醒你主權正在流失', '讓你看見真正的需求', '提供切回清醒狀態的入口'],
+        risk: '容易越看越空、越看越停不下來，最後覺得自己被掏空。',
+        actionTitle: '現在最適合做的事',
+        action: '先不要責怪自己。請做一個小中斷：放下手機 30 秒、喝一口水，然後問自己：我現在其實是在逃什麼？',
+        summary: '我現在可能是漂流／逃避模式：我不是在選擇資訊，而是有點被捲走。下一步是先中斷 30 秒，再選擇要切到找答案、開地圖或補能量。'
+      },
+      drift_from_voi: {
+        key: 'drift',
+        emoji: '🌪️',
+        label: '漂流／逃避',
+        nickname: '焦慮查詢模式',
+        color: '#ff8d8d',
+        title: '你可能從「找答案」滑進了「焦慮查詢」。',
+        intro: '你不是沒有問題意識，但現在資訊查詢可能已經不只是幫助決策，而是在延後拍板、追求不可能的完全安心。',
+        value: ['讓你看見焦慮不是資訊不足', '提醒你設定停止條件', '幫你切回可行動狀態'],
+        risk: '越查越不敢決定，越看越覺得還缺關鍵資訊。',
+        actionTitle: '現在最適合做的事',
+        action: '請先停止新增來源。寫下：我已經知道什麼？我還缺什麼？這個缺口真的會改變行動嗎？若不會，先做最小下一步。',
+        summary: '我現在可能是焦慮查詢：表面在找答案，實際上有點怕拍板。下一步是停止新增來源，整理已知資訊，做最小下一步。'
+      }
+    };
+
+    function showGuide() {
+      const guide = document.getElementById('guide');
+      guide.style.display = guide.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function startFlow() {
+      state.current = 'q1';
+      state.history = [];
+      state.answers = [];
+      showScreen('quiz');
+      renderQuestion('q1');
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderQuestion(id) {
+      const q = questions[id];
+      if (!q) return;
+      state.current = id;
+      document.getElementById('stepLabel').textContent = `第 ${q.step} 題`;
+      document.getElementById('routeLabel').textContent = q.route;
+      document.getElementById('questionKicker').textContent = q.kicker;
+      document.getElementById('questionText').textContent = q.text;
+      document.getElementById('questionDesc').textContent = q.desc;
+      const progress = Math.min(100, Math.round((q.step / maxDepth) * 100));
+      document.getElementById('progressFill').style.width = `${progress}%`;
+      document.getElementById('backBtn').style.visibility = state.history.length ? 'visible' : 'hidden';
+
+      const options = document.getElementById('options');
+      options.innerHTML = '';
+      q.options.forEach((opt, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'option';
+        btn.innerHTML = `
+          <span class="option-emoji">${opt.emoji || '✨'}</span>
+          <span>
+            <span class="option-title">${opt.title}</span>
+            <span class="option-desc">${opt.desc || ''}</span>
+          </span>
+          <span class="option-arrow">›</span>
+        `;
+        btn.addEventListener('click', () => chooseOption(opt, q, index));
+        options.appendChild(btn);
+      });
+    }
+
+    function chooseOption(opt, q, index) {
+      state.answers.push({ question: q.text, answer: opt.title, route: q.route });
+      state.history.push(state.current);
+      if (opt.result) {
+        renderResult(opt.result);
+      } else if (opt.next) {
+        renderQuestion(opt.next);
+      }
+    }
+
+    function goBack() {
+      if (!state.history.length) return;
+      const previous = state.history.pop();
+      state.answers.pop();
+      renderQuestion(previous);
+    }
+
+    function restart() {
+      state.current = 'q1';
+      state.history = [];
+      state.answers = [];
+      showScreen('home');
+    }
+
+    function switchTo(route) {
+      state.history = ['q1'];
+      state.answers.push({ question: '結果頁切換', answer: route, route: '切換狀態' });
+      showScreen('quiz');
+      if (route === '利用／VOI') renderQuestion('a2');
+      if (route === '探索／擴展') renderQuestion('b2');
+      if (route === '調節／休閒') renderQuestion('c2');
+    }
+
+    function renderResult(resultKey) {
+      const r = results[resultKey] || results.drift;
+      const result = document.getElementById('result');
+      const copyText = buildCopyText(r);
+      result.innerHTML = `
+        <div class="result-grid">
+          <div>
+            <div class="result-badge" style="color:${r.color};"><span>${r.emoji}</span><span>${r.label}｜${r.nickname}</span></div>
+            <h2 class="result-title">${r.title}</h2>
+            <p class="result-copy">${r.intro}</p>
+            <div class="action-card">
+              <h3>✨ ${r.actionTitle}</h3>
+              <p><strong>${r.action}</strong></p>
+            </div>
+            <div class="actions">
+              <button class="btn" style="background:${r.color};" onclick="copySummary()">複製結果摘要</button>
+              <button class="btn secondary" onclick="startFlow()">重新判斷</button>
+            </div>
+            <textarea id="copyText" class="copy-box" readonly>${copyText}</textarea>
+          </div>
+          <div>
+            <div class="result-panel">
+              <h3>這個狀態的價值</h3>
+              <ul class="list">
+                ${r.value.map(item => `<li><span>🌟</span><span>${item}</span></li>`).join('')}
+              </ul>
+            </div>
+            <div class="result-panel">
+              <h3>小心這個風險</h3>
+              <p>${r.risk}</p>
+            </div>
+            ${r.key === 'drift' ? `
+              <div class="result-panel">
+                <h3>想把自己領回來，可以切換到：</h3>
+                <div class="switch-grid">
+                  <button class="switch-btn" onclick="switchTo('利用／VOI')">🎯 找答案</button>
+                  <button class="switch-btn" onclick="switchTo('探索／擴展')">🗺️ 開地圖</button>
+                  <button class="switch-btn" onclick="switchTo('調節／休閒')">🌿 補能量</button>
+                  <button class="switch-btn" onclick="startFlow()">🧭 重新判斷</button>
+                </div>
+              </div>
+            ` : `
+              <div class="result-panel">
+                <h3>也可以切換方向</h3>
+                <div class="switch-grid">
+                  <button class="switch-btn" onclick="switchTo('利用／VOI')">🎯 找答案</button>
+                  <button class="switch-btn" onclick="switchTo('探索／擴展')">🗺️ 開地圖</button>
+                  <button class="switch-btn" onclick="switchTo('調節／休閒')">🌿 補能量</button>
+                  <button class="switch-btn" onclick="startFlow()">🧭 重新判斷</button>
+                </div>
+              </div>
+            `}
+          </div>
+        </div>
+      `;
+      showScreen('result');
+    }
+
+    function buildCopyText(r) {
+      const path = state.answers.slice(-5).map((a, i) => `${i + 1}. ${a.question}\n→ ${a.answer}`).join('\n');
+      return `【資訊狀態導航器】\n目前狀態：${r.label}｜${r.nickname}\n\n${r.summary}\n\n判斷路徑：\n${path}`;
+    }
+
+    async function copySummary() {
+      const text = document.getElementById('copyText').value;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('已複製摘要 ✨');
+      } catch (e) {
+        document.getElementById('copyText').select();
+        showToast('可手動複製文字');
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+  </script>
+</body>
+</html>

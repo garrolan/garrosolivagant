@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>資訊狀態小測驗｜VOI × 探索 × 調節 × 漂流</title>
+  <style>
+    :root {
+      --bg1: #f9f7ff;
+      --bg2: #ecfbff;
+      --card: rgba(255, 255, 255, 0.86);
+      --text: #344054;
+      --muted: #667085;
+      --line: rgba(122, 139, 168, 0.24);
+      --primary: #78a6ff;
+      --primary-dark: #4f7ee8;
+      --pink: #ffabc7;
+      --mint: #8ee6cf;
+      --lemon: #ffe39a;
+      --lavender: #c7b7ff;
+      --shadow: 0 24px 70px rgba(88, 104, 137, 0.18);
+      --radius: 28px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 12%, rgba(255, 171, 199, 0.36), transparent 30%),
+        radial-gradient(circle at 90% 16%, rgba(142, 230, 207, 0.36), transparent 28%),
+        radial-gradient(circle at 80% 88%, rgba(199, 183, 255, 0.40), transparent 32%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow-x: hidden;
+    }
+
+    .floaty {
+      position: fixed;
+      border-radius: 999px;
+      opacity: 0.68;
+      filter: blur(0.2px);
+      animation: float 7s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .floaty.one { width: 72px; height: 72px; background: var(--lemon); top: 8%; left: 6%; animation-delay: 0s; }
+    .floaty.two { width: 42px; height: 42px; background: var(--mint); top: 68%; left: 10%; animation-delay: 1.3s; }
+    .floaty.three { width: 58px; height: 58px; background: var(--pink); top: 18%; right: 8%; animation-delay: 2.2s; }
+    .floaty.four { width: 34px; height: 34px; background: var(--lavender); bottom: 9%; right: 13%; animation-delay: 3.4s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-16px) scale(1.04); }
+    }
+
+    .app {
+      width: min(920px, 100%);
+      margin: 0 auto;
+      padding: 34px 18px 54px;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+    }
+
+    .shell {
+      width: 100%;
+      background: var(--card);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,0.72);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .topbar {
+      padding: 22px 26px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mascot {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #fff2b8, #ffd2e2 48%, #ccf7ea);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.75), 0 10px 24px rgba(116, 120, 150, 0.12);
+      font-size: 28px;
+      flex: 0 0 auto;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(18px, 2.4vw, 24px);
+      letter-spacing: 0.02em;
+      line-height: 1.2;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .pill {
+      flex: 0 0 auto;
+      padding: 9px 13px;
+      border-radius: 999px;
+      background: rgba(120, 166, 255, 0.13);
+      color: var(--primary-dark);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .screen {
+      padding: clamp(24px, 5vw, 48px);
+      min-height: 570px;
+      display: none;
+    }
+
+    .screen.active { display: block; }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 171, 199, 0.18);
+      color: #d45b88;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 52px);
+      line-height: 1.12;
+      letter-spacing: -0.04em;
+    }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #4f7ee8, #d45b88, #3fbba4);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .lead {
+      margin: 18px 0 0;
+      font-size: 17px;
+      line-height: 1.9;
+      color: var(--muted);
+    }
+
+    .mini-grid {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .mini-card {
+      padding: 14px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.62);
+      border: 1px solid var(--line);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .mini-card strong { display: block; margin-bottom: 4px; }
+
+    .visual-card {
+      padding: 28px;
+      border-radius: 32px;
+      background:
+        radial-gradient(circle at top left, rgba(255, 227, 154, 0.68), transparent 38%),
+        radial-gradient(circle at bottom right, rgba(142, 230, 207, 0.45), transparent 35%),
+        rgba(255,255,255,0.62);
+      border: 1px solid rgba(255,255,255,0.92);
+      min-height: 360px;
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .phone {
+      width: min(260px, 100%);
+      aspect-ratio: 9 / 16;
+      border-radius: 36px;
+      background: #ffffff;
+      box-shadow: 0 26px 60px rgba(80, 96, 130, 0.18);
+      border: 8px solid #edf2ff;
+      padding: 20px 16px;
+      position: relative;
+      transform: rotate(-2deg);
+    }
+
+    .phone::before {
+      content: "";
+      position: absolute;
+      width: 72px;
+      height: 7px;
+      border-radius: 999px;
+      background: #d8e0f6;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .bubble-row { display: grid; gap: 12px; margin-top: 28px; }
+    .bubble {
+      height: 48px;
+      border-radius: 18px;
+      background: linear-gradient(90deg, rgba(120,166,255,0.28), rgba(255,171,199,0.20));
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      font-weight: 800;
+      color: #52627c;
+    }
+    .bubble:nth-child(2) { width: 80%; background: linear-gradient(90deg, rgba(142,230,207,0.30), rgba(199,183,255,0.22)); }
+    .bubble:nth-child(3) { width: 92%; background: linear-gradient(90deg, rgba(255,227,154,0.50), rgba(120,166,255,0.18)); }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    button {
+      font-family: inherit;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .btn {
+      padding: 13px 20px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 850;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--primary), #9fc0ff);
+      color: white;
+      box-shadow: 0 14px 28px rgba(79, 126, 232, 0.22);
+    }
+
+    .btn.secondary {
+      background: rgba(255,255,255,0.72);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+    .btn:disabled { opacity: .44; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .progress-wrap { margin-bottom: 28px; }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 10px;
+      font-weight: 750;
+    }
+
+    .progress {
+      height: 12px;
+      background: rgba(120, 166, 255, 0.13);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), var(--pink), var(--mint));
+      border-radius: inherit;
+      transition: width .35s ease;
+    }
+
+    .question-card {
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .q-tag {
+      display: inline-flex;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(199, 183, 255, 0.18);
+      color: #715ee6;
+      font-weight: 850;
+      font-size: 13px;
+      margin-bottom: 18px;
+    }
+
+    .question {
+      font-size: clamp(24px, 3.8vw, 38px);
+      line-height: 1.35;
+      letter-spacing: -0.03em;
+      margin: 0 0 18px;
+    }
+
+    .hint {
+      color: var(--muted);
+      line-height: 1.8;
+      margin: 0 auto 26px;
+      max-width: 600px;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin: 28px auto 0;
+      max-width: 760px;
+    }
+
+    .choice {
+      min-height: 108px;
+      border-radius: 22px;
+      padding: 14px 8px;
+      background: rgba(255,255,255,0.74);
+      border: 2px solid transparent;
+      box-shadow: 0 10px 22px rgba(86, 97, 130, 0.08);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      gap: 6px;
+      transition: transform .18s ease, border .18s ease, background .18s ease;
+    }
+
+    .choice:hover { transform: translateY(-3px); }
+    .choice.selected {
+      border-color: var(--primary);
+      background: rgba(120,166,255,0.13);
+    }
+
+    .choice .emoji { font-size: 28px; }
+    .choice .score { font-size: 18px; font-weight: 950; }
+    .choice .label { font-size: 12px; color: var(--muted); line-height: 1.35; }
+
+    .navline {
+      max-width: 760px;
+      margin: 30px auto 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .result-layout {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    .result-hero {
+      padding: 24px;
+      border-radius: 26px;
+      background: rgba(255,255,255,0.68);
+      border: 1px solid var(--line);
+    }
+
+    .result-badge {
+      display: inline-flex;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(142,230,207,0.20);
+      color: #279b84;
+      font-size: 13px;
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+
+    .result-title {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.16;
+      letter-spacing: -0.04em;
+    }
+
+    .result-desc {
+      margin: 16px 0 0;
+      color: var(--muted);
+      line-height: 1.9;
+      font-size: 16px;
+    }
+
+    .bars { display: grid; gap: 14px; }
+
+    .bar-card {
+      padding: 16px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.70);
+      border: 1px solid var(--line);
+    }
+
+    .bar-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 10px;
+      font-weight: 900;
+    }
+
+    .bar-head span:last-child { color: var(--muted); font-size: 13px; }
+
+    .bar-track {
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(103, 119, 151, 0.12);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      width: 0%;
+      transition: width .7s ease;
+    }
+
+    .bar-fill.use { background: linear-gradient(90deg, #78a6ff, #9fc0ff); }
+    .bar-fill.explore { background: linear-gradient(90deg, #c7b7ff, #8f7aff); }
+    .bar-fill.regulate { background: linear-gradient(90deg, #8ee6cf, #42c7ad); }
+    .bar-fill.drift { background: linear-gradient(90deg, #ffabc7, #ff7ba7); }
+
+    .insight {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 22px;
+      background: rgba(255, 227, 154, 0.22);
+      border: 1px solid rgba(255, 215, 122, 0.36);
+      line-height: 1.8;
+      color: #6b5a33;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 780px) {
+      .topbar { align-items: flex-start; }
+      .pill { display: none; }
+      .hero, .result-layout { grid-template-columns: 1fr; }
+      .visual-card { min-height: 260px; }
+      .phone { width: 210px; }
+      .choices { grid-template-columns: 1fr; }
+      .choice { min-height: 72px; grid-template-columns: auto auto 1fr; place-items: center start; text-align: left; padding: 12px 16px; }
+      .choice .emoji { font-size: 22px; }
+      .navline { flex-direction: column-reverse; }
+      .navline .btn { width: 100%; }
+      .mini-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="floaty one"></div>
+  <div class="floaty two"></div>
+  <div class="floaty three"></div>
+  <div class="floaty four"></div>
+
+  <main class="app">
+    <section class="shell" aria-live="polite">
+      <header class="topbar">
+        <div class="brand">
+          <div class="mascot" aria-hidden="true">🧭</div>
+          <div>
+            <h1>資訊狀態小測驗</h1>
+            <p>判斷你現在是在利用、探索、調節，還是漂流。</p>
+          </div>
+        </div>
+        <div class="pill">VOI × 自我檢測</div>
+      </header>
+
+      <section id="intro" class="screen active">
+        <div class="hero">
+          <div>
+            <div class="kicker">✨ 一頁一題，可愛版心理測驗</div>
+            <h2>你現在，<br><span class="gradient-text">是在使用資訊，還是被資訊使用？</span></h2>
+            <p class="lead">這份小測驗會用 16 題，檢查你當下接收資訊的狀態。請依照「現在的你」回答，而不是理想中的自己。</p>
+            <div class="mini-grid">
+              <div class="mini-card"><strong>🎯 利用</strong>我用資訊改善行動。</div>
+              <div class="mini-card"><strong>🌱 探索</strong>我用資訊擴大理解。</div>
+              <div class="mini-card"><strong>🍵 調節</strong>我用資訊恢復狀態。</div>
+              <div class="mini-card"><strong>🌀 漂流</strong>資訊用我逃避自己。</div>
+            </div>
+            <div class="btn-row">
+              <button class="btn primary" id="startBtn">開始檢測</button>
+              <button class="btn secondary" id="randomMoodBtn">今天給我一句提醒</button>
+            </div>
+            <p class="footer-note" id="moodLine">提示：這不是診斷，只是幫你把當下狀態命名。</p>
+          </div>
+          <div class="visual-card" aria-hidden="true">
+            <div class="phone">
+              <div class="bubble-row">
+                <div class="bubble">找答案 🎯</div>
+                <div class="bubble">開地圖 🌱</div>
+                <div class="bubble">補能量 🍵</div>
+                <div class="bubble">別被拖走 🌀</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="quiz" class="screen">
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span id="qCounter">第 1 / 16 題</span>
+            <span id="qType">資訊狀態</span>
+          </div>
+          <div class="progress"><div id="progressBar" class="progress-bar"></div></div>
+        </div>
+
+        <div class="question-card">
+          <div class="q-tag" id="questionTag">🎯 利用 / VOI</div>
+          <h2 class="question" id="questionText"></h2>
+          <p class="hint">請直覺選擇你「此刻」的程度。答案沒有好壞，只有狀態。</p>
+
+          <div class="choices" id="choices"></div>
+
+          <div class="navline">
+            <button class="btn secondary" id="backBtn">上一題</button>
+            <button class="btn primary" id="nextBtn" disabled>下一題</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="result" class="screen">
+        <div class="result-layout">
+          <div class="result-hero">
+            <div class="result-badge" id="resultBadge">你的主要狀態</div>
+            <h2 class="result-title" id="resultTitle"></h2>
+            <p class="result-desc" id="resultDesc"></p>
+            <div class="insight" id="resultInsight"></div>
+            <div class="btn-row">
+              <button class="btn primary" id="restartBtn">重新測一次</button>
+              <button class="btn secondary" id="copyBtn">複製結果摘要</button>
+            </div>
+            <p class="footer-note" id="copyStatus">分數範圍：每類 4～20 分。分數高代表該狀態較明顯，不代表人格固定。</p>
+          </div>
+          <div class="bars" id="bars"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const dimensions = {
+      use: {
+        name: "利用 / VOI",
+        icon: "🎯",
+        cls: "use",
+        title: "你正在找答案",
+        desc: "你目前較像是在用資訊降低不確定性、改善行動或做出判斷。這是很清楚的收斂狀態，適合查資料、比較選項、做決策。",
+        insight: "提醒：找到足夠資訊後，就可以收手。VOI 的精神不是無限調研，而是讓行動變得更好。"
+      },
+      explore: {
+        name: "探索 / 擴展",
+        icon: "🌱",
+        cls: "explore",
+        title: "你正在開地圖",
+        desc: "你目前較像是在理解世界、擴大問題感、生成新的連結。這不一定立刻有用，但可能會讓你的生命地圖變大。",
+        insight: "提醒：探索可以慢遊，但要記得帶一點東西回來。哪怕只是一句筆記、一個疑問，也算回收。"
+      },
+      regulate: {
+        name: "調節 / 休閒",
+        icon: "🍵",
+        cls: "regulate",
+        title: "你正在補能量",
+        desc: "你目前較像是在用資訊放鬆、轉換心情或恢復狀態。這不是浪費，前提是看完之後你真的比較鬆、比較滿。",
+        insight: "提醒：休閒要有界線。誠實承認自己在娛樂，比假裝自己在學習更自由。"
+      },
+      drift: {
+        name: "漂流 / 逃避",
+        icon: "🌀",
+        cls: "drift",
+        title: "你可能被資訊拖走了",
+        desc: "你目前較像是被無聊、焦慮、比較、FOMO 或演算法牽著走。看似在接收資訊，其實可能越看越空。",
+        insight: "提醒：這不是罵你，而是狀態警訊。先停一下，問自己：我現在是要找答案、開地圖、補能量，還是想逃掉？"
+      }
+    };
+
+    const questions = [
+      { dim: "use", text: "我打開資訊來源前，通常知道自己想解決什麼問題。" },
+      { dim: "use", text: "我會優先找能改變實際行動或決策的資訊。" },
+      { dim: "use", text: "找到足夠資訊後，我能停止搜尋並做出下一步。" },
+      { dim: "use", text: "我看完資訊後，常常能明確說出：接下來我要怎麼做。" },
+      { dim: "explore", text: "我接收資訊時，常是因為真心想理解某個概念或現象。" },
+      { dim: "explore", text: "即使資訊暫時不能立刻使用，我也能從中產生新問題或新連結。" },
+      { dim: "explore", text: "我看完之後，常會想記下一句話、一個疑問或一個自己的想法。" },
+      { dim: "explore", text: "我接觸陌生資訊後，通常覺得世界變大，而不是自己變差。" },
+      { dim: "regulate", text: "我能承認自己有時只是想放鬆或娛樂，而不是假裝在學習。" },
+      { dim: "regulate", text: "我選擇娛樂內容時，大致知道自己想要什麼感覺。" },
+      { dim: "regulate", text: "我看完休閒內容後，多半覺得被補充，而不是更空虛。" },
+      { dim: "regulate", text: "我可以在差不多夠了的時候停下來，不會一直被下一個推薦拖走。" },
+      { dim: "drift", text: "我常常不是因為想看什麼，而是手自己打開 app。" },
+      { dim: "drift", text: "我看資訊時，常覺得『再一下就好』，但實際上停不下來。" },
+      { dim: "drift", text: "我看完後常覺得空虛、焦慮、煩躁，或覺得自己浪費時間。" },
+      { dim: "drift", text: "我越看越覺得別人很厲害、世界變很快，而自己好像落後了。" }
+    ];
+
+    const choiceMeta = [
+      { value: 1, emoji: "🌧️", label: "完全不像" },
+      { value: 2, emoji: "☁️", label: "有點不像" },
+      { value: 3, emoji: "🌤️", label: "普通 / 不確定" },
+      { value: 4, emoji: "🌈", label: "有點像" },
+      { value: 5, emoji: "✨", label: "非常像" }
+    ];
+
+    let current = 0;
+    let answers = Array(questions.length).fill(null);
+
+    const intro = document.getElementById("intro");
+    const quiz = document.getElementById("quiz");
+    const result = document.getElementById("result");
+    const startBtn = document.getElementById("startBtn");
+    const randomMoodBtn = document.getElementById("randomMoodBtn");
+    const moodLine = document.getElementById("moodLine");
+    const qCounter = document.getElementById("qCounter");
+    const qType = document.getElementById("qType");
+    const progressBar = document.getElementById("progressBar");
+    const questionTag = document.getElementById("questionTag");
+    const questionText = document.getElementById("questionText");
+    const choices = document.getElementById("choices");
+    const backBtn = document.getElementById("backBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    const copyStatus = document.getElementById("copyStatus");
+
+    const reminders = [
+      "今天可以只問一句：我現在是找答案、開地圖、補能量，還是想逃掉？",
+      "資訊不是越多越自由；真正自由，是入口由你決定。",
+      "休閒不是墮落，漂流才是耗損。差別在於你看完後有沒有回到自己。",
+      "探索可以慢，但最好帶一點東西回家：一句話、一個疑問、一個判斷。"
+    ];
+
+    function showScreen(target) {
+      [intro, quiz, result].forEach(s => s.classList.remove("active"));
+      target.classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderQuestion() {
+      const q = questions[current];
+      const dim = dimensions[q.dim];
+      qCounter.textContent = `第 ${current + 1} / ${questions.length} 題`;
+      qType.textContent = `${dim.icon} ${dim.name}`;
+      questionTag.textContent = `${dim.icon} ${dim.name}`;
+      questionText.textContent = q.text;
+      progressBar.style.width = `${(current / questions.length) * 100}%`;
+      choices.innerHTML = "";
+
+      choiceMeta.forEach(item => {
+        const btn = document.createElement("button");
+        btn.className = "choice" + (answers[current] === item.value ? " selected" : "");
+        btn.innerHTML = `
+          <div class="emoji">${item.emoji}</div>
+          <div class="score">${item.value}</div>
+          <div class="label">${item.label}</div>
+        `;
+        btn.addEventListener("click", () => {
+          answers[current] = item.value;
+          renderQuestion();
+        });
+        choices.appendChild(btn);
+      });
+
+      backBtn.disabled = current === 0;
+      nextBtn.disabled = answers[current] === null;
+      nextBtn.textContent = current === questions.length - 1 ? "看結果" : "下一題";
+    }
+
+    function getScores() {
+      const scores = { use: 0, explore: 0, regulate: 0, drift: 0 };
+      questions.forEach((q, i) => {
+        scores[q.dim] += answers[i] || 0;
+      });
+      return scores;
+    }
+
+    function level(score) {
+      if (score >= 16) return "很明顯";
+      if (score >= 11) return "中等";
+      if (score >= 6) return "偏弱";
+      return "很低";
+    }
+
+    function renderResult() {
+      progressBar.style.width = "100%";
+      const scores = getScores();
+      const sorted = Object.keys(scores).sort((a, b) => scores[b] - scores[a]);
+      const top = sorted[0];
+      const topDim = dimensions[top];
+
+      document.getElementById("resultBadge").textContent = `${topDim.icon} 主要狀態：${topDim.name}`;
+      document.getElementById("resultTitle").textContent = topDim.title;
+      document.getElementById("resultDesc").textContent = topDim.desc;
+
+      let combo = "";
+      if (scores.drift >= 16) {
+        combo = "你現在最需要的可能不是更多資訊，而是先把自己從資訊流裡抱回來。關掉入口，喝水、走動、寫一句感受，都比再刷一下更有價值。";
+      } else if (scores.explore >= 16 && scores.use <= 10) {
+        combo = "你的探索力很強，但可以試著替探索加一個小回收：看完後寫下『這改變了我哪一個問題？』";
+      } else if (scores.use >= 16 && scores.explore <= 10) {
+        combo = "你的收斂力很好，但別把所有資訊都工具化。偶爾讓陌生概念進來，會保護你的生命彈性。";
+      } else if (scores.regulate >= 16 && scores.drift <= 10) {
+        combo = "你很懂得用資訊休息，這是很健康的能力。保持界線，休閒也能成為自由的一部分。";
+      } else {
+        combo = topDim.insight;
+      }
+      document.getElementById("resultInsight").textContent = combo;
+
+      const bars = document.getElementById("bars");
+      bars.innerHTML = "";
+      Object.entries(dimensions).forEach(([key, dim]) => {
+        const score = scores[key];
+        const pct = Math.round((score / 20) * 100);
+        const card = document.createElement("div");
+        card.className = "bar-card";
+        card.innerHTML = `
+          <div class="bar-head">
+            <span>${dim.icon} ${dim.name}</span>
+            <span>${score} / 20・${level(score)}</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill ${dim.cls}" style="width:${pct}%"></div></div>
+        `;
+        bars.appendChild(card);
+      });
+
+      showScreen(result);
+    }
+
+    startBtn.addEventListener("click", () => {
+      current = 0;
+      renderQuestion();
+      showScreen(quiz);
+    });
+
+    randomMoodBtn.addEventListener("click", () => {
+      moodLine.textContent = reminders[Math.floor(Math.random() * reminders.length)];
+    });
+
+    backBtn.addEventListener("click", () => {
+      if (current > 0) {
+        current -= 1;
+        renderQuestion();
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (answers[current] === null) return;
+      if (current < questions.length - 1) {
+        current += 1;
+        renderQuestion();
+      } else {
+        renderResult();
+      }
+    });
+
+    restartBtn.addEventListener("click", () => {
+      current = 0;
+      answers = Array(questions.length).fill(null);
+      renderQuestion();
+      showScreen(quiz);
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      const scores = getScores();
+      const sorted = Object.keys(scores).sort((a, b) => scores[b] - scores[a]);
+      const top = sorted[0];
+      const text = `我的資訊狀態小測驗結果：主要狀態是「${dimensions[top].name}」。分數：利用 ${scores.use}/20、探索 ${scores.explore}/20、調節 ${scores.regulate}/20、漂流 ${scores.drift}/20。`;
+      try {
+        await navigator.clipboard.writeText(text);
+        copyStatus.textContent = "已複製結果摘要，可以貼到筆記或日誌裡。";
+      } catch (e) {
+        copyStatus.textContent = text;
+      }
+    });
+  </script>
+</body>
+</html>
