@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>自由人生金錢羅盤｜FIRE 計算器</title>
+  <style>
+    :root {
+      --bg: #f7f3eb;
+      --bg-2: #fbf8f1;
+      --paper: rgba(255, 252, 246, 0.94);
+      --paper-solid: #fffdf8;
+      --ink: #2f2a24;
+      --muted: #786f65;
+      --soft: #efe4d7;
+      --line: #e4d7c9;
+      --accent: #8b6f47;
+      --accent-2: #98a98d;
+      --accent-3: #88a9b6;
+      --gold: #c49a55;
+      --good: #557b59;
+      --warn: #b1783d;
+      --bad: #a34a43;
+      --shadow: 0 18px 45px rgba(63, 48, 35, 0.10);
+      --radius: 22px;
+      --radius-sm: 15px;
+      --max: 1080px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 4%, rgba(136, 169, 182, 0.22), transparent 28%),
+        radial-gradient(circle at 88% 12%, rgba(152, 169, 141, 0.25), transparent 32%),
+        linear-gradient(180deg, var(--bg-2), var(--bg));
+      min-height: 100vh;
+      line-height: 1.65;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    .app {
+      width: min(var(--max), calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 42px;
+    }
+
+    .topbar {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 13px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 252, 246, 0.78);
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 0.92rem;
+      box-shadow: 0 8px 20px rgba(63, 48, 35, 0.05);
+    }
+
+    .brand .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-3), var(--accent-2));
+      display: inline-block;
+    }
+
+    .utility { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .hero { padding: 26px 0 14px; }
+
+    h1 {
+      margin: 12px 0 10px;
+      font-size: clamp(2.2rem, 8vw, 4.6rem);
+      line-height: 1.04;
+      letter-spacing: -0.055em;
+    }
+
+    .lead { max-width: 780px; color: var(--muted); font-size: 1.05rem; margin: 0; }
+
+    .progress-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: 9px 0 12px;
+      background: linear-gradient(180deg, rgba(247, 243, 235, 0.98), rgba(247, 243, 235, 0.72));
+      backdrop-filter: blur(10px);
+    }
+
+    .progress-bar { height: 8px; background: rgba(228, 215, 201, 0.72); border-radius: 999px; overflow: hidden; margin-bottom: 10px; }
+    .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-3), var(--accent-2), var(--gold)); border-radius: 999px; transition: width 0.25s ease; }
+    .steps { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+
+    .step-chip {
+      border: 1px solid var(--line);
+      background: rgba(255, 252, 246, 0.82);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 7px 11px;
+      white-space: nowrap;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 750;
+      transition: all 0.2s ease;
+    }
+
+    .step-chip.active {
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--gold));
+      border-color: transparent;
+      box-shadow: 0 8px 18px rgba(139, 111, 71, 0.20);
+    }
+
+    .page { display: none; animation: fadeIn 0.23s ease; margin-top: 16px; }
+    .page.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    @media (max-width: 880px) {
+      .layout { grid-template-columns: 1fr; }
+      .side { position: static !important; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .utility { justify-content: flex-start; }
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(18px, 4vw, 26px);
+      margin-bottom: 16px;
+    }
+
+    .side { position: sticky; top: 104px; }
+    .page-kicker { color: var(--accent); font-weight: 900; letter-spacing: 0.03em; font-size: 0.88rem; margin-bottom: 8px; }
+
+    h2 { margin: 0 0 10px; font-size: clamp(1.55rem, 5vw, 2.35rem); line-height: 1.18; letter-spacing: -0.035em; }
+    h3 { margin: 0 0 8px; font-size: 1.12rem; }
+    .sub { color: var(--muted); margin: 0 0 18px; }
+
+    .note {
+      background: rgba(136, 169, 182, 0.10);
+      border: 1px solid rgba(136, 169, 182, 0.24);
+      border-radius: 18px;
+      padding: 13px 15px;
+      color: #4d6269;
+      margin-top: 14px;
+      font-size: 0.94rem;
+    }
+    .note.green { background: rgba(152, 169, 141, 0.12); border-color: rgba(152, 169, 141, 0.28); color: #4c6046; }
+    .note.gold { background: rgba(196, 154, 85, 0.12); border-color: rgba(196, 154, 85, 0.28); color: #72552a; }
+
+    .input-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .input-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    @media (max-width: 650px) { .input-grid, .input-grid.three { grid-template-columns: 1fr; } }
+
+    label { display: block; color: var(--muted); font-weight: 800; font-size: 0.9rem; margin-bottom: 5px; }
+    input, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--paper-solid);
+      border-radius: 14px;
+      color: var(--ink);
+      padding: 11px 12px;
+      outline: none;
+      min-height: 46px;
+    }
+    input:focus, select:focus { border-color: var(--accent-3); box-shadow: 0 0 0 4px rgba(136, 169, 182, 0.18); }
+    .mini-help { color: var(--muted); font-size: 0.82rem; margin-top: 5px; }
+
+    .rows { border: 1px solid var(--line); background: var(--paper-solid); border-radius: 18px; overflow: hidden; margin: 10px 0 12px; }
+    .item-row { display: grid; grid-template-columns: 1.15fr 0.8fr 42px; align-items: center; border-bottom: 1px solid var(--line); }
+    .item-row:last-child { border-bottom: none; }
+    .item-row input { border: none; border-radius: 0; background: transparent; min-height: 48px; }
+    .item-row button { border: none; background: transparent; color: var(--muted); font-size: 1.25rem; cursor: pointer; height: 48px; }
+    .item-row button:hover { color: var(--bad); }
+
+    .btn-row { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 12px; }
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 999px;
+      padding: 10px 15px;
+      font-weight: 900;
+      cursor: pointer;
+      min-height: 42px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn.primary { background: linear-gradient(135deg, var(--accent), var(--gold)); color: #fff; box-shadow: 0 10px 20px rgba(139, 111, 71, 0.18); }
+    .btn.secondary { background: rgba(255, 252, 246, 0.82); color: var(--accent); border-color: var(--line); }
+    .btn.ghost { background: transparent; color: var(--muted); border-color: rgba(120, 111, 101, 0.24); }
+
+    .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .cards.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    @media (max-width: 650px) { .cards, .cards.three { grid-template-columns: 1fr; } }
+
+    .card { background: var(--paper-solid); border: 1px solid var(--line); border-radius: 18px; padding: 15px; min-height: 102px; }
+    .card .label { color: var(--muted); font-size: 0.86rem; font-weight: 850; margin-bottom: 4px; }
+    .card .value { font-size: clamp(1.32rem, 4vw, 1.8rem); font-weight: 950; line-height: 1.15; letter-spacing: -0.035em; }
+    .card.highlight { background: linear-gradient(150deg, #fffdf8, #f4efe6); border-color: rgba(196, 154, 85, 0.34); }
+    .card.highlight .value { color: var(--accent); }
+    .card .desc { color: var(--muted); font-size: 0.82rem; margin-top: 6px; }
+
+    .formula { background: rgba(255, 255, 255, 0.60); border: 1px dashed var(--line); border-radius: 18px; padding: 13px 15px; color: var(--muted); margin-top: 14px; font-size: 0.93rem; }
+    .table { width: 100%; border-collapse: collapse; background: var(--paper-solid); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; margin: 12px 0; }
+    .table th, .table td { padding: 11px 10px; border-bottom: 1px solid var(--line); text-align: right; }
+    .table th:first-child, .table td:first-child { text-align: left; }
+    .table tr:last-child td { border-bottom: none; }
+    .table th { color: var(--muted); font-size: 0.84rem; background: rgba(239, 228, 215, 0.35); }
+
+    .choice { display: grid; gap: 10px; }
+    .choice label { display: flex; gap: 10px; align-items: center; padding: 12px 13px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper-solid); color: var(--ink); cursor: pointer; margin: 0; font-weight: 800; }
+    .choice input { width: auto; min-height: auto; accent-color: var(--accent); }
+
+    .nav-row { display: flex; justify-content: space-between; gap: 10px; margin-top: 18px; }
+    .meter { background: rgba(228, 215, 201, 0.75); border-radius: 999px; overflow: hidden; height: 14px; margin: 10px 0 5px; }
+    .meter > div { height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, var(--accent-3), var(--accent-2), var(--gold)); transition: width 0.25s ease; }
+
+    .summary-letter { background: linear-gradient(160deg, rgba(255, 253, 248, 0.96), rgba(248, 243, 235, 0.95)); border: 1px solid var(--line); border-radius: 24px; padding: 20px; box-shadow: var(--shadow); }
+    .summary-letter p { margin: 0 0 10px; }
+    .compass { width: 130px; height: 130px; margin: 4px auto 14px; border-radius: 50%; border: 1px solid rgba(139, 111, 71, 0.28); background: radial-gradient(circle, rgba(255,255,255,.9) 0 34%, transparent 35%), conic-gradient(from -30deg, rgba(136,169,182,.35), rgba(152,169,141,.35), rgba(196,154,85,.35), rgba(136,169,182,.35)); position: relative; box-shadow: inset 0 0 0 10px rgba(255, 252, 246, 0.65); }
+    .compass::before { content: "N"; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); color: var(--accent); font-weight: 950; }
+    .compass::after { content: ""; position: absolute; width: 14px; height: 55px; background: linear-gradient(180deg, var(--accent), var(--gold)); clip-path: polygon(50% 0, 100% 100%, 50% 78%, 0 100%); top: 24px; left: calc(50% - 7px); transform-origin: 50% 42px; transform: rotate(28deg); border-radius: 8px; }
+    .small { font-size: 0.88rem; color: var(--muted); }
+    .saved-indicator { color: var(--muted); font-size: 0.82rem; }
+
+    @media print {
+      .progress-wrap, .nav-row, .topbar, .btn-row { display: none !important; }
+      .page { display: block !important; break-after: page; }
+      body { background: #fff; }
+      .panel { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand"><span class="dot"></span> GARRO自由人生實驗室｜Money Compass</div>
+      <div class="utility">
+        <button class="btn ghost" id="saveNowBtn">儲存目前資料</button>
+        <button class="btn ghost" id="resetDemoBtn">恢復示範</button>
+        <button class="btn ghost" id="clearBtn">清除資料</button>
+      </div>
+    </div>
+
+    <section class="hero">
+      <h1>自由人生金錢羅盤</h1>
+      <p class="lead">從每月開銷、年度支出、總資產、儲蓄率，到 FIRE 數字與自由距離。這是一個給自己看的生活主權地圖，不是金融商品推銷，也不是焦慮製造器。</p>
+      <p class="saved-indicator" id="savedIndicator">資料會自動儲存在這台裝置的瀏覽器中。</p>
+    </section>
+
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="steps" id="steps"></div>
+    </div>
+
+    <section class="page active" data-page="0">
+      <div class="layout"><div class="panel"><div class="page-kicker">START</div><h2>我想知道自己的自由數字</h2><p class="sub">財務自由不是先問「我要有多少錢」，而是先問：<strong>我想過的生活，一年需要多少錢？</strong></p><div class="note green">這個工具會沿著「生活成本 → 年支出 → FIRE 目標 → 目前資產 → 儲蓄速度 → 達成年限」的順序，幫你看見目前的位置與下一步方向。</div><div class="formula">金錢不是目的，而是用來換取選擇權、時間餘裕與生活主權的工具。</div><div class="btn-row"><button class="btn primary" data-goto="1">開始計算</button><button class="btn secondary" data-goto="9">直接看總結</button></div></div><aside class="panel side"><div class="compass"></div><h3>這不是成績單，是地圖</h3><p class="small">數字不是拿來責備自己的。它只是幫你看清楚：現在在哪裡、想去哪裡、可以怎麼走。</p><div class="note">本工具僅供教育與自我規劃參考，不構成任何投資、退休、稅務或保險建議。</div></aside></div>
+    </section>
+
+    <section class="page" data-page="1">
+      <div class="layout"><div class="panel"><div class="page-kicker">STEP 1｜MONTHLY COST</div><h2>每月生活成本</h2><p class="sub">我平常一個月大概花多少？先抓常態生活底盤，不求完美精準。</p><div class="rows" id="monthlyRows"></div><button class="btn secondary" id="addMonthlyBtn">＋ 新增每月開銷</button><div class="note">月支出適合看日常現金流壓力，但它不是完整答案。真正計算 FIRE 時，還要加上年度額外開銷。</div></div><aside class="panel side"><h3>本頁輸出</h3><div class="cards"><div class="card highlight"><div class="label">每月開銷合計</div><div class="value" id="outMonthlyTotal">—</div><div class="desc">你的日常生活底盤</div></div><div class="card"><div class="label">只看月支出的年化</div><div class="value" id="outMonthlyAnnualized">—</div><div class="desc">尚未含年度額外支出</div></div></div><div class="formula">月支出不是完整答案，但它是看見生活成本的入口。</div></aside></div>
+    </section>
+
+    <section class="page" data-page="2">
+      <div class="layout"><div class="panel"><div class="page-kicker">STEP 2｜ANNUAL COST</div><h2>年度額外開銷</h2><p class="sub">不是每個月花，但一年會出現的錢，也要放進生活成本裡。</p><div class="rows" id="annualRows"></div><button class="btn secondary" id="addAnnualBtn">＋ 新增年度開銷</button><div class="note">很多人覺得自己每月花不多，但保險、稅金、旅行、醫療、設備更新一加進來，真實年支出才會浮現。</div></div><aside class="panel side"><h3>本頁輸出</h3><div class="cards"><div class="card highlight"><div class="label">年度額外開銷</div><div class="value" id="outAnnualExtra">—</div><div class="desc">一年才出現幾次的大支出</div></div><div class="card"><div class="label">平均每月要預留</div><div class="value" id="outAnnualMonthlyReserve">—</div><div class="desc">把年度支出平攤到每月</div></div></div><div class="formula">真正的生活成本，不只在每月帳單裡，也藏在年度支出裡。</div></aside></div>
+    </section>
+
+    <section class="page" data-page="3">
+      <div class="layout"><div class="panel"><div class="page-kicker">STEP 3｜YEARLY LIFE COST</div><h2>一年總開銷</h2><p class="sub">把每月生活底盤與年度額外支出合在一起，估算這種生活型態一年需要多少錢。</p><div class="cards"><div class="card"><div class="label">每月開銷 × 12</div><div class="value" id="outMonthlyPart">—</div></div><div class="card"><div class="label">年度額外開銷</div><div class="value" id="outAnnualPart">—</div></div><div class="card highlight"><div class="label">一年總開銷</div><div class="value" id="outAnnualExpense">—</div><div class="desc">後續 FIRE 數字會用這個推算</div></div><div class="card"><div class="label">等效月生活成本</div><div class="value" id="outMonthlyEquivalent">—</div><div class="desc">把年度總支出平均到每月</div></div></div><div class="panel" style="box-shadow:none; margin:16px 0 0; background:rgba(255,255,255,.45);"><h3>這份支出比較接近哪一種生活？</h3><div class="choice"><label><input type="radio" name="lifeLevel" value="basic"> 基本生活｜安全、不恐慌、維持必要支出</label><label><input type="radio" name="lifeLevel" value="comfortable"> 舒適生活｜有餘裕、有學習、有適度享受</label><label><input type="radio" name="lifeLevel" value="ideal"> 理想生活｜旅行、創作、工具與生活升級都保留</label></div></div><div class="note green">FIRE 數字不該只有一個。因為「最低生存成本」和「真正想過的生活」不是同一件事。</div></div><aside class="panel side"><h3>本頁解讀</h3><p id="lifeLevelText" class="small">請選擇這份支出比較接近哪一種生活。</p><div class="formula">年支出 = 每月生活成本 × 12 + 年度額外開銷。</div><div class="formula">FIRE 數字不是從幻想開始，而是從你的真實生活成本開始。</div></aside></div>
+    </section>
+
+    <section class="page" data-page="4">
+      <div class="layout"><div class="panel"><div class="page-kicker">STEP 4｜FIRE NUMBER</div><h2>FIRE 數字</h2><p class="sub">如果要靠資產支撐目前這種生活，需要多少本金？</p><table class="table"><thead><tr><th>版本</th><th>提領率</th><th>倍數</th><th>FIRE 目標</th></tr></thead><tbody id="fireTargetRows"></tbody></table><div class="input-grid"><div><label for="selectedRate">後續計算採用版本</label><select id="selectedRate"><option value="0.04">4%｜25倍：積極版</option><option value="0.035">3.5%｜28.6倍：穩健版</option><option value="0.03">3%｜33.3倍：保守版</option><option value="custom">自訂提領率</option></select></div><div><label for="customRate">自訂提領率（%）</label><input id="customRate" type="number" min="1" max="10" step="0.1"><div class="mini-help">例如 4 代表 4%。選擇自訂時才會採用。</div></div></div><div class="note">FIRE 圈常用 25 倍年支出作為初步估算。越早退休、越想保守，通常會用更低的提領率，也就是更高的資產倍數。</div></div><aside class="panel side"><h3>採用目標</h3><div class="card highlight"><div class="label">目前採用 FIRE 目標</div><div class="value" id="outSelectedFireTarget">—</div><div class="desc" id="outSelectedRateText">—</div></div><div class="formula">FIRE 數字 = 年支出 ÷ 安全提領率。</div><div class="formula">4% 提領率約等於 25 倍年支出。</div></aside></div>
+    </section>
+
+    <section class="page" data-page="5">
+      <div class="layout"><div class="panel"><div class="page-kicker">STEP 5｜ASSET MAP</div><h2>目前資產盤點</h2><p class="sub">我現在已經走到哪裡？這頁是金錢羅盤的定位點。</p><div class="input-grid"><div><label for="assetCash">現金／活存</label><input id="assetCash" type="number" min="0" step="1000"></div><div><label for="assetDeposit">定存／貨幣型資產</label><input id="assetDeposit" type="number" min="0" step="1000"></div><div><label for="assetInvestments">ETF／股票／基金</label><input id="assetInvestments" type="number" min="0" step="1000"></div><div><label for="assetRetirement">退休金帳戶／可估算退休資產</label><input id="assetRetirement" type="number" min="0" step="1000"></div><div><label for="assetOtherInvest">其他投資資產</label><input id="assetOtherInvest" type="number" min="0" step="1000"></div><div><label for="assetProperty">房產估值（選填）</label><input id="assetProperty" type="number" min="0" step="1000"></div><div><label for="assetOther">其他資產（選填）</label><input id="assetOther" type="number" min="0" step="1000"></div><div><label for="liabilities">負債／貸款（選填）</label><input id="liabilities" type="number" min="0" step="1000"></div></div><div class="note gold">FIRE 達成年限主要用「可投資／可動用資產」估算，而不是單純用總資產估算。自住房雖然是資產，但如果不賣也不出租，就不一定能支付日常生活費。</div></div><aside class="panel side"><h3>本頁輸出</h3><div class="cards"><div class="card"><div class="label">目前總資產</div><div class="value" id="outTotalAssets">—</div></div><div class="card"><div class="label">目前淨資產</div><div class="value" id="outNetWorth">—</div></div><div class="card highlight"><div class="label">可投資／可動用資產</div><div class="value" id="outInvestableAssets">—</div><div class="desc">後續達成年限會主要用這個估算</div></div><div class="card"><div class="label">FIRE 完成率</div><div class="value" id="outAssetCompletion">—</div></div></div><div class="meter"><div id="assetCompletionMeter"></div></div><p class="small" id="assetCompletionText">—</p></aside></div>
+    </section>
+
+    <section class="page" data-page="6">
+      <div class="layout"><div class="panel"><div class="page-kicker">STEP 6｜SAVINGS RATE</div><h2>收入與儲蓄率</h2><p class="sub">我的收入有多少變成未來自由？</p><div class="input-grid three"><div><label for="monthlyIncome">每月收入</label><input id="monthlyIncome" type="number" min="0" step="1000"></div><div><label for="annualBonus">年度獎金／年終</label><input id="annualBonus" type="number" min="0" step="1000"></div><div><label for="otherIncome">其他年度收入</label><input id="otherIncome" type="number" min="0" step="1000"></div></div><div class="note green">儲蓄率不是道德成績，而是收入轉化成自由的比例。</div></div><aside class="panel side"><h3>本頁輸出</h3><div class="cards"><div class="card"><div class="label">年收入</div><div class="value" id="outAnnualIncome">—</div></div><div class="card"><div class="label">一年總開銷</div><div class="value" id="outAnnualExpense2">—</div></div><div class="card highlight"><div class="label">年儲蓄</div><div class="value" id="outAnnualSavings">—</div></div><div class="card"><div class="label">儲蓄率</div><div class="value" id="outSavingsRate">—</div></div></div><div class="formula">年儲蓄 = 年收入 - 年支出<br>儲蓄率 = 年儲蓄 ÷ 年收入</div></aside></div>
+    </section>
+
+    <section class="page" data-page="7">
+      <div class="layout"><div class="panel"><div class="page-kicker">STEP 7｜TIME TO FIRE</div><h2>距離 FIRE 還要多久？</h2><p class="sub">以目前速度，我大概還要走多久？這不是預言，而是用目前假設畫出一條可能路徑。</p><div class="input-grid"><div><label for="returnRate">預估年化報酬率（%）</label><input id="returnRate" type="number" min="-50" max="50" step="0.1"></div><div><label>採用 FIRE 目標</label><input id="adoptedTargetReadonly" type="text" readonly><div class="mini-help">請到第 4 頁選擇提領率版本。</div></div></div><div class="note">市場報酬不會每年穩定，人生支出也會改變。這頁只是在目前假設下，幫你看見方向感。</div></div><aside class="panel side"><h3>本頁輸出</h3><div class="cards"><div class="card"><div class="label">距離目標還差</div><div class="value" id="outGap">—</div></div><div class="card"><div class="label">目前完成率</div><div class="value" id="outCompletionRate">—</div></div><div class="card highlight"><div class="label">粗估達成年限</div><div class="value" id="outYearsToFire">—</div><div class="desc">以目前資產、年儲蓄與報酬率估算</div></div><div class="card"><div class="label">每月可投入</div><div class="value" id="outMonthlySavings">—</div></div></div><div class="meter"><div id="completionMeter"></div></div><p class="small" id="timeInterpretation">—</p></aside></div>
+    </section>
+
+    <section class="page" data-page="8">
+      <div class="layout"><div class="panel"><div class="page-kicker">STEP 8｜ACCELERATOR</div><h2>儲蓄率加速器</h2><p class="sub">如果我每月少花一點，會發生什麼事？</p><div class="input-grid"><div><label for="monthlyCut">假設每月少花</label><input id="monthlyCut" type="number" min="0" step="500"></div><div><label>目前年支出</label><input id="annualExpenseReadonly" type="text" readonly></div></div><div class="note gold">降低支出不是只有省下一筆錢，而是同時縮短終點、提高速度。</div></div><aside class="panel side"><h3>本頁輸出</h3><div class="cards"><div class="card"><div class="label">一年多存</div><div class="value" id="outCutAnnualSaving">—</div></div><div class="card"><div class="label">FIRE 目標下降</div><div class="value" id="outTargetDrop">—</div></div><div class="card highlight"><div class="label">新達成年限</div><div class="value" id="outNewYears">—</div></div><div class="card"><div class="label">可能提早</div><div class="value" id="outYearsSaved">—</div></div></div><div class="formula">少花一點的雙重效果：年儲蓄增加，同時未來需要支撐的生活成本也下降。</div></aside></div>
+    </section>
+
+    <section class="page" data-page="9">
+      <div class="layout"><div class="panel"><div class="page-kicker">SUMMARY｜MONEY COMPASS</div><h2>金錢羅盤總結</h2><p class="sub">所有數字合起來，我現在的自由人生金錢地圖長什麼樣？</p><div class="cards three"><div class="card"><div class="label">一年總開銷</div><div class="value" id="sumAnnualExpense">—</div></div><div class="card"><div class="label">等效月生活成本</div><div class="value" id="sumMonthlyEquivalent">—</div></div><div class="card highlight"><div class="label">FIRE 目標</div><div class="value" id="sumFireTarget">—</div></div><div class="card"><div class="label">可投資／可動用資產</div><div class="value" id="sumInvestable">—</div></div><div class="card"><div class="label">年儲蓄</div><div class="value" id="sumAnnualSavings">—</div></div><div class="card"><div class="label">儲蓄率</div><div class="value" id="sumSavingsRate">—</div></div></div><div class="summary-letter" style="margin-top:16px;"><h3>羅盤解讀</h3><p id="summaryText">—</p></div><div class="note green">這不是成績單，而是地圖。它不是判斷你夠不夠好，而是幫你看見現在的位置與下一步方向。</div></div><aside class="panel side"><div class="compass"></div><h3>下一步可以問自己</h3><p class="small">這個 FIRE 目標是基本生活、舒適生活，還是理想生活？<br>我想提高收入、降低支出，還是只是更清楚地看見現況？<br>這份金錢地圖，有沒有讓我更有生活主權？</p><div class="btn-row"><button class="btn secondary" onclick="window.print()">列印／存成 PDF</button></div></aside></div>
+    </section>
+
+    <div class="nav-row"><button class="btn secondary" id="prevBtn">← 上一步</button><button class="btn primary" id="nextBtn">下一步 →</button></div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "garro_money_compass_v1";
+    const defaultState = {
+      page: 0,
+      monthlyItems: [{name:"飲食",amount:12000},{name:"交通",amount:3000},{name:"水電瓦斯與通訊",amount:4000},{name:"學習、訂閱與工具",amount:5000},{name:"醫療與保健",amount:3000},{name:"日常雜支",amount:8000}],
+      annualItems: [{name:"保險與稅金",amount:80000},{name:"旅行基金",amount:120000},{name:"設備與課程",amount:40000},{name:"年度預備金",amount:60000}],
+      lifeLevel: "comfortable", selectedRate: "0.04", customRate: 4,
+      assets: {cash:500000, deposit:500000, investments:9000000, retirement:0, otherInvest:0, property:0, other:0, liabilities:0},
+      income: {monthly:80000, bonus:0, other:0}, returnRate: 5, monthlyCut: 5000
+    };
+    const steps = ["首頁","月開銷","年度支出","年支出","FIRE數字","目前資產","儲蓄率","達成年限","加速器","羅盤總結"];
+    let state = loadState(); let saveTimer = null;
+    function clone(obj){return JSON.parse(JSON.stringify(obj));}
+    function mergeDeep(target, source){for(const key in source){if(source[key]&&typeof source[key]==="object"&&!Array.isArray(source[key])){target[key]=mergeDeep(target[key]||{},source[key]);}else{target[key]=source[key];}}return target;}
+    function loadState(){try{const saved=localStorage.getItem(STORAGE_KEY); if(!saved)return clone(defaultState); return mergeDeep(clone(defaultState),JSON.parse(saved));}catch(e){return clone(defaultState);}}
+    function scheduleSave(){clearTimeout(saveTimer); saveTimer=setTimeout(saveState,250);}
+    function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); const now=new Date(); document.getElementById("savedIndicator").textContent="已儲存於本機瀏覽器："+now.toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit"})+"。資料不會上傳到任何伺服器。";}
+    function money(n){if(!isFinite(n))return "—"; const rounded=Math.round(n); const sign=rounded<0?"-":""; return sign+"NT$ "+Math.abs(rounded).toLocaleString("zh-TW");}
+    function percent(n){if(!isFinite(n))return "—"; return (n*100).toFixed(1)+"%";}
+    function yearsText(years){if(years===0)return "已達成"; if(!isFinite(years))return "無法估算"; if(years>100)return "超過 100 年"; const y=Math.floor(years); const m=Math.round((years-y)*12); if(y<=0)return `約 ${m} 個月`; if(m===0)return `約 ${y} 年`; if(m===12)return `約 ${y+1} 年`; return `約 ${y} 年 ${m} 個月`;}
+    function rawYearsText(years){if(!isFinite(years))return "—"; if(years<0.1)return "很短時間"; return yearsText(years);}
+    function setText(id,text){const el=document.getElementById(id); if(el)el.textContent=text;}
+    function setValue(id,value){const el=document.getElementById(id); if(el)el.value=value;}
+    function sum(items){return items.reduce((acc,item)=>acc+(Number(item.amount)||0),0);}
+    function getRate(){if(state.selectedRate==="custom")return Math.max((Number(state.customRate)||4)/100,0.0001); return Number(state.selectedRate)||0.04;}
+    function rateLabel(){const rate=getRate(); if(state.selectedRate==="custom")return `自訂 ${(rate*100).toFixed(1)}%｜約 ${(1/rate).toFixed(1)} 倍`; if(state.selectedRate==="0.04")return "4%｜25倍：積極版"; if(state.selectedRate==="0.035")return "3.5%｜28.6倍：穩健版"; if(state.selectedRate==="0.03")return "3%｜33.3倍：保守版"; return `${(rate*100).toFixed(1)}%`;}
+    function calculations(overrideAnnualExpense=null,overrideAnnualSavings=null){const monthlyTotal=sum(state.monthlyItems); const annualExtra=sum(state.annualItems); const annualExpense=overrideAnnualExpense??(monthlyTotal*12+annualExtra); const monthlyEquivalent=annualExpense/12; const rate=getRate(); const fireTarget=annualExpense/rate; const a=state.assets; const totalAssets=Number(a.cash||0)+Number(a.deposit||0)+Number(a.investments||0)+Number(a.retirement||0)+Number(a.otherInvest||0)+Number(a.property||0)+Number(a.other||0); const investableAssets=Number(a.cash||0)+Number(a.deposit||0)+Number(a.investments||0)+Number(a.retirement||0)+Number(a.otherInvest||0); const netWorth=totalAssets-Number(a.liabilities||0); const annualIncome=Number(state.income.monthly||0)*12+Number(state.income.bonus||0)+Number(state.income.other||0); const annualSavings=overrideAnnualSavings??(annualIncome-annualExpense); const savingsRate=annualIncome>0?annualSavings/annualIncome:NaN; const gap=Math.max(fireTarget-investableAssets,0); const completion=fireTarget>0?Math.min(investableAssets/fireTarget,10):NaN; const years=estimateYears(investableAssets,fireTarget,annualSavings/12,Number(state.returnRate||0)/100); return {monthlyTotal,annualExtra,annualExpense,monthlyEquivalent,rate,fireTarget,totalAssets,investableAssets,netWorth,annualIncome,annualSavings,savingsRate,gap,completion,years};}
+    function estimateYears(currentAssets,target,monthlySaving,annualReturn){if(!isFinite(currentAssets)||!isFinite(target)||target<=0)return Infinity; if(currentAssets>=target)return 0; if(!isFinite(monthlySaving)||monthlySaving<=0)return Infinity; if(!isFinite(annualReturn)||annualReturn<=-0.99)return Infinity; const monthlyReturn=Math.pow(1+annualReturn,1/12)-1; let assets=currentAssets; let months=0; const maxMonths=1200; while(assets<target&&months<maxMonths){assets=assets*(1+monthlyReturn)+monthlySaving; months++;} if(months>=maxMonths)return Infinity; return months/12;}
+    function initSteps(){const container=document.getElementById("steps"); container.innerHTML=steps.map((label,i)=>`<button class="step-chip" data-goto="${i}">${i}. ${label}</button>`).join(""); container.querySelectorAll("[data-goto]").forEach(btn=>btn.addEventListener("click",()=>gotoPage(Number(btn.dataset.goto))));}
+    function escapeHtml(str){return String(str??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));}
+    function renderRows(type){const isMonthly=type==="monthly"; const container=document.getElementById(isMonthly?"monthlyRows":"annualRows"); const items=isMonthly?state.monthlyItems:state.annualItems; container.innerHTML=items.map((item,idx)=>`<div class="item-row"><input type="text" value="${escapeHtml(item.name)}" data-list="${type}" data-index="${idx}" data-field="name" aria-label="項目名稱"><input type="number" min="0" step="100" value="${Number(item.amount)||0}" data-list="${type}" data-index="${idx}" data-field="amount" aria-label="金額"><button type="button" data-remove="${type}" data-index="${idx}" title="刪除">×</button></div>`).join(""); container.querySelectorAll("input").forEach(input=>input.addEventListener("input",e=>{const listName=e.target.dataset.list==="monthly"?"monthlyItems":"annualItems"; const idx=Number(e.target.dataset.index); const field=e.target.dataset.field; state[listName][idx][field]=field==="amount"?Number(e.target.value)||0:e.target.value; scheduleSave(); update();})); container.querySelectorAll("button[data-remove]").forEach(btn=>btn.addEventListener("click",e=>{const listName=e.target.dataset.remove==="monthly"?"monthlyItems":"annualItems"; state[listName].splice(Number(e.target.dataset.index),1); renderRows(type); scheduleSave(); update();}));}
+    function bindInputs(){document.getElementById("addMonthlyBtn").addEventListener("click",()=>{state.monthlyItems.push({name:"新項目",amount:0}); renderRows("monthly"); scheduleSave(); update();}); document.getElementById("addAnnualBtn").addEventListener("click",()=>{state.annualItems.push({name:"新項目",amount:0}); renderRows("annual"); scheduleSave(); update();}); document.querySelectorAll("input[name='lifeLevel']").forEach(radio=>radio.addEventListener("change",e=>{state.lifeLevel=e.target.value; scheduleSave(); update();})); const directBindings=[["selectedRate",v=>state.selectedRate=v],["customRate",v=>state.customRate=Number(v)||4],["assetCash",v=>state.assets.cash=Number(v)||0],["assetDeposit",v=>state.assets.deposit=Number(v)||0],["assetInvestments",v=>state.assets.investments=Number(v)||0],["assetRetirement",v=>state.assets.retirement=Number(v)||0],["assetOtherInvest",v=>state.assets.otherInvest=Number(v)||0],["assetProperty",v=>state.assets.property=Number(v)||0],["assetOther",v=>state.assets.other=Number(v)||0],["liabilities",v=>state.assets.liabilities=Number(v)||0],["monthlyIncome",v=>state.income.monthly=Number(v)||0],["annualBonus",v=>state.income.bonus=Number(v)||0],["otherIncome",v=>state.income.other=Number(v)||0],["returnRate",v=>state.returnRate=Number(v)||0],["monthlyCut",v=>state.monthlyCut=Number(v)||0]]; directBindings.forEach(([id,setter])=>{const el=document.getElementById(id); el.addEventListener("input",e=>{setter(e.target.value); scheduleSave(); update();}); el.addEventListener("change",e=>{setter(e.target.value); scheduleSave(); update();});}); document.querySelectorAll("[data-goto]").forEach(btn=>btn.addEventListener("click",()=>gotoPage(Number(btn.dataset.goto)))); document.getElementById("prevBtn").addEventListener("click",()=>gotoPage(Math.max(0,state.page-1))); document.getElementById("nextBtn").addEventListener("click",()=>gotoPage(Math.min(steps.length-1,state.page+1))); document.getElementById("saveNowBtn").addEventListener("click",saveState); document.getElementById("resetDemoBtn").addEventListener("click",()=>{if(confirm("要恢復示範數字嗎？目前輸入會被覆蓋。")){state=clone(defaultState); renderAll(); saveState();}}); document.getElementById("clearBtn").addEventListener("click",()=>{if(confirm("要清除本機儲存資料嗎？這個動作無法復原。")){localStorage.removeItem(STORAGE_KEY); state=clone(defaultState); state.monthlyItems=[]; state.annualItems=[]; renderAll(); saveState();}});}
+    function syncInputs(){document.querySelectorAll(`input[name="lifeLevel"]`).forEach(r=>{r.checked=r.value===state.lifeLevel;}); setValue("selectedRate",state.selectedRate); setValue("customRate",state.customRate); setValue("assetCash",state.assets.cash); setValue("assetDeposit",state.assets.deposit); setValue("assetInvestments",state.assets.investments); setValue("assetRetirement",state.assets.retirement); setValue("assetOtherInvest",state.assets.otherInvest); setValue("assetProperty",state.assets.property); setValue("assetOther",state.assets.other); setValue("liabilities",state.assets.liabilities); setValue("monthlyIncome",state.income.monthly); setValue("annualBonus",state.income.bonus); setValue("otherIncome",state.income.other); setValue("returnRate",state.returnRate); setValue("monthlyCut",state.monthlyCut);}
+    function renderFireRows(c){const rates=[{name:"積極版",rate:0.04},{name:"穩健版",rate:0.035},{name:"保守版",rate:0.03},{name:"自訂版",rate:getRate()}]; document.getElementById("fireTargetRows").innerHTML=rates.map(r=>`<tr><td>${r.name}</td><td>${(r.rate*100).toFixed(1)}%</td><td>${(1/r.rate).toFixed(1)} 倍</td><td><strong>${money(c.annualExpense/r.rate)}</strong></td></tr>`).join("");}
+    function update(){const c=calculations(); setText("outMonthlyTotal",money(c.monthlyTotal)); setText("outMonthlyAnnualized",money(c.monthlyTotal*12)); setText("outAnnualExtra",money(c.annualExtra)); setText("outAnnualMonthlyReserve",money(c.annualExtra/12)); setText("outMonthlyPart",money(c.monthlyTotal*12)); setText("outAnnualPart",money(c.annualExtra)); setText("outAnnualExpense",money(c.annualExpense)); setText("outMonthlyEquivalent",money(c.monthlyEquivalent)); setText("lifeLevelText",lifeLevelInterpretation(state.lifeLevel,c.annualExpense)); renderFireRows(c); setText("outSelectedFireTarget",money(c.fireTarget)); setText("outSelectedRateText",rateLabel()); setText("outTotalAssets",money(c.totalAssets)); setText("outNetWorth",money(c.netWorth)); setText("outInvestableAssets",money(c.investableAssets)); setText("outAssetCompletion",percent(c.completion)); setMeter("assetCompletionMeter",c.completion); setText("assetCompletionText",`以目前採用的 FIRE 目標估算，可投資／可動用資產約完成 ${percent(c.completion)}。`); setText("outAnnualIncome",money(c.annualIncome)); setText("outAnnualExpense2",money(c.annualExpense)); setText("outAnnualSavings",money(c.annualSavings)); setText("outSavingsRate",percent(c.savingsRate)); setValue("adoptedTargetReadonly",`${money(c.fireTarget)}（${rateLabel()}）`); setText("outGap",money(c.gap)); setText("outCompletionRate",percent(c.completion)); setText("outYearsToFire",yearsText(c.years)); setText("outMonthlySavings",money(c.annualSavings/12)); setMeter("completionMeter",c.completion); setText("timeInterpretation",timeInterpretation(c)); setValue("annualExpenseReadonly",money(c.annualExpense)); updateAccelerator(c); setText("sumAnnualExpense",money(c.annualExpense)); setText("sumMonthlyEquivalent",money(c.monthlyEquivalent)); setText("sumFireTarget",money(c.fireTarget)); setText("sumInvestable",money(c.investableAssets)); setText("sumAnnualSavings",money(c.annualSavings)); setText("sumSavingsRate",percent(c.savingsRate)); setText("summaryText",summaryText(c)); updatePageUI();}
+    function setMeter(id,ratio){const el=document.getElementById(id); if(!el)return; const pct=!isFinite(ratio)?0:Math.max(0,Math.min(100,ratio*100)); el.style.width=pct+"%";}
+    function lifeLevelInterpretation(level,annualExpense){const base=`目前估算的一年總開銷約為 ${money(annualExpense)}。`; if(level==="basic")return base+" 你把它標記為基本生活，代表這比較接近安全底線。後續也許可以再另抓一個舒適版，避免把 FIRE 目標壓得太緊。"; if(level==="ideal")return base+" 你把它標記為理想生活，代表這裡面已經保留旅行、學習、創作或生活升級。這是比較有餘裕的自由版本。"; return base+" 你把它標記為舒適生活，代表它不是最低生存成本，而是比較接近可以長期維持、有餘裕的版本。";}
+    function timeInterpretation(c){if(c.investableAssets>=c.fireTarget)return "以目前採用的 FIRE 目標估算，你已經達成。接下來更重要的是提領策略、生活安排與心理安全感。"; if(c.annualSavings<=0)return "目前年儲蓄為零或負數。如果不提高收入或降低支出，資產很難靠儲蓄繼續往 FIRE 目標前進。"; return `以目前儲蓄速度與 ${Number(state.returnRate||0).toFixed(1)}% 年化報酬率假設，粗估還需要 ${yearsText(c.years)}。這不是預言，只是一條假設路徑。`;}
+    function updateAccelerator(base){const cut=Number(state.monthlyCut||0); const reducedAnnualExpense=Math.max(base.annualExpense-cut*12,0); const annualIncome=base.annualIncome; const reducedAnnualSavings=annualIncome-reducedAnnualExpense; const adjusted=calculations(reducedAnnualExpense,reducedAnnualSavings); const targetDrop=base.fireTarget-adjusted.fireTarget; const yearsSaved=base.years-adjusted.years; setText("outCutAnnualSaving",money(cut*12)); setText("outTargetDrop",money(targetDrop)); setText("outNewYears",yearsText(adjusted.years)); if(cut<=0)setText("outYearsSaved","—"); else if(!isFinite(base.years)&&isFinite(adjusted.years))setText("outYearsSaved","從無法估算變為可估算"); else if(isFinite(yearsSaved)&&yearsSaved>0)setText("outYearsSaved",rawYearsText(yearsSaved)); else setText("outYearsSaved","影響有限");}
+    function summaryText(c){if(c.annualExpense<=0)return "目前還沒有足夠資料。先從每月開銷與年度額外開銷開始，這張金錢地圖就會慢慢浮現。"; let text=`你的生活成本目前約為每年 ${money(c.annualExpense)}，等效月生活成本約為 ${money(c.monthlyEquivalent)}。以 ${rateLabel()} 估算，FIRE 目標約為 ${money(c.fireTarget)}。目前可投資／可動用資產約為 ${money(c.investableAssets)}，完成率約 ${percent(c.completion)}，距離目標還差 ${money(c.gap)}。`; if(c.investableAssets>=c.fireTarget)text+=" 以這組假設來看，你已經達到這個 FIRE 目標。下一步不只是算錢，而是思考怎麼安全提領、怎麼安排時間，以及自由之後要拿生活做什麼。"; else if(c.annualSavings<=0)text+=" 目前年儲蓄為零或負數，這代表你可能需要先處理收入、支出或生活結構，而不是急著追逐更大的投資報酬。"; else text+=` 如果維持目前儲蓄率與 ${Number(state.returnRate||0).toFixed(1)}% 報酬率假設，粗估約 ${yearsText(c.years)} 後達成。`; text+=" 這不是成績單，而是一張地圖：它幫你看見現在的位置，也讓你決定下一步要往哪裡調整。"; return text;}
+    function gotoPage(page){state.page=Math.max(0,Math.min(steps.length-1,page)); scheduleSave(); updatePageUI(); window.scrollTo({top:0,behavior:"smooth"});}
+    function updatePageUI(){document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",Number(p.dataset.page)===state.page)); document.querySelectorAll(".step-chip").forEach(chip=>chip.classList.toggle("active",Number(chip.dataset.goto)===state.page)); document.getElementById("progressFill").style.width=(state.page/(steps.length-1)*100)+"%"; document.getElementById("prevBtn").disabled=state.page===0; document.getElementById("nextBtn").disabled=state.page===steps.length-1; document.getElementById("nextBtn").textContent=state.page===steps.length-1?"已到最後一頁":"下一步 →";}
+    function renderAll(){initSteps(); renderRows("monthly"); renderRows("annual"); syncInputs(); update();}
+    bindInputs(); renderAll(); saveState();
+  </script>
+</body>
+</html>
