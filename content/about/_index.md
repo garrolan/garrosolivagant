@@ -11,4 +11,4 @@ description: "GARRO自由人生實驗室的網站介紹。"
 
 這裡不是成功學網站，也不是效率工具教學站，而是一間安靜的小實驗室：把真實生活裡的困惑、選擇、餘裕、消耗與創作拿出來觀察，慢慢整理成可以回看、沉澱，也可能照亮他人的思考紀錄。
 
-如果你想回應、交流，或只是讓訊息有個方向，可以寫信到 [garrolan04@gmail.com](mailto:garrolan04@gmail.com)。
+如果你想回應、交流，或只是讓訊息有個方向，可以寫信到 [garrolan04@gmail.com](https://mail.google.com/mail/?view=cm&fs=1&to=garrolan04%40gmail.com)。
