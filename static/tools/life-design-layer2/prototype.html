@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>原型測試｜GARRO自由人生實驗室</title>
+  <meta name="description" content="Designing Your Life 第二層工具箱：發想與測試可能人生。">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="prototype">
+<div class="pattern-top"></div>
+
+<header class="site-header">
+  <div class="nav-wrap">
+    <a class="brand" href="index.html">
+      <div class="logo">G</div>
+      <div><div class="brand-title">GARRO自由人生實驗室</div><div class="brand-sub">Designing Your Life｜第二層工具箱</div></div>
+    </a>
+    <nav class="nav">
+      <a href="index.html" data-page="index">首頁</a>
+      <a href="mind-map.html" data-page="mind-map">思維圖</a>
+      <a href="odyssey.html" data-page="odyssey">奧德賽</a>
+      <a href="prototype.html" data-page="prototype">原型測試</a>
+      <a href="conversation.html" data-page="conversation">原型訪談</a>
+      <a href="review.html" data-page="review">實驗選擇</a>
+      <a href="summary.html" data-page="summary">總結</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+
+<section class="hero">
+  <div class="eyebrow">Tool 08｜Prototype Experiences</div>
+  <h1>原型測試</h1>
+  <p class="lead">不要立刻改變人生。先測試一小塊人生：低成本、可回收、能學到東西，才是好原型。</p>
+  <div class="actions"><a class="btn ghost" href="odyssey.html">回到奧德賽</a><a class="btn primary" href="conversation.html">下一步：原型訪談</a></div>
+</section>
+<section class="section grid two">
+  <div class="card">
+    <h2>建立原型測試卡</h2>
+    <div class="field"><label>我想測試的方向</label><input class="input" id="prototypeDirection" placeholder="直接輸入想測試的人生方向，例如：散步型創作者生活"><div class="chips" id="directionChips"></div></div>
+    <div class="field"><label>我想測試的假設</label><textarea class="textarea" id="prototypeAssumption" placeholder="如果我＿＿＿＿，我會更靠近＿＿＿＿，而不是＿＿＿＿。"></textarea></div>
+    <div class="field"><label>最小測試行動</label><input class="input" id="prototypeAction" placeholder="可以點選，也可以自訂"><div class="chips" id="actionChips"></div></div>
+    <div class="form-grid">
+      <div class="field"><label>時間成本</label><input class="input" id="prototypeTime"><div class="chips" id="timeChips"></div></div>
+      <div class="field"><label>金錢成本</label><input class="input" id="prototypeMoney"><div class="chips" id="moneyChips"></div></div>
+    </div>
+    <div class="field"><label>能量風險</label><input class="input" id="prototypeRisk"><div class="chips" id="riskChips"></div></div>
+    <div class="field"><label>我想觀察的是</label><textarea class="textarea" id="prototypeObserve" placeholder="做完後，我比較有生命感，還是比較焦慮？"></textarea></div>
+    <div class="field"><label>成功不是完成，而是學到</label><textarea class="textarea" id="prototypeLearn" placeholder="我想透過這個實驗知道什麼？"></textarea></div>
+    <div class="field"><label>恢復設計</label><textarea class="textarea" id="prototypeRecovery" placeholder="如果這個實驗讓我消耗，我怎麼收尾？我允許自己做到哪裡就停？"></textarea></div>
+    <button class="btn primary" id="savePrototypeBtn">儲存原型測試</button>
+  </div>
+  <div class="card">
+    <h2>已儲存的原型測試</h2>
+    <div class="saved-list" id="prototypeList"></div>
+  </div>
+</section>
+
+</main>
+
+<div class="pattern-bottom"></div>
+<footer class="footer">
+  GARRO自由人生實驗室｜本工具為《Designing Your Life》讀書轉譯與個人實驗版，非官方頁面。資料僅儲存在你的瀏覽器 localStorage。<br>
+  可搭配第一層工具箱使用：<a href="../life-design-layer1/">看見目前生活狀態</a>
+</footer>
+<script src="assets/app.js"></script>
+
+</body>
+</html>

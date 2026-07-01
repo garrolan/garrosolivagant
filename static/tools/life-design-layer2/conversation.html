@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>原型訪談｜GARRO自由人生實驗室</title>
+  <meta name="description" content="Designing Your Life 第二層工具箱：發想與測試可能人生。">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="conversation">
+<div class="pattern-top"></div>
+
+<header class="site-header">
+  <div class="nav-wrap">
+    <a class="brand" href="index.html">
+      <div class="logo">G</div>
+      <div><div class="brand-title">GARRO自由人生實驗室</div><div class="brand-sub">Designing Your Life｜第二層工具箱</div></div>
+    </a>
+    <nav class="nav">
+      <a href="index.html" data-page="index">首頁</a>
+      <a href="mind-map.html" data-page="mind-map">思維圖</a>
+      <a href="odyssey.html" data-page="odyssey">奧德賽</a>
+      <a href="prototype.html" data-page="prototype">原型測試</a>
+      <a href="conversation.html" data-page="conversation">原型訪談</a>
+      <a href="review.html" data-page="review">實驗選擇</a>
+      <a href="summary.html" data-page="summary">總結</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+
+<section class="hero">
+  <div class="eyebrow">Tool 09｜Prototype Conversations</div>
+  <h1>原型訪談</h1>
+  <p class="lead">有些人生不用自己先跳下去，可以先拜訪別人的真實經驗。訪談不是求職，也不是請人替你決定，而是用真實故事校準想像。</p>
+  <div class="actions"><a class="btn ghost" href="prototype.html">回到原型測試</a><a class="btn primary" href="review.html">下一步：實驗選擇</a></div>
+</section>
+<section class="section grid two">
+  <div class="card">
+    <h2>建立訪談計畫</h2>
+    <div class="field"><label>我想訪談的可能人生</label><select id="conversationSource"></select></div>
+    <div class="field"><label>訪談對象</label><input class="input" id="personName" placeholder="姓名、身份或暱稱"></div>
+    <div class="field"><label>我真正想知道什麼</label><textarea class="textarea" id="conversationWant" placeholder="不是問成功秘訣，而是問真實生活。"></textarea></div>
+    <h3>問題類型</h3>
+    <div class="question-bank" id="questionBank"></div>
+    <div class="field"><label>我的訪談問題</label><textarea class="textarea" id="selectedQuestions"></textarea></div>
+    <div class="actions"><button class="btn ghost" id="inviteTemplateBtn">產生邀請文字</button></div>
+    <div class="field"><label>訪談邀請文字</label><textarea class="textarea" id="inviteText"></textarea></div>
+    <div class="field"><label>訪談後紀錄</label><textarea class="textarea" id="conversationAfter" placeholder="我更想靠近什麼？反而不想要什麼？下一個小實驗是什麼？"></textarea></div>
+    <button class="btn primary" id="saveConversationBtn">儲存原型訪談</button>
+  </div>
+  <div class="card">
+    <h2>已儲存的原型訪談</h2>
+    <div class="saved-list" id="conversationList"></div>
+  </div>
+</section>
+
+</main>
+
+<div class="pattern-bottom"></div>
+<footer class="footer">
+  GARRO自由人生實驗室｜本工具為《Designing Your Life》讀書轉譯與個人實驗版，非官方頁面。資料僅儲存在你的瀏覽器 localStorage。<br>
+  可搭配第一層工具箱使用：<a href="../life-design-layer1/">看見目前生活狀態</a>
+</footer>
+<script src="assets/app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>思維圖｜GARRO自由人生實驗室</title>
+  <meta name="description" content="Designing Your Life 第二層工具箱：發想與測試可能人生。">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="mind-map">
+<div class="pattern-top"></div>
+
+<header class="site-header">
+  <div class="nav-wrap">
+    <a class="brand" href="index.html">
+      <div class="logo">G</div>
+      <div><div class="brand-title">GARRO自由人生實驗室</div><div class="brand-sub">Designing Your Life｜第二層工具箱</div></div>
+    </a>
+    <nav class="nav">
+      <a href="index.html" data-page="index">首頁</a>
+      <a href="mind-map.html" data-page="mind-map">思維圖</a>
+      <a href="odyssey.html" data-page="odyssey">奧德賽</a>
+      <a href="prototype.html" data-page="prototype">原型測試</a>
+      <a href="conversation.html" data-page="conversation">原型訪談</a>
+      <a href="review.html" data-page="review">實驗選擇</a>
+      <a href="summary.html" data-page="summary">總結</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+
+<section class="hero">
+  <div class="eyebrow">Tool 06｜Mind Mapping</div>
+  <h1>思維圖</h1>
+  <p class="lead">先設定一個中心主題，再隨性新增聯想卡。你可以拖曳卡片，也可以選兩張卡建立連線；重點不是畫得漂亮，而是看見想法之間的關係。</p>
+  <div class="actions"><a class="btn ghost" href="index.html">回到首頁</a><a class="btn primary" href="odyssey.html">下一步：奧德賽計畫</a></div>
+</section>
+<section class="section card">
+  <h2>設定中心主題</h2>
+  <p class="muted">中心主題可以來自第一層的高能量活動、卡住點，也可以是你現在想探索的一句話。它不需要完美，先丟到畫布中間就好。</p>
+  <div class="input-row">
+    <input class="input" id="centerTopic" placeholder="例如：我想創作，但不要被產出壓垮">
+    <button class="btn primary" id="setCenterBtn">設為中心主題</button>
+  </div>
+  <div class="chips" id="topicExamples">
+    <button type="button" class="chip clickable">清晨散步時最有靈感</button>
+    <button type="button" class="chip clickable">穩定工作與自由創作如何共存</button>
+    <button type="button" class="chip clickable">我想旅行，但不想把生活弄得太趕</button>
+    <button type="button" class="chip clickable">我想做自由人生工具箱</button>
+  </div>
+</section>
+<section class="section card">
+  <div class="map-toolbar">
+    <input class="input" id="nodeText" placeholder="輸入聯想，按確定變成可拖曳卡片">
+    <button class="btn primary" id="addNodeBtn">確定</button>
+    <button class="btn danger" id="clearMapBtn">清空思維圖</button>
+  </div>
+  <div class="notice">連線方法：點某張卡的「連結」設為起點，再點另一張卡的「連結」。卡片可直接拖曳。</div>
+  <div class="map-stage" id="mapStage"><svg class="link-layer" id="linkSvg"></svg></div>
+</section>
+<section class="section card">
+  <h2>從思維圖整理出三個可能方向</h2>
+  <p class="muted">看著你的卡片與連線，挑出 1～3 個值得帶進奧德賽計畫的方向。</p>
+  <div class="direction-list">
+    <div class="field direction-card"><label>方向 A</label><textarea class="textarea" data-direction="0" placeholder="例如：散步型創作者生活"></textarea></div>
+    <div class="field direction-card"><label>方向 B</label><textarea class="textarea" data-direction="1" placeholder="例如：穩定教師＋自由工具開發"></textarea></div>
+    <div class="field direction-card"><label>方向 C</label><textarea class="textarea" data-direction="2" placeholder="例如：寒暑假海外旅居實驗"></textarea></div>
+  </div>
+</section>
+
+</main>
+
+<div class="pattern-bottom"></div>
+<footer class="footer">
+  GARRO自由人生實驗室｜本工具為《Designing Your Life》讀書轉譯與個人實驗版，非官方頁面。資料僅儲存在你的瀏覽器 localStorage。<br>
+  可搭配第一層工具箱使用：<a href="../life-design-layer1/">看見目前生活狀態</a>
+</footer>
+<script src="assets/app.js"></script>
+
+</body>
+</html>
