@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>人生羅盤：工作觀｜GARRO自由人生實驗室</title><link rel="stylesheet" href="css/style.css"></head>
+<body><header class="site-header"><div class="header-inner"><a class="brand" href="index.html"><div class="brand-mark">G</div><div><div class="brand-title">GARRO自由人生實驗室</div><div class="brand-sub">Designing Your Life｜第一層工具箱</div></div></a><nav class="nav"><a data-nav href="index.html">首頁</a><a data-nav href="dashboard.html">儀表盤</a><a data-nav href="compass-work.html">工作觀</a><a data-nav href="compass-life.html">人生觀</a><a data-nav href="compass-check.html">羅盤檢查</a><a data-nav href="journal.html">好時光日誌</a><a data-nav href="aeiou.html">AEIOU</a><a data-nav href="problem-finding.html">卡住點</a><a data-nav href="summary.html">總結</a></nav></div></header>
+<main>
+<section class="hero"><span class="eyebrow">Tool 02-A｜Life Compass</span><h1>人生羅盤：工作觀</h1><p class="lead">先用選項降低負擔，再用自己的話補充。自訂內容會變成可勾選的標籤，不需要擠在一條長長的輸入框裡。</p></section>
+<section class="grid" style="margin-top:24px">
+  <div class="card span-12"><h2>1. 對我來說，工作主要是什麼？</h2><p class="small">請選 1～3 個，或新增自己的標籤。</p><div class="pill-row" id="meaningChips"></div><div class="form-row"><label>新增我的說法</label><div class="tag-input-control"><input id="customMeaningInput" placeholder="例如：穩定生活節奏的容器"><button type="button" class="secondary" id="addMeaningTag">加入標籤</button></div><div class="tag-input-hint">輸入後會變成下方標籤，可勾選、取消或刪除。</div><div class="custom-choice-list" id="customMeaningList"></div></div></div>
+  <div class="card span-12"><h2>2. 我心中的好工作需要包含什麼？</h2><p class="small">請選 3～5 個。這不是現在工作的評分，而是你在意的條件。</p><div class="pill-row" id="conditionChips"></div><div class="form-row"><label>新增我的條件</label><div class="tag-input-control"><input id="customConditionInput" placeholder="例如：不要把我整個人耗乾"><button type="button" class="secondary" id="addConditionTag">加入標籤</button></div><div class="tag-input-hint">可以新增多個，新增後會出現在下方。</div><div class="custom-choice-list" id="customConditionList"></div></div></div>
+  <div class="card span-6"><h2>3. 工作與金錢的關係</h2><p class="small">請選一個最接近目前感覺的說法，或新增自己的說法。</p><div class="pill-row" id="moneyChips"></div><div class="form-row"><label>新增我的說法</label><div class="tag-input-control"><input id="customMoneyInput" placeholder="例如：金錢重要，但不想用全部生活去交換"><button type="button" class="secondary" id="addMoneyTag">加入標籤</button></div><div class="custom-choice-list" id="customMoneyList"></div></div></div>
+  <div class="card span-6"><h2>4. 一句話補充</h2><div class="form-row"><label>對我來說，工作是……</label><textarea id="workSentence" placeholder="例如：工作是支撐生活、累積自由，也讓我在某些時刻感覺自己有貢獻的方式。"></textarea></div></div>
+  <div class="card span-12"><h2>工作觀草稿</h2><div id="workDraft" class="output"></div><div class="btn-row"><button id="generateWork">產生草稿</button><button id="saveWork" class="secondary">儲存工作觀</button><a class="btn secondary" href="compass-life.html">下一步：人生觀</a></div></div>
+</section>
+</main><footer class="footer">GARRO自由人生實驗室｜本工具為《Designing Your Life》讀書轉譯與個人實驗版，非官方頁面。資料僅儲存在你的瀏覽器 localStorage。</footer><script src="js/common.js"></script>
+<script>
+const meanings=['收入來源','自我實現','貢獻他人','成就感來源','學習與成長','自由的工具','責任與義務','創造與表達'];
+const conditions=['自主性','穩定性','成長性','成就感','意義感','人際品質','工作節奏','公平性','創造性','生活相容性','低消耗'];
+const money=['金錢安全型','交換工具型','意義優先型','自由累積型','平衡型','低消耗型'];
+function chips(id,arr,group,opt={}){$(id).innerHTML=arr.map(x=>`<span class="chip" data-group="${group}" data-value="${escapeHtml(x)}" ${opt.single?'data-single="true"':''} ${opt.max?`data-max="${opt.max}"`:''}>${escapeHtml(x)}</span>`).join('')}
+chips('#meaningChips',meanings,'workMeaning',{max:3}); chips('#conditionChips',conditions,'workConditions',{max:5}); chips('#moneyChips',money,'money',{single:true}); setupChips();
+const saved=loadState().workview||{};
+function uniq(arr){return [...new Set((arr||[]).map(x=>String(x).trim()).filter(Boolean))]}
+const customState={
+  workMeaning: uniq([...(saved.customMeaningList||[]), saved.customMeaning]),
+  workConditions: uniq([...(saved.customConditionList||[]), saved.customCondition]),
+  money: uniq([...(saved.customMoneyList||[]), saved.customMoney])
+};
+function restore(group,values=[]){values.forEach(v=>{const el=$(`[data-group="${group}"][data-value="${CSS.escape(v)}"]`); if(el) el.classList.add('selected')})}
+function selectedSet(group){return new Set(selectedValues(group))}
+function renderCustom(containerId, group, listKey, opt={}){
+  const sel=selectedSet(group);
+  $(containerId).innerHTML=customState[listKey].length?customState[listKey].map(v=>`<span class="chip ${sel.has(v)?'selected':''}" data-group="${group}" data-value="${escapeHtml(v)}" ${opt.single?'data-single="true"':''} ${opt.max?`data-max="${opt.max}"`:''}>${escapeHtml(v)} <span class="x" data-rm-custom="${listKey}" data-rm-value="${escapeHtml(v)}">×</span></span>`).join(''):'<span class="muted small">尚未新增自訂標籤</span>';
+  setupChips($(containerId));
+  $$('[data-rm-custom]', $(containerId)).forEach(x=>x.addEventListener('click',e=>{e.stopPropagation(); customState[x.dataset.rmCustom]=customState[x.dataset.rmCustom].filter(v=>v!==x.dataset.rmValue); renderAllCustom();}));
+}
+function renderAllCustom(){renderCustom('#customMeaningList','workMeaning','workMeaning',{max:3}); renderCustom('#customConditionList','workConditions','workConditions',{max:5}); renderCustom('#customMoneyList','money','money',{single:true});}
+function addCustom(inputId, listKey){const v=$(inputId).value.trim(); if(!v)return toast('請先輸入內容'); if(!customState[listKey].includes(v))customState[listKey].push(v); $(inputId).value=''; renderAllCustom(); const group={workMeaning:'workMeaning',workConditions:'workConditions',money:'money'}[listKey]; const el=$(`[data-group="${group}"][data-value="${CSS.escape(v)}"]`); if(el && !el.classList.contains('selected')) el.click();}
+$('#addMeaningTag').addEventListener('click',()=>addCustom('#customMeaningInput','workMeaning'));
+$('#addConditionTag').addEventListener('click',()=>addCustom('#customConditionInput','workConditions'));
+$('#addMoneyTag').addEventListener('click',()=>addCustom('#customMoneyInput','money'));
+['#customMeaningInput','#customConditionInput','#customMoneyInput'].forEach((id,i)=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault(); ['#addMeaningTag','#addConditionTag','#addMoneyTag'].map(x=>$(x))[i].click()}}));
+restore('workMeaning',saved.meanings); restore('workConditions',saved.conditions); restore('money',saved.money?[saved.money]:[]); renderAllCustom(); restore('workMeaning',saved.meanings); restore('workConditions',saved.conditions); restore('money',saved.money?[saved.money]:[]);
+$('#workSentence').value=saved.sentence||''; $('#workDraft').textContent=saved.draft||'尚未產生草稿。';
+function draft(){
+ const m=selectedValues('workMeaning'), c=selectedValues('workConditions'), mo=selectedValues('money')[0], s=$('#workSentence').value.trim();
+ return [`對我來說，工作主要和${m.length?m.join('、'):'（尚未選擇）'}有關。`,
+ `我心中的好工作，需要包含${c.length?c.join('、'):'（尚未選擇）'}。`,
+ mo?`在工作與金錢的關係上，我目前比較接近「${mo}」。`:'',
+ s?`如果用自己的話說，${s}`:''].filter(Boolean).join('\n\n')
+}
+$('#generateWork').addEventListener('click',()=>{$('#workDraft').textContent=draft()});
+$('#saveWork').addEventListener('click',()=>{const data={meanings:selectedValues('workMeaning'),conditions:selectedValues('workConditions'),money:selectedValues('money')[0]||'',customMeaningList:customState.workMeaning,customConditionList:customState.workConditions,customMoneyList:customState.money,customMeaning:customState.workMeaning.join('、'),customCondition:customState.workConditions.join('、'),customMoney:customState.money.join('、'),sentence:$('#workSentence').value.trim(),draft:$('#workDraft').textContent}; updateState({workview:data}); toast('工作觀已儲存')});
+</script></body></html>

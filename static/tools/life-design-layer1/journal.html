@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>好時光日誌｜GARRO自由人生實驗室</title><link rel="stylesheet" href="css/style.css"></head>
+<body><header class="site-header"><div class="header-inner"><a class="brand" href="index.html"><div class="brand-mark">G</div><div><div class="brand-title">GARRO自由人生實驗室</div><div class="brand-sub">Designing Your Life｜第一層工具箱</div></div></a><nav class="nav"><a data-nav href="index.html">首頁</a><a data-nav href="dashboard.html">儀表盤</a><a data-nav href="compass-work.html">工作觀</a><a data-nav href="compass-life.html">人生觀</a><a data-nav href="compass-check.html">羅盤檢查</a><a data-nav href="journal.html">好時光日誌</a><a data-nav href="aeiou.html">AEIOU</a><a data-nav href="problem-finding.html">卡住點</a><a data-nav href="summary.html">總結</a></nav></div></header>
+<main>
+<section class="hero"><span class="eyebrow">Tool 03｜Good Time Journal</span><h1>好時光日誌</h1><p class="lead">不用完整記錄一週。先新增最近幾個活動，為每個活動點選「投入感」與「能量感」，系統會自動整理成四象限。自訂活動會存在本機，也可以刪除。</p></section>
+<section class="grid" style="margin-top:24px">
+  <div class="card span-5"><h2>新增活動</h2><div class="form-row"><label>活動分類</label><select id="activityCategory"></select></div><div class="form-row"><label>常見活動</label><div class="pill-row" id="activityChips"></div></div><div class="form-row"><label>自訂活動</label><input id="customActivity" type="text" placeholder="例如：晨間散步、和 AI 討論、整理網站"></div><div class="form-row"><label>我的自訂活動</label><div class="custom-list" id="customList"></div></div><div class="form-row"><label>投入感：做的當下有多進入狀態？</label><div id="engagementStars"></div></div><div class="form-row"><label>能量感：做完後比較充電還是耗電？</label><div id="energyStars"></div></div><div class="form-row"><label>備註選填</label><textarea id="activityNote" placeholder="一句話即可，例如：很安靜、很舒服；有成就感但腦袋累"></textarea></div><div class="btn-row"><button id="addActivity">加入日誌</button></div></div>
+  <div class="card span-7"><h2>我的活動列表</h2><div id="journalList"></div></div>
+</section>
+<section class="grid" style="margin-top:18px"><div class="card span-12"><h2>投入 × 能量四象限</h2><p class="small">4～5 星視為高，1～3 星視為普通／低。這不是道德判斷，只是看活動對你的作用。</p><div class="quad" id="quadBox"></div></div></section>
+<section class="grid" style="margin-top:18px">
+  <div class="card span-12"><h2>簡短省思</h2><p class="small">把下面的活動標籤拖進對應區域。已分類的活動會從待分類區消失；按分類區裡的 ×，它會回到待分類區。</p><div class="tag-list" id="activityDragPool"></div>
+  <div class="grid" style="margin-top:14px"><div class="span-4"><div class="drop-zone" data-zone="keep"><div class="drop-zone-title">想保留或增加的活動</div><div class="tag-list"></div></div></div><div class="span-4"><div class="drop-zone" data-zone="recover"><div class="drop-zone-title">需要安排恢復的活動</div><div class="tag-list"></div></div></div><div class="span-4"><div class="drop-zone" data-zone="reduce"><div class="drop-zone-title">可以減少或重新設計的活動</div><div class="tag-list"></div></div></div><div class="span-12 form-row"><label>我看見自己真正需要的條件是什麼？</label><textarea id="refNeed" placeholder="例如：安靜、可掌控節奏、低人際壓力、身體能移動。"></textarea></div></div>
+  <div class="btn-row"><button id="saveReflection">儲存省思</button><a class="btn secondary" href="aeiou.html">下一步：AEIOU</a></div></div>
+</section>
+</main><footer class="footer">GARRO自由人生實驗室｜本工具為《Designing Your Life》讀書轉譯與個人實驗版，非官方頁面。資料僅儲存在你的瀏覽器 localStorage。</footer><script src="js/common.js"></script>
+<script>
+const categories={'工作／學習':['上班','開會','備課','寫報告','處理訊息','學習新知'],'創作／輸出':['寫文章','拍影片','做簡報','整理筆記','設計網頁','錄音'],'身體／健康':['散步','運動','伸展','睡眠','看診','吃飯'],'休息／娛樂':['看書','看漫畫','追劇','聽音樂','旅行','泡澡'],'人際／關係':['和家人相處','朋友聊天','社群互動','照顧他人'],'生活／雜務':['打掃','採買','通勤','整理房間','處理帳務'],'數位／分心':['滑手機','看短影音','查資料','回訊息','網購']};
+let engagement=3, energy=3, selectedActivity='', draggedActivity='';
+$('#activityCategory').innerHTML=Object.keys(categories).map(c=>`<option>${c}</option>`).join('');
+function entries(){return loadState().journalEntries||[]} function saveEntries(list){updateState({journalEntries:list})}
+function renderActivityChips(){const cat=$('#activityCategory').value; const custom=loadState().customActivities||[]; $('#activityChips').innerHTML=[...categories[cat],...custom].map(a=>`<span class="chip" data-act="${escapeHtml(a)}">${escapeHtml(a)}</span>`).join(''); $$('[data-act]').forEach(c=>c.addEventListener('click',()=>{selectedActivity=c.dataset.act; $$('[data-act]').forEach(x=>x.classList.remove('selected')); c.classList.add('selected'); $('#customActivity').value=''})); renderCustomList();}
+function renderCustomList(){const custom=loadState().customActivities||[]; $('#customList').innerHTML=custom.length?custom.map(a=>`<span class="custom-item">${escapeHtml(a)} <button class="tiny secondary" data-custom-del="${escapeHtml(a)}">刪除</button></span>`).join(''):'<span class="muted small">尚無自訂活動</span>'; $$('[data-custom-del]').forEach(b=>b.addEventListener('click',()=>{removeCustomListItem('customActivities',b.dataset.customDel); renderActivityChips(); toast('已刪除自訂活動')}));}
+$('#activityCategory').addEventListener('change',renderActivityChips); renderActivityChips();
+renderStars($('#engagementStars'),3,v=>engagement=v); renderStars($('#energyStars'),3,v=>energy=v);
+$('#customActivity').addEventListener('input',()=>{selectedActivity=''; $$('[data-act]').forEach(x=>x.classList.remove('selected'))});
+$('#addActivity').addEventListener('click',()=>{const name=($('#customActivity').value.trim()||selectedActivity).trim(); if(!name){toast('請選擇或輸入活動');return} if($('#customActivity').value.trim()) saveCustomList('customActivities',name); const entry={id:id(),name,category:$('#activityCategory').value,engagement,energy,note:$('#activityNote').value.trim(),quadrant:quadrantOf(engagement,energy),createdAt:new Date().toISOString()}; saveEntries([entry,...entries()]); $('#customActivity').value=''; $('#activityNote').value=''; selectedActivity=''; renderActivityChips(); renderList(); toast('已加入日誌')});
+function renderList(){const list=entries(); if(!list.length){$('#journalList').innerHTML='<p class="muted">尚未新增活動。</p>'}else{$('#journalList').innerHTML=`<div class="table-wrap"><table><thead><tr><th>活動</th><th>分類</th><th>投入</th><th>能量</th><th>結果</th><th>備註</th><th></th></tr></thead><tbody>${list.map(e=>`<tr><td>${escapeHtml(e.name)}</td><td>${escapeHtml(e.category)}</td><td>${'★'.repeat(e.engagement)}</td><td>${'★'.repeat(e.energy)}</td><td>${quadrantMeta[e.quadrant].name}</td><td>${escapeHtml(e.note||'')}</td><td><button class="secondary" data-del="${e.id}">刪除</button></td></tr>`).join('')}</tbody></table></div>`; $$('[data-del]').forEach(b=>b.addEventListener('click',()=>{saveEntries(entries().filter(e=>e.id!==b.dataset.del)); renderList()}))} renderQuad(); renderDragPool();}
+function renderQuad(){const list=entries(); $('#quadBox').innerHTML=Object.keys(quadrantMeta).map(k=>{const m=quadrantMeta[k], names=list.filter(e=>e.quadrant===k).map(e=>e.name); return `<div class="quad-cell"><div class="quad-title">${m.name}</div><p class="small">${m.desc}</p><div class="tag-list">${names.length?names.map(n=>`<span class="tag">${escapeHtml(n)}</span>`).join(''):'<span class="muted">尚無活動</span>'}</div></div>`}).join('')}
+function reflection(){return loadState().journalReflection||{keep:[],recover:[],reduce:[],need:''}}
+function cleanReflection(){
+  const valid=new Set(entries().map(e=>e.name));
+  const r=reflection();
+  ['keep','recover','reduce'].forEach(k=>{r[k]=[...new Set((r[k]||[]).filter(x=>valid.has(x)))]});
+  updateState({journalReflection:r});
+  return r;
+}
+function assignedSet(r){return new Set([...(r.keep||[]),...(r.recover||[]),...(r.reduce||[])]);}
+function renderDragPool(){
+  const r=cleanReflection();
+  const assigned=assignedSet(r);
+  const list=[...new Set(entries().map(e=>e.name))].filter(n=>!assigned.has(n));
+  $('#activityDragPool').innerHTML=list.length?list.map(n=>`<span class="tag draggable" draggable="true" data-drag-act="${escapeHtml(n)}">${escapeHtml(n)}</span>`).join(''):'<span class="muted">目前活動都已分類；按下分類區標籤上的 ×，就會回到這裡。</span>';
+  $$('[data-drag-act]').forEach(t=>{t.addEventListener('dragstart',()=>{draggedActivity=t.dataset.dragAct}); t.addEventListener('click',()=>addToZone('keep',t.dataset.dragAct))});
+  renderZones(r);
+}
+function addToZone(zone,act){
+  const r=reflection();
+  ['keep','recover','reduce'].forEach(k=>{r[k]=(r[k]||[]).filter(x=>x!==act)});
+  r[zone]=r[zone]||[];
+  if(!r[zone].includes(act)) r[zone].push(act);
+  updateState({journalReflection:r});
+  renderDragPool();
+}
+function removeFromZone(zone,act){const r=reflection(); r[zone]=(r[zone]||[]).filter(x=>x!==act); updateState({journalReflection:r}); renderDragPool()}
+function renderZones(r=reflection()){const current=r; $('#refNeed').value=current.need||''; $$('[data-zone]').forEach(z=>{const key=z.dataset.zone; z.querySelector('.tag-list').innerHTML=(current[key]||[]).map(a=>`<span class="tag">${escapeHtml(a)} <span class="x" data-rm-zone="${key}" data-rm-act="${escapeHtml(a)}">×</span></span>`).join('')||'<span class="muted small">拖活動到這裡</span>'}); $$('[data-rm-zone]').forEach(x=>x.addEventListener('click',()=>removeFromZone(x.dataset.rmZone,x.dataset.rmAct)))}
+$$('[data-zone]').forEach(z=>{z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('dragover')}); z.addEventListener('dragleave',()=>z.classList.remove('dragover')); z.addEventListener('drop',e=>{e.preventDefault(); z.classList.remove('dragover'); if(draggedActivity)addToZone(z.dataset.zone,draggedActivity)})});
+$('#saveReflection').addEventListener('click',()=>{const r=reflection(); r.need=$('#refNeed').value.trim(); updateState({journalReflection:r}); toast('省思已儲存')});
+renderList();
+</script></body></html>

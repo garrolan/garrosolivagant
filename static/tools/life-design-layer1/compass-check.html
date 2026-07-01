@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>人生羅盤檢查｜GARRO自由人生實驗室</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="index.html" aria-label="GARRO自由人生實驗室首頁">
+      <div class="brand-mark">G</div>
+      <div><div class="brand-title">GARRO自由人生實驗室</div><div class="brand-sub">Designing Your Life｜第一層工具箱</div></div>
+    </a>
+    <nav class="nav">
+      <a data-nav href="index.html">首頁</a>
+      <a data-nav href="dashboard.html">儀表盤</a>
+      <a data-nav href="compass-work.html">工作觀</a>
+      <a data-nav href="compass-life.html">人生觀</a>
+      <a data-nav href="compass-check.html">羅盤檢查</a>
+      <a data-nav href="journal.html">好時光日誌</a>
+      <a data-nav href="aeiou.html">AEIOU</a>
+      <a data-nav href="problem-finding.html">卡住點</a>
+      <a data-nav href="summary.html">總結</a>
+    </nav>
+  </div>
+</header>
+<main>
+<section class="hero"><span class="eyebrow">Tool 02-C｜Compass Check</span><h1>人生羅盤：一致性檢查</h1><p class="lead">工作觀與人生觀寫完之後，真正重要的是：它們有沒有互相支撐？目前生活有沒有偏航？這頁會幫你把兩段文字收成一張羅盤卡。</p></section>
+<section class="grid" style="margin-top:24px">
+  <div class="card span-6"><h2>我的工作觀</h2><div id="workText" class="output"></div></div>
+  <div class="card span-6"><h2>我的人生觀</h2><div id="lifeText" class="output"></div></div>
+  <div class="card span-12"><h2>一致性檢查</h2><div class="grid">
+    <div class="span-6 form-row"><label>我的工作觀是否支持我的人生觀？</label><select id="support"><option>是，大致支持</option><option>部分支持，但也有衝突</option><option>目前不太支持</option><option>我還不確定</option></select></div>
+    <div class="span-6 form-row"><label>目前工作最支持我哪一個人生價值？</label><div class="tag-input-control"><input id="supportValueInput" placeholder="例如：穩定、自由、成就感"><button type="button" class="secondary" id="addSupportValue">加入標籤</button></div><div class="tag-input-hint">輸入後會變成標籤，可勾選多個。</div><div class="custom-choice-list" id="supportValueList"></div></div>
+    <div class="span-6 form-row"><label>目前最大的偏航或衝突在哪裡？</label><textarea id="conflict" placeholder="例如：工作穩定但人際消耗；創作有意義但容易變壓力"></textarea></div>
+    <div class="span-6 form-row"><label>我想先調整哪一小點？</label><textarea id="adjust" placeholder="例如：保留界線、降低行政消耗、把重要創作移到高能量時段"></textarea></div>
+  </div><div class="btn-row"><button id="generateCard">產生羅盤卡</button><button id="saveCheck" class="secondary">儲存羅盤檢查</button><a class="btn secondary" href="journal.html">下一步：好時光日誌</a></div></div>
+  <div class="card span-12"><h2>我的人生羅盤卡</h2><div id="compassCard" class="output">尚未產生。</div></div>
+</section>
+</main>
+<footer class="footer">GARRO自由人生實驗室｜本工具為《Designing Your Life》讀書轉譯與個人實驗版，非官方頁面。資料僅儲存在你的瀏覽器 localStorage。</footer>
+<script src="js/common.js"></script>
+<script>
+const s=loadState();
+$('#workText').textContent=s.workview?.draft || '尚未填寫工作觀。';
+$('#lifeText').textContent=s.lifeview?.draft || '尚未填寫人生觀。';
+const saved=s.compassCheck||{}; $('#support').value=saved.support||'是，大致支持'; $('#conflict').value=saved.conflict||''; $('#adjust').value=saved.adjust||''; $('#compassCard').textContent=saved.card||'尚未產生。';
+let supportValues=[...new Set([...(saved.supportValues||[]), ...(saved.supportValue?String(saved.supportValue).split(/[、,，]/):[])].map(x=>x.trim()).filter(Boolean))];
+function renderSupportValues(){
+  const selected=new Set(supportValues);
+  $('#supportValueList').innerHTML=supportValues.length?supportValues.map(v=>`<span class="chip selected" data-support-value="${escapeHtml(v)}">${escapeHtml(v)} <span class="x" data-rm-support="${escapeHtml(v)}">×</span></span>`).join(''):'<span class="muted small">尚未新增價值標籤</span>';
+  $$('[data-rm-support]').forEach(x=>x.addEventListener('click',()=>{supportValues=supportValues.filter(v=>v!==x.dataset.rmSupport); renderSupportValues();}));
+}
+function addSupportValue(){const v=$('#supportValueInput').value.trim(); if(!v)return toast('請先輸入內容'); if(!supportValues.includes(v)) supportValues.push(v); $('#supportValueInput').value=''; renderSupportValues();}
+$('#addSupportValue').addEventListener('click',addSupportValue);
+$('#supportValueInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addSupportValue();}});
+renderSupportValues();
+function supportValueText(){return supportValues.length?supportValues.join('、'):'（尚未填寫）'}
+function card(){
+ return `【人生羅盤卡】\n\n工作觀與人生觀的關係：${$('#support').value}\n\n目前工作最支持我的價值：${supportValueText()}\n\n目前最大的偏航或衝突：${$('#conflict').value.trim() || '（尚未填寫）'}\n\n我想先調整的小點：${$('#adjust').value.trim() || '（尚未填寫）'}\n\n提醒：人生羅盤不是一次定終身，而是用來定期檢查自己有沒有偏離真正重視的方向。`;
+}
+$('#generateCard').addEventListener('click',()=>{$('#compassCard').textContent=card()});
+$('#saveCheck').addEventListener('click',()=>{updateState({compassCheck:{support:$('#support').value,supportValues,supportValue:supportValues.join('、'),conflict:$('#conflict').value.trim(),adjust:$('#adjust').value.trim(),card:$('#compassCard').textContent}}); toast('羅盤檢查已儲存')});
+</script>
+</body>
+</html>

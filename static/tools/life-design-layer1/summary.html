@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的第一層總結｜GARRO自由人生實驗室</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="index.html" aria-label="GARRO自由人生實驗室首頁">
+      <div class="brand-mark">G</div>
+      <div><div class="brand-title">GARRO自由人生實驗室</div><div class="brand-sub">Designing Your Life｜第一層工具箱</div></div>
+    </a>
+    <nav class="nav">
+      <a data-nav href="index.html">首頁</a>
+      <a data-nav href="dashboard.html">儀表盤</a>
+      <a data-nav href="compass-work.html">工作觀</a>
+      <a data-nav href="compass-life.html">人生觀</a>
+      <a data-nav href="compass-check.html">羅盤檢查</a>
+      <a data-nav href="journal.html">好時光日誌</a>
+      <a data-nav href="aeiou.html">AEIOU</a>
+      <a data-nav href="problem-finding.html">卡住點</a>
+      <a data-nav href="summary.html">總結</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="hero"><span class="eyebrow">Summary｜生活狀態快照</span><h1>我的第一層總結</h1><p class="lead">這裡會把你前面填過的資料整理成一張可回看的生活狀態快照。你可以複製文字、列印，或匯出 JSON 自己保存。</p><div class="btn-row"><button onclick="window.print()">列印</button><button class="secondary" id="copySummary">複製總結文字</button><button class="ghost" id="exportJson">匯出 JSON</button><button class="danger" id="clearAll">清除本機資料</button></div></section>
+<section class="grid" style="margin-top:24px">
+ <div class="card span-12"><h2>總結文字</h2><div id="summaryText" class="output"></div></div>
+ <div class="card span-6"><h2>已儲存的卡住點卡片</h2><div id="cardsBox"></div></div>
+ <div class="card span-6"><h2>AEIOU 分析紀錄</h2><div id="aeiouBox"></div></div>
+</section>
+
+</main>
+<footer class="footer">GARRO自由人生實驗室｜本工具為《Designing Your Life》讀書轉譯與個人實驗版，非官方頁面。資料僅儲存在你的瀏覽器 localStorage。</footer>
+<script src="js/common.js"></script>
+
+<script>
+const types={gravity:{name:'重力問題'},anchor:{name:'錨定問題'},info:{name:'資訊不足問題'},design:{name:'可設計問題'}};
+function summarize(){
+ const s=loadState();
+ const dash=s.dashboard||{}; const dmap={work:'工作',play:'玩樂',love:'愛／關係',health:'健康'};
+ const dashText=Object.entries(dmap).map(([k,n])=>{
+   if(!dash[k]) return `${n}：未填`;
+   const note = dash[k].note || [dash[k].reason,dash[k].example,dash[k].adjust].filter(Boolean).join('；') || '未填說明';
+   return `${n}：${dash[k].score}%｜${note}`;
+ }).join('\n');
+ const w=s.workview?.draft||'未填'; const l=s.lifeview?.draft||'未填'; const cc=s.compassCheck?.card||'未填';
+ const entries=s.journalEntries||[]; const quadText=Object.keys(quadrantMeta).map(k=>`${quadrantMeta[k].name}：${entries.filter(e=>e.quadrant===k).map(e=>e.name).join('、') || '尚無'}`).join('\n');
+ const refl=s.journalReflection||{};
+ return `GARRO自由人生實驗室｜第一層生活狀態快照\n\n【生活儀表盤】\n${dashText}\n\n【工作觀】\n${w}\n\n【人生觀】\n${l}\n\n【羅盤一致性檢查】\n${cc}\n\n【好時光日誌四象限】\n${quadText}\n\n【日誌省思】\n想保留或增加：${refl.keep||'未填'}\n需要恢復：${refl.recover||'未填'}\n可以減少或重新設計：${refl.reduce||'未填'}\n真正需要的條件：${refl.need||'未填'}\n\n【下一步提醒】\n如果已經看見高能量條件，可以進入第二層：發想可能人生與小型原型測試。`;
+}
+function render(){
+ const s=loadState(); $('#summaryText').textContent=summarize();
+ const cards=s.problemCards||[]; $('#cardsBox').innerHTML=cards.length?cards.map(c=>`<div class="notice" style="margin-bottom:10px"><strong>${types[c.type]?.name||c.type}</strong><br>${escapeHtml(c.stuck)}<br><span class="small">${escapeHtml(c.rewrite||'')}</span></div>`).join(''):'<p class="muted">尚無卡片。</p>';
+ const a=s.aeiouAnalyses||[]; $('#aeiouBox').innerHTML=a.length?a.map(x=>`<div class="notice" style="margin-bottom:10px">${escapeHtml(x.output||'')}</div>`).join(''):'<p class="muted">尚無 AEIOU 紀錄。</p>';
+}
+$('#copySummary').addEventListener('click',()=>copyText($('#summaryText').textContent));
+$('#exportJson').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(loadState(),null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='garro-life-design-layer1.json'; a.click(); URL.revokeObjectURL(url)});
+$('#clearAll').addEventListener('click',()=>{if(confirm('確定清除這台瀏覽器裡的所有工具資料？')){localStorage.removeItem(STORAGE_KEY); location.reload()}});
+render();
+</script>
+
+</body>
+</html>

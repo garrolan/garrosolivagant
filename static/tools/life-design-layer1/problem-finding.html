@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>卡住點盤點｜GARRO自由人生實驗室</title><link rel="stylesheet" href="css/style.css"></head>
+<body><header class="site-header"><div class="header-inner"><a class="brand" href="index.html"><div class="brand-mark">G</div><div><div class="brand-title">GARRO自由人生實驗室</div><div class="brand-sub">Designing Your Life｜第一層工具箱</div></div></a><nav class="nav"><a data-nav href="index.html">首頁</a><a data-nav href="dashboard.html">儀表盤</a><a data-nav href="compass-work.html">工作觀</a><a data-nav href="compass-life.html">人生觀</a><a data-nav href="compass-check.html">羅盤檢查</a><a data-nav href="journal.html">好時光日誌</a><a data-nav href="aeiou.html">AEIOU</a><a data-nav href="problem-finding.html">卡住點</a><a data-nav href="summary.html">總結</a></nav></div></header>
+<main>
+<section class="hero"><span class="eyebrow">Tool 05｜Problem Finding</span><h1>卡住點盤點</h1><p class="lead">先判斷你卡住的是哪一種問題：可設計問題、重力問題、錨定問題，還是資訊不足問題。分類後，不急著找答案，而是把它改寫成下一步能做的小行動。</p></section>
+<section class="grid" style="margin-top:24px">
+  <div class="card span-12"><h2>我的卡住點</h2><div class="grid"><div class="span-8 form-row"><label>我目前卡住的是</label><input id="stuckText" placeholder="例如：我下班後太累，沒辦法繼續創作"></div><div class="span-4 form-row"><label>主要發生在哪裡？</label><select id="stuckArea"><option>工作</option><option>生活</option><option>創作</option><option>關係</option><option>金錢</option><option>健康</option><option>其他</option></select></div></div></div>
+  <div class="card span-12"><h2>五題判斷</h2><p class="small">問題與答案用不同底色區分。請根據現在的真實感覺回答，不必選理想答案。</p><div id="questionsBox"></div><div class="btn-row"><button id="classifyBtn">判斷問題類型</button></div></div>
+  <div class="card span-12"><h2>分類結果</h2><div id="typeResult" class="output">尚未分類。</div></div>
+  <div class="card span-12"><h2>下一步改寫器</h2><p class="small">這裡不再用下拉選單。請直接寫出你想降低、改善或測試的內容，系統只負責把它收成一張「下一步卡」。</p><div id="rewriteBox" class="notice">請先完成分類。</div><div id="rewriteOutput" class="output">尚未產生。</div><div class="btn-row"><button id="generateRewrite">產生下一步卡</button><button id="saveProblem" class="secondary">儲存卡住點卡片</button><a class="btn secondary" href="summary.html">前往總結</a></div></div>
+</section>
+</main><footer class="footer">GARRO自由人生實驗室｜本工具為《Designing Your Life》讀書轉譯與個人實驗版，非官方頁面。資料僅儲存在你的瀏覽器 localStorage。</footer><script src="js/common.js"></script>
+<script>
+const q=[
+ {text:'這件事我有多少行動空間？',opts:[['幾乎沒有，我目前無法改變它',{gravity:2}],['有一點點，但很有限',{gravity:1,design:1}],['有一些，我可以調整做法',{design:2}],['其實我可以先做小嘗試',{design:3}]]},
+ {text:'這件事是不是一個目前存在的現實限制？',opts:[['是，它目前就是事實',{gravity:2}],['有一部分是現實限制',{gravity:1}],['不太是，更多是我的想法或選擇',{anchor:1,design:1}],['我不確定',{info:1}]]},
+ {text:'我是不是被某個「唯一解法」卡住？',opts:[['是，我好像覺得只有一條路',{anchor:3}],['有一點，我可能太執著某種做法',{anchor:2}],['不太是',{}],['我不確定',{anchor:1}]]},
+ {text:'我是不是其實缺少資訊？',opts:[['是，我其實不知道真實狀況',{info:3}],['有一點，我需要更多例子或回饋',{info:2}],['不太是，我已經知道得夠多',{}],['我只是還沒試過',{info:1,design:1}]]},
+ {text:'這件事能不能在一週內做一個小實驗？',opts:[['可以，我能做一個很小的嘗試',{design:3}],['也許可以，但要縮小範圍',{design:2}],['不太行，可能要先查資料或問人',{info:2}],['完全不行，它不是我能改的',{gravity:2}]]}
+];
+const types={gravity:{name:'重力問題',tip:'這類問題目前不是你能直接改變的現實。重點是接受限制，改設計自己的回應方式。'},anchor:{name:'錨定問題',tip:'你可能被某個唯一解法卡住了。重點是鬆開假設，找出真正需求。'},info:{name:'資訊不足問題',tip:'這類問題不是想不清楚，而是掌握資訊不足。重點是查證、訪談、觀察或小測試。'},design:{name:'可設計問題',tip:'你已經有一些行動空間。重點是縮小範圍，做一個低成本的小實驗。'}};
+let lastType='', lastScores={};
+function renderQuestions(){
+ $('#questionsBox').innerHTML=q.map((qq,i)=>`<div class="question-card"><div class="question-title">${i+1}. ${qq.text}</div><div class="answer-row">${qq.opts.map((o,j)=>`<label class="answer-option"><input type="radio" name="q${i}" value="${j}"> ${o[0]}</label>`).join('')}</div></div>`).join('')
+}
+function classify(){
+ const scores={gravity:0,anchor:0,info:0,design:0};
+ for(let i=0;i<q.length;i++){const val=$(`input[name="q${i}"]:checked`); if(!val){toast('請完成五題判斷');return} const sc=q[i].opts[Number(val.value)][1]; Object.entries(sc).forEach(([k,v])=>scores[k]+=v)}
+ const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]); lastType=sorted[0][0]; lastScores=scores;
+ const secondary=sorted[1][1]>=2?`\n可能也帶有：${types[sorted[1][0]].name}`:'';
+ $('#typeResult').textContent=`主要問題類型：${types[lastType].name}${secondary}\n\n${types[lastType].tip}\n\n分數參考：重力 ${scores.gravity}｜錨定 ${scores.anchor}｜資訊不足 ${scores.info}｜可設計 ${scores.design}`;
+ renderRewriteBox(lastType);
+}
+function renderRewriteBox(type){
+ const prompts={gravity:['我暫時無法改變的現實是什麼？','我想降低哪一種消耗或影響？','我可以調整的回應方式是什麼？','接下來 7 天內，我願意做的小調整是什麼？'],anchor:['我以為唯一可行的做法是什麼？','這個做法背後，我真正想得到什麼？','除了原本做法，還有什麼更小的替代方式？','接下來 7 天內，我願意測試哪一個替代方式？'],info:['我現在最不確定的是什麼？','我需要先知道什麼資訊？','我可以怎樣取得資訊？','接下來 7 天內，我願意做哪一個查證或訪談？'],design:['我想改善的是什麼？','我可以先改變哪一小部分？','我願意做的小實驗是什麼？','我想觀察什麼結果？']};
+ $('#rewriteBox').innerHTML=`<strong>${types[type].name}</strong><p>${types[type].tip}</p><div class="grid">${prompts[type].map((p,i)=>`<div class="span-6 form-row"><label>${p}</label><textarea id="rw${i+1}" placeholder="直接寫一句自己的答案"></textarea></div>`).join('')}</div>`;
+}
+function rewrite(){
+ if(!lastType)return '請先完成分類。'; const stuck=$('#stuckText').value.trim()||'（未填卡住點）'; const a=$('#rw1')?.value.trim()||'', b=$('#rw2')?.value.trim()||'', c=$('#rw3')?.value.trim()||'', d=$('#rw4')?.value.trim()||'';
+ const intro=`【卡住點下一步卡】\n\n原本的卡住點：${stuck}\n問題類型：${types[lastType].name}\n`;
+ const map={gravity:`\n重新提問：在「${a||stuck}」這個現實限制下，我能不能透過「${c||'調整自己的回應方式'}」，讓「${b||'消耗'}」降低一點？\n\n下一步小行動：${d||'先做一個最小調整，不急著解決整個現實。'}`,anchor:`\n重新提問：如果我真正想要的是「${b||'背後需求'}」，除了「${a||'原本唯一解法'}」之外，還有沒有更小的方式，例如「${c||'一個替代做法'}」？\n\n下一步小行動：${d||'先測試一個替代方式，不把自己綁在唯一答案上。'}`,info:`\n重新提問：我現在不需要立刻做決定，而是先弄清楚「${a||'最不確定的部分'}」，取得關於「${b||'真實狀況'}」的資訊。\n\n下一步小行動：${d||c||'安排一次低成本查證，不要只在腦中猜。'}`,design:`\n重新提問：接下來一週，我可以嘗試「${c||'一個小改變'}」，看看它是否讓「${a||'想改善的部分'}」在「${d||'觀察結果'}」上改善一點。\n\n下一步小行動：${c||'把實驗縮小到 7 天內可完成。'}`};
+ return intro+map[lastType];
+}
+$('#classifyBtn').addEventListener('click',classify); $('#generateRewrite').addEventListener('click',()=>{$('#rewriteOutput').textContent=rewrite()}); $('#saveProblem').addEventListener('click',()=>{if(!lastType){toast('請先分類');return} const s=loadState(); const card={id:id(),stuck:$('#stuckText').value.trim(),area:$('#stuckArea').value,type:lastType,scores:lastScores,rewrite:$('#rewriteOutput').textContent,createdAt:new Date().toISOString()}; updateState({problemCards:[card,...(s.problemCards||[])]}); toast('卡住點卡片已儲存')});
+renderQuestions();
+</script></body></html>

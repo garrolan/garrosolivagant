@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>生活儀表盤｜GARRO自由人生實驗室</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header"><div class="header-inner"><a class="brand" href="index.html"><div class="brand-mark">G</div><div><div class="brand-title">GARRO自由人生實驗室</div><div class="brand-sub">Designing Your Life｜第一層工具箱</div></div></a><nav class="nav"><a data-nav href="index.html">首頁</a><a data-nav href="dashboard.html">儀表盤</a><a data-nav href="compass-work.html">工作觀</a><a data-nav href="compass-life.html">人生觀</a><a data-nav href="compass-check.html">羅盤檢查</a><a data-nav href="journal.html">好時光日誌</a><a data-nav href="aeiou.html">AEIOU</a><a data-nav href="problem-finding.html">卡住點</a><a data-nav href="summary.html">總結</a></nav></div></header>
+<main>
+<section class="hero">
+  <span class="eyebrow">Tool 01｜Life Dashboard</span>
+  <h1>生活儀表盤</h1>
+  <p class="lead">請憑直覺為工作、玩樂、愛與健康四個面向拉出目前油量。這不是精密量表，而是一張生活狀態快照。每格底下只要補一句說明即可。</p>
+</section>
+<section class="grid" style="margin-top:24px" id="dashboardForm"></section>
+<section class="grid" style="margin-top:18px">
+  <div class="card span-12">
+    <h2>我的儀表盤摘要</h2>
+    <div id="dashboardOutput" class="output">尚未儲存。</div>
+    <div class="btn-row"><button id="saveDashboard">儲存儀表盤</button><button id="copyDashboard" class="secondary">一鍵複製摘要</button><a class="btn secondary" href="compass-work.html">下一步：工作觀</a></div>
+  </div>
+</section>
+</main>
+<footer class="footer">GARRO自由人生實驗室｜本工具為《Designing Your Life》讀書轉譯與個人實驗版，非官方頁面。資料僅儲存在你的瀏覽器 localStorage。</footer>
+<script src="js/common.js"></script>
+<script>
+const items=[
+  {key:'work',name:'工作 Work',hint:'工作、任務、責任、創作與貢獻。'},
+  {key:'play',name:'玩樂 Play',hint:'不是為成果，只是讓你覺得活起來的事。'},
+  {key:'love',name:'愛 Love',hint:'連結、支持、被理解、被在乎，不只限於戀愛。'},
+  {key:'health',name:'健康 Health',hint:'身體、睡眠、精神、情緒與體力。'}
+];
+function normalizeOld(d){
+  if(d.note) return d.note;
+  return [d.reason,d.example,d.adjust].filter(Boolean).join('；');
+}
+function render(){
+  const s=loadState().dashboard||{};
+  $('#dashboardForm').innerHTML=items.map(it=>{
+    const old=s[it.key]||{}; const d={score:old.score??50,note:normalizeOld(old)};
+    return `<div class="card span-6"><h2>${it.name}</h2><p class="small">${it.hint}</p>
+      <div class="range-wrap"><div class="range-head"><label>目前油量</label><span class="range-value" id="${it.key}Val">${d.score}%</span></div><input type="range" min="0" max="100" value="${d.score}" id="${it.key}Score"></div>
+      <div class="form-row"><label>補充說明</label><textarea id="${it.key}Note" placeholder="一句話即可，例如：大致穩定，但最近被行政訊息消耗。">${escapeHtml(d.note)}</textarea></div>
+    </div>`
+  }).join('');
+  items.forEach(it=>{$(`#${it.key}Score`).addEventListener('input',e=>$(`#${it.key}Val`).textContent=e.target.value+'%')});
+  updateOutput();
+}
+function collect(){const data={}; items.forEach(it=>{data[it.key]={score:Number($(`#${it.key}Score`).value),note:$(`#${it.key}Note`).value.trim()}}); return data}
+function updateOutput(){const d=collect(); $('#dashboardOutput').textContent=items.map(it=>`${it.name}：${d[it.key].score}%\n說明：${d[it.key].note||'（未填）'}`).join('\n\n')}
+document.addEventListener('input',e=>{if(e.target.closest('#dashboardForm')) updateOutput()});
+$('#saveDashboard').addEventListener('click',()=>{updateState({dashboard:collect()}); toast('生活儀表盤已儲存')});
+$('#copyDashboard').addEventListener('click',()=>copyText($('#dashboardOutput').textContent));
+render();
+</script>
+</body></html>
