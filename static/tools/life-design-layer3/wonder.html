@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wonder｜重新看見此刻</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="index.html"><span class="brand-mark"></span><span>日常意義工具箱</span></a>
+    <nav class="nav-links">
+      <a href="index.html">首頁</a><a href="wonder.html">Wonder</a><a href="coherence.html">Coherence</a><a href="flow.html">Flow</a><a href="community.html">Community</a><a href="meaning-map.html">意義地圖</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="kicker">Wonder｜重新看見</div>
+        <h1>把此刻<br>收藏起來</h1>
+        <p class="lead">Wonder 不是一定要發生大事。它是把注意力放回此刻，重新看見日常裡一點點美、微光、安靜或驚喜。</p>
+      </div>
+      <div class="card tint-wonder">
+        <h3>這一頁只做三件事</h3>
+        <p>上傳一張照片。</p>
+        <p>選一個此刻感受。</p>
+        <p>寫下一句你想保存的話，生成一張漂亮小卡。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two">
+      <div class="card">
+        <h2>製作今日 Wonder 小卡</h2>
+        <p>不用寫長篇心得。只要一張照片、一個感受、一句短短的話。</p>
+        <div class="field">
+          <label>1. 上傳一張照片</label>
+          <input id="wonderPhoto" type="file" accept="image/*" hidden>
+          <div id="uploadZone" class="upload-zone">
+            <div>
+              <div style="font-size:42px;margin-bottom:10px">📷</div>
+              <strong>點這裡上傳照片</strong>
+              <p class="help">也可以先不傳，直接生成一張自然底圖小卡。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>2. 選一個此刻感受</label>
+          <div class="chip-row">
+            <button type="button" class="chip gold feeling-chip" data-value="安靜">安靜</button>
+            <button type="button" class="chip gold feeling-chip" data-value="微光">微光</button>
+            <button type="button" class="chip gold feeling-chip" data-value="鬆一口氣">鬆一口氣</button>
+            <button type="button" class="chip gold feeling-chip" data-value="被接住">被接住</button>
+            <button type="button" class="chip gold feeling-chip" data-value="想停留">想停留</button>
+            <button type="button" class="chip gold feeling-chip" data-value="今天還可以">今天還可以</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>3. 我想保存這一刻，是因為……</label>
+          <textarea id="wonderText" maxlength="80" placeholder="例如：早晨的光落在樹葉上，讓我覺得今天還有餘裕。"></textarea>
+          <p class="help">建議 40～60 字，不用寫得完整，像一句日記或小詩就好。</p>
+        </div>
+
+        <div class="field">
+          <label>地點或片刻名稱，可留空</label>
+          <input id="wonderPlace" type="text" placeholder="例如：清晨河岸、窗邊、教室、回家路上">
+        </div>
+
+        <div class="field">
+          <label>選擇小卡樣式</label>
+          <div class="template-options">
+            <div class="template-option selected" data-template="mist">霧面相框</div>
+            <div class="template-option" data-template="journal">手帳款</div>
+            <div class="template-option" data-template="full">全版照片</div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="saveWonder" class="btn">收藏到意義地圖</button>
+          <button id="downloadWonder" class="btn secondary">下載 PNG</button>
+          <button id="copyWonder" class="btn ghost">複製文字</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>預覽小卡</h2>
+        <p>完成後可以下載成 PNG，適合收藏、分享，或作為日常意義日誌的一頁。</p>
+        <div class="canvas-wrap">
+          <canvas id="wonderCanvas" width="1080" height="1350"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="footer"><div class="container">Wonder｜把此刻收藏起來</div></footer>
+<script src="js/app.js"></script>
+</body>
+</html>

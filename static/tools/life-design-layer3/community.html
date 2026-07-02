@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Community｜誰讓我更靠近自己</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="index.html"><span class="brand-mark"></span><span>日常意義工具箱</span></a>
+    <nav class="nav-links">
+      <a href="index.html">首頁</a><a href="wonder.html">Wonder</a><a href="coherence.html">Coherence</a><a href="flow.html">Flow</a><a href="community.html">Community</a><a href="meaning-map.html">意義地圖</a>
+    </nav>
+  </div>
+</header>
+
+<main id="communityRoot">
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="kicker">Community｜重新連結</div>
+        <h1>我不是<br>獨自成為自己</h1>
+        <p class="lead">Community 不是人越多越好。真正有意義的連結，是那些讓你更真實、更清楚、更靠近自己的人、書、社群、作品或對話。</p>
+      </div>
+      <div class="card tint-community">
+        <h3>連結可以有很多形式</h3>
+        <p>它不一定只來自現實中的人。一本書、一位作者、一段長期對話、一個社群，也可能支持你成為更像自己的版本。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid three">
+      <div class="card soft">
+        <div class="icon-bubble">🫖</div>
+        <h3>陪伴型連結</h3>
+        <p>讓我放鬆、開心、有陪伴感。</p>
+      </div>
+      <div class="card soft">
+        <div class="icon-bubble">🛠️</div>
+        <h3>合作型連結</h3>
+        <p>和我一起完成任務、專案或作品。</p>
+      </div>
+      <div class="card soft">
+        <div class="icon-bubble">🌸</div>
+        <h3>形成型連結</h3>
+        <p>讓我更清楚自己，支持我成為更真實的人。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two">
+      <div class="card">
+        <h2>種下一個連結</h2>
+        <p>先不用建立龐大人際地圖。只要想一個「讓我更靠近自己」的連結。</p>
+        <div class="field">
+          <label>名稱</label>
+          <input id="connectionName" type="text" placeholder="例如：某位朋友、一本書、一個作者、一段 AI 對話、某個社群">
+        </div>
+        <div class="grid two">
+          <div class="field">
+            <label>類型</label>
+            <select id="connectionType">
+              <option>人</option><option>書</option><option>作者</option><option>社群</option><option>課程</option><option>AI 對話</option><option>觀眾</option><option>學生</option><option>家人</option><option>其他</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>連結類別</label>
+            <select id="connectionKind">
+              <option>陪伴型</option><option>合作型</option><option selected>形成型</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>它帶給我</label>
+          <select id="connectionGift">
+            <option>陪伴</option><option>靈感</option><option>挑戰</option><option>安定</option><option>合作</option><option>看見</option><option>勇氣</option><option>自由感</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>我想如何靠近或維持這個連結？</label>
+          <input id="connectionKeep" type="text" placeholder="例如：每週讀一點、找時間聊一次、持續記錄對話中的洞見">
+        </div>
+        <div class="actions">
+          <button id="addConnection" class="btn" type="button">種進連結花園</button>
+          <button id="clearConnections" class="btn ghost" type="button">清空花園</button>
+        </div>
+      </div>
+
+      <div class="card tint-community">
+        <h2>Connection Garden｜連結花園</h2>
+        <p>不同形狀代表不同連結：圓葉是陪伴型，枝葉是合作型，花朵是形成型。</p>
+        <div id="connectionGarden" class="garden"></div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="footer"><div class="container">Community｜讓我更靠近自己的連結</div></footer>
+<script src="js/app.js"></script>
+</body>
+</html>

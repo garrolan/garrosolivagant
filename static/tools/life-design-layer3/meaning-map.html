@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>我的日常意義地圖</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="index.html"><span class="brand-mark"></span><span>日常意義工具箱</span></a>
+    <nav class="nav-links">
+      <a href="index.html">首頁</a><a href="wonder.html">Wonder</a><a href="coherence.html">Coherence</a><a href="flow.html">Flow</a><a href="community.html">Community</a><a href="meaning-map.html">意義地圖</a>
+    </nav>
+  </div>
+</header>
+
+<main id="meaningMapRoot">
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="kicker">Meaning Map｜整合頁</div>
+        <h1>我的日常<br>意義地圖</h1>
+        <p class="lead">這裡會收束 Wonder、Coherence、Flow、Community 四個入口。不是評分人生，而是看見最近哪些事讓你更靠近自己。</p>
+      </div>
+      <div class="card">
+        <h3>四句核心</h3>
+        <p>Wonder：重新看見。</p>
+        <p>Coherence：重新對齊。</p>
+        <p>Flow：重新投入。</p>
+        <p>Community：重新連結。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="summary-strip">
+        <div class="summary-mini tint-wonder"><b>Wonder｜我重新看見了什麼</b><div id="wonderSummary"></div></div>
+        <div class="summary-mini tint-coherence"><b>Coherence｜我正在照顧什麼價值</b><div id="coherenceSummary"></div></div>
+        <div class="summary-mini tint-flow"><b>Flow｜我在哪些小事中比較有在場感</b><div id="flowSummary"></div></div>
+        <div class="summary-mini tint-community"><b>Community｜什麼連結讓我更接近自己</b><div id="communitySummary"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two">
+      <div class="card">
+        <h2>寫下我的意義句</h2>
+        <p>把四個入口收束成一段自己的話。不是總結人生，只是記下最近這一段路。</p>
+        <div class="field">
+          <label>最近讓我感到有意義的，不是某個巨大的答案，而是……</label>
+          <input id="meaningWonder" type="text" placeholder="例如：早晨散步時看見光落在樹上">
+        </div>
+        <div class="field">
+          <label>我發現自己在什麼時候，比較靠近自己？</label>
+          <input id="meaningFlow" type="text" placeholder="例如：慢慢寫下自己的想法、安靜做一件小事">
+        </div>
+        <div class="field">
+          <label>接下來，我想為哪個價值留下一點空間？</label>
+          <input id="meaningValue" type="text" placeholder="例如：自由、餘裕、創作、健康、關係">
+        </div>
+        <div class="actions"><button id="generateMeaningText" class="btn">生成意義句</button></div>
+      </div>
+      <div class="card tint-flow">
+        <h2>可複製的文字</h2>
+        <textarea id="meaningTextResult" placeholder="按下左側按鈕後，這裡會產生一段文字。"></textarea>
+        <div class="actions">
+          <button id="copyMeaningText" class="btn secondary">複製文字</button>
+          <button id="exportJson" class="btn ghost">匯出 JSON</button>
+          <button id="clearAllData" class="btn ghost">清空全部資料</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="footer"><div class="container">Meaning Map｜不是考核，而是看見最近的生活證據</div></footer>
+<script src="js/app.js"></script>
+</body>
+</html>

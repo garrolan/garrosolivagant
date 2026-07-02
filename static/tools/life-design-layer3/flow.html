@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flow｜小事也能進入心流</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="index.html"><span class="brand-mark"></span><span>日常意義工具箱</span></a>
+    <nav class="nav-links">
+      <a href="index.html">首頁</a><a href="wonder.html">Wonder</a><a href="coherence.html">Coherence</a><a href="flow.html">Flow</a><a href="community.html">Community</a><a href="meaning-map.html">意義地圖</a>
+    </nav>
+  </div>
+</header>
+
+<main id="flowRoot">
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="kicker">Flow｜重新投入</div>
+        <h1>把小事<br>做得有在場感</h1>
+        <p class="lead">心流不只發生在偉大創作或高難度挑戰裡。有時候，一杯咖啡、一段散步、一頁筆記，也可以讓人重新回到當下。</p>
+      </div>
+      <div class="card tint-flow">
+        <h3>這頁不是番茄鐘</h3>
+        <p><strong>計時器只是輔助。</strong>核心是切換注意力：從「我要趕快完成它」，切換成「我願意在這件事裡多停留一點」。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two">
+      <div class="card">
+        <h2>1. 選一件普通小事</h2>
+        <p>不要選太宏大的任務。越普通，越適合練習「simple flow」。</p>
+        <div class="flow-activity-grid">
+          <div class="choice-card activity-choice" data-value="泡咖啡"><b>泡咖啡</b><span class="help">感受香氣與水流。</span></div>
+          <div class="choice-card activity-choice" data-value="散步"><b>散步</b><span class="help">感受腳步與風。</span></div>
+          <div class="choice-card activity-choice" data-value="洗碗"><b>洗碗</b><span class="help">感受水溫與手感。</span></div>
+          <div class="choice-card activity-choice" data-value="整理桌面"><b>整理桌面</b><span class="help">讓空間慢慢清出來。</span></div>
+          <div class="choice-card activity-choice" data-value="寫一小段文字"><b>寫一小段文字</b><span class="help">感受句子長出來。</span></div>
+          <div class="choice-card activity-choice" data-value="閱讀一頁書"><b>閱讀一頁書</b><span class="help">只讀一頁也可以。</span></div>
+          <div class="choice-card activity-choice" data-value="做伸展"><b>做伸展</b><span class="help">回到身體。</span></div>
+          <div class="choice-card activity-choice" data-value="備課"><b>備課</b><span class="help">從任務切到設計。</span></div>
+          <div class="choice-card activity-choice" data-value="自訂"><b>自訂</b><span class="help">選你今天的小事。</span></div>
+        </div>
+        <div id="customActivityWrap" class="field" style="display:none">
+          <label>自訂小事</label>
+          <input id="customActivity" type="text" placeholder="例如：澆花、通勤、做早餐、回收衣服">
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>2. 選一個注意力入口</h2>
+        <p>Flow 不是逼自己專注，而是找到可以進入當下的門。</p>
+        <div class="attention-grid">
+          <div class="choice-card attention-choice" data-value="身體"><b>身體</b><span class="help">手、腳、呼吸、肩膀。</span></div>
+          <div class="choice-card attention-choice" data-value="感官"><b>感官</b><span class="help">聲音、光線、氣味、溫度。</span></div>
+          <div class="choice-card attention-choice" data-value="節奏"><b>節奏</b><span class="help">速度、重複、停頓。</span></div>
+          <div class="choice-card attention-choice" data-value="手感"><b>手感</b><span class="help">觸感、重量、動作。</span></div>
+          <div class="choice-card attention-choice" data-value="意圖"><b>意圖</b><span class="help">我知道為什麼做這件事。</span></div>
+          <div class="choice-card attention-choice" data-value="美感"><b>美感</b><span class="help">看見其中一點點美。</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two">
+      <div class="card tint-flow">
+        <h2>3. 可選：三分鐘在場練習</h2>
+        <p>不想計時也可以直接記錄。計時器只是幫你停留一下，不是效率工具。</p>
+        <div class="timer-box">
+          <div class="timer-display" id="timerDisplay">03:00</div>
+          <p>接下來三分鐘，不必做得更好，只要更在場。</p>
+          <div class="actions" style="justify-content:center">
+            <button id="startTimer" class="btn" type="button">開始</button>
+            <button id="pauseTimer" class="btn secondary" type="button">暫停</button>
+            <button id="resetTimer" class="btn ghost" type="button">重設</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>4. 留下一句 Flow 小記錄</h2>
+        <div class="field">
+          <label>我剛剛注意到：</label>
+          <textarea id="flowNote" placeholder="例如：腳步慢下來後，河邊的聲音變清楚了。"></textarea>
+        </div>
+        <div class="field">
+          <label>這件小事變得：</label>
+          <select id="flowLevel">
+            <option>更無聊</option>
+            <option>差不多</option>
+            <option selected>一點點有感</option>
+            <option>比較投入</option>
+            <option>很在場</option>
+          </select>
+        </div>
+        <div class="actions"><button id="saveFlow" class="btn">保存 Flow 小記錄</button></div>
+        <div class="divider"></div>
+        <h3>最近紀錄</h3>
+        <div id="flowRecords"></div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="footer"><div class="container">Flow｜不是提高效率，而是重新活在裡面</div></footer>
+<script src="js/app.js"></script>
+</body>
+</html>

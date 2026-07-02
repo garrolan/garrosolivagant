@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coherence｜價值與生活是否一致</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="index.html"><span class="brand-mark"></span><span>日常意義工具箱</span></a>
+    <nav class="nav-links">
+      <a href="index.html">首頁</a><a href="wonder.html">Wonder</a><a href="coherence.html">Coherence</a><a href="flow.html">Flow</a><a href="community.html">Community</a><a href="meaning-map.html">意義地圖</a>
+    </nav>
+  </div>
+</header>
+
+<main id="valuesRoot">
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="kicker">Coherence｜重新對齊</div>
+        <h1>我有沒有<br>活得像自己？</h1>
+        <p class="lead">Coherence 的重點是：你重視的價值，是否真的被你的時間、選擇與生活接住。它不是責備，而是看見落差。</p>
+      </div>
+      <div class="card tint-coherence">
+        <h3>Coherence 的關係邏輯</h3>
+        <p><strong>我的價值觀</strong> → 我的選擇 → 我的時間與注意力 → 我的生活樣子 → 我是否覺得自己沒有偏離。</p>
+        <p>如果重要的東西長期沒有被生活照顧，人就容易失去內在連貫感。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two">
+      <div class="card">
+        <h2>1. 選出我的 Compass Values</h2>
+        <p>先從價值花園裡選 3～5 個目前最重要的價值。也可以新增自己的詞。</p>
+        <div id="valueGarden" class="value-list"></div>
+        <div class="field">
+          <label>新增自己的價值</label>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:10px">
+            <input id="customValue" type="text" placeholder="例如：慢生活、照顧、冒險、專注">
+            <button id="addCustomValue" class="btn secondary" type="button">新增</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>我的價值花園</label>
+          <div id="selectedValueBox" class="selected-values"></div>
+        </div>
+      </div>
+
+      <div class="card soft">
+        <h2>2. 用自己的話定義它</h2>
+        <p>價值不是漂亮詞彙。它必須變成你自己的生活語言。</p>
+        <div class="notice">例如：「自由」不是抽象口號，而可能是：我能選擇怎麼安排自己的時間與注意力。</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid two">
+      <div class="card">
+        <h2>3. 一致性檢查</h2>
+        <p>對每個價值，比較「我有多重視」與「最近有多活出」。落差越大，越值得被溫柔照顧。</p>
+        <div id="valueItems"></div>
+        <div class="actions"><button id="saveValues" class="btn">保存並更新摘要</button></div>
+      </div>
+
+      <div class="card tint-coherence">
+        <h2>我的對齊摘要</h2>
+        <div id="coherenceResult"></div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="footer"><div class="container">Coherence｜我重視的，是否被生活接住</div></footer>
+<script src="js/app.js"></script>
+</body>
+</html>
