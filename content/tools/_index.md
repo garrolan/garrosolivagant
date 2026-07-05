@@ -3,6 +3,11 @@ title: "小工具"
 description: "把自由人生實驗室常用的小程式集中在一頁，之後要用時不用到處找連結。"
 draft: false
 tools:
+  - title: "羅馬尼亞語旅行小卡APP"
+    url: "https://garro-romania-language-cards.netlify.app/"
+    category: "語言學習"
+    description: "用旅行情境小卡練習羅馬尼亞語，方便出發前快速複習常用句子與單字。"
+    icon: "language"
   - title: "自由人生實驗室創作流程小管家"
     url: "https://garro-creative-flow.netlify.app/"
     category: "創作流程"
