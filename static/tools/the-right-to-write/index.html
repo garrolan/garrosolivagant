@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Right To Write｜下筆輔助工具箱</title>
+  <style>
+    :root{
+      --ink:#2d241b; --ink-2:#4b3929; --muted:#8a735c;
+      --paper:#f7ecd6; --paper-2:#fff8ea; --paper-3:#ead6b2;
+      --coffee:#6f4d31; --coffee-dark:#352213; --gold:#b98a3e;
+      --rose:#8a4d48; --green:#536344; --blue:#4f6370;
+      --shadow:rgba(45, 32, 18, .18); --line:rgba(91,61,34,.22);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0; color:var(--ink);
+      font-family:"DFKai-SB","BiauKai","標楷體","KaiTi","STKaiti","Noto Serif TC",serif;
+      line-height:1.78; min-height:100vh;
+      background:
+        radial-gradient(circle at 12% 2%, rgba(255,255,255,.65), transparent 28%),
+        radial-gradient(circle at 84% 8%, rgba(188,142,73,.22), transparent 24%),
+        linear-gradient(90deg, rgba(102,64,31,.05) 1px, transparent 1px) 0 0/38px 38px,
+        linear-gradient(0deg, rgba(102,64,31,.035) 1px, transparent 1px) 0 0/38px 38px,
+        #ead9bb;
+    }
+    body:before{
+      content:""; position:fixed; inset:0; pointer-events:none; opacity:.55; mix-blend-mode:multiply;
+      background:
+        radial-gradient(circle at 50% 0%, transparent 54%, rgba(45,29,16,.18)),
+        repeating-linear-gradient(105deg, rgba(99,67,38,.025) 0 2px, transparent 2px 8px);
+    }
+    a{color:inherit}
+    .app{width:min(1180px, calc(100% - 28px)); margin:0 auto; padding:18px 0 54px; position:relative}
+
+    .topbar{
+      position:sticky; top:0; z-index:30; margin:0 -8px 14px; padding:8px;
+      background:rgba(234,217,187,.72); backdrop-filter:blur(10px);
+      border-bottom:1px solid rgba(91,61,34,.12);
+    }
+    .navline{display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:space-between}
+    .brand-mini{font-weight:900; letter-spacing:.08em; color:var(--coffee-dark); padding:4px 8px; white-space:nowrap}
+    .navlinks{display:flex; gap:6px; flex-wrap:wrap; align-items:center}
+    .navbtn{
+      border:1px solid rgba(91,61,34,.18); background:rgba(255,248,234,.64); color:var(--coffee-dark);
+      border-radius:999px; padding:5px 10px; min-height:30px; font-size:13px; box-shadow:none;
+    }
+    .navbtn.active{background:var(--coffee-dark); color:var(--paper-2); border-color:transparent}
+    .search-wrap{display:flex; align-items:center; gap:8px; flex:1; min-width:min(320px,100%); justify-content:flex-end}
+    .searchbox{position:relative; width:min(390px,100%)}
+    .searchbox input{
+      width:100%; border:1px solid rgba(91,61,34,.22); border-radius:999px; padding:9px 38px 9px 14px;
+      background:rgba(255,248,234,.84); color:var(--ink); font:inherit; font-size:15px;
+      outline:none; box-shadow:inset 0 1px 0 rgba(255,255,255,.45);
+    }
+    .searchbox span{position:absolute; right:13px; top:50%; transform:translateY(-50%); color:var(--muted)}
+
+    button,.button{
+      border:0; border-radius:999px; padding:10px 18px; min-height:42px;
+      font:inherit; font-size:15px; cursor:pointer; color:var(--paper-2);
+      background:linear-gradient(180deg,#76543a,#4a2f1e); box-shadow:0 8px 18px rgba(65,38,19,.22);
+      display:inline-flex; gap:8px; align-items:center; justify-content:center; text-decoration:none;
+      transition:.16s ease;
+    }
+    button:hover,.button:hover{transform:translateY(-1px); filter:brightness(1.04)}
+    button.secondary,.button.secondary{color:var(--coffee-dark); background:rgba(255,248,231,.76); border:1px solid rgba(111,76,50,.24); box-shadow:none}
+    button.ghost{color:var(--coffee-dark); background:transparent; border:1px dashed rgba(111,76,50,.38); box-shadow:none}
+    button.small{padding:6px 12px; min-height:32px; font-size:13px}
+    button.danger{background:linear-gradient(180deg,#8c5149,#5b2d28)}
+
+    .hero{
+      position:relative; overflow:hidden; padding:38px clamp(22px,6vw,72px); min-height:285px;
+      border:1px solid rgba(91,61,34,.22); border-radius:34px;
+      background:
+        radial-gradient(circle at 84% 24%, rgba(255,252,240,.86), transparent 24%),
+        linear-gradient(108deg, rgba(255,250,237,.95), rgba(239,219,184,.93));
+      box-shadow:0 22px 60px var(--shadow), inset 0 0 0 8px rgba(255,255,255,.16);
+    }
+    .hero:after{content:"✒"; position:absolute; right:clamp(22px,6vw,80px); bottom:-50px; font-size:clamp(120px,19vw,220px); color:rgba(74,45,24,.13); transform:rotate(-14deg)}
+    .eyebrow{display:inline-flex; gap:8px; padding:5px 12px; border:1px solid rgba(111,76,50,.24); border-radius:999px; color:var(--coffee); background:rgba(255,255,255,.36); letter-spacing:.12em; font-size:14px}
+    h1{margin:16px 0 10px; font-size:clamp(38px,7vw,74px); line-height:1.02; color:var(--coffee-dark); letter-spacing:.045em; text-shadow:0 1px 0 rgba(255,255,255,.55)}
+    .subtitle{max-width:790px; margin:0; color:var(--ink-2); font-size:clamp(18px,2.2vw,23px)}
+    .hero-actions,.button-row,.row{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
+    .hero-actions{margin-top:26px}
+
+    .panel{
+      border:1px solid rgba(91,61,34,.2); border-radius:var(--radius); padding:22px;
+      background:rgba(255,248,234,.76); box-shadow:0 14px 42px rgba(47,33,18,.13);
+      backdrop-filter:blur(7px); margin-top:18px;
+    }
+    .panel h2,.panel h3{margin:0 0 10px; color:var(--coffee-dark); line-height:1.32}
+    .lead{font-size:18px; color:var(--ink-2); margin:0 0 14px}.muted{color:var(--muted)}
+    .grid{display:grid; gap:14px}.rooms{grid-template-columns:repeat(4,1fr); margin-top:18px}.cards{grid-template-columns:repeat(3,1fr); margin-top:16px}
+    .room-card,.tool-card,.question-card,.record-card{
+      position:relative; border:1px solid rgba(91,61,34,.18); border-radius:22px; padding:17px;
+      background:linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,248,234,.36));
+      box-shadow:0 10px 24px rgba(47,33,18,.09); cursor:pointer; transition:.16s ease; min-height:142px;
+    }
+    .room-card:hover,.tool-card:hover,.question-card:hover{transform:translateY(-2px); box-shadow:0 15px 30px rgba(47,33,18,.15)}
+    .room-card .num{font-size:13px; color:var(--gold); letter-spacing:.1em}.room-card h3,.tool-card h3{font-size:20px; margin:4px 0 6px}.room-card p,.tool-card p{margin:0; color:var(--ink-2)}
+    .tool-card{cursor:pointer; min-height:178px}.tool-card .module{font-size:13px; color:var(--coffee); margin-top:10px}.tags{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px}.tag{font-size:12px; padding:2px 8px; border-radius:999px; background:rgba(111,76,50,.10); color:var(--coffee-dark); border:1px solid rgba(111,76,50,.13)}
+    .question-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:15px}.question-card{min-height:96px}.question-card strong{display:block; margin-bottom:3px}
+    .breadcrumb{font-size:14px; color:var(--muted); margin:0 0 8px}.breadcrumb button{font-size:14px; min-height:auto; padding:2px 0; border:0; background:transparent; box-shadow:none; color:var(--coffee); text-decoration:underline}
+
+    .tool-page{display:grid; grid-template-columns:minmax(0,1fr); gap:16px; margin-top:16px}.tool-hero{padding:26px; border-radius:30px; background:linear-gradient(135deg, rgba(255,250,238,.92), rgba(238,219,187,.84)); border:1px solid rgba(91,61,34,.2); box-shadow:0 16px 44px rgba(47,33,18,.13)}
+    .tool-title{font-size:clamp(30px,5vw,52px); line-height:1.12; margin:4px 0 8px; color:var(--coffee-dark)}
+    .tool-layout{display:grid; grid-template-columns: minmax(0, 1fr) 310px; gap:16px; align-items:start}.main-work{min-width:0}.side-note{position:sticky; top:70px; align-self:start}
+    .note-box{border:1px solid rgba(91,61,34,.17); border-radius:22px; padding:16px; background:rgba(255,248,234,.72); margin-bottom:12px}.note-box p{margin:0}.note-box ul{margin:8px 0 0; padding-left:1.2em}
+    .work-card{border:1px solid rgba(91,61,34,.2); border-radius:28px; padding:22px; background:rgba(255,248,234,.82); box-shadow:0 18px 48px rgba(47,33,18,.14)}
+    label{display:block; font-weight:700; color:var(--coffee-dark); margin:12px 0 6px} input[type="text"],input[type="number"],select,textarea{
+      width:100%; border:1px solid rgba(91,61,34,.24); border-radius:16px; padding:11px 13px; font:inherit; color:var(--ink); background:rgba(255,255,255,.54); outline:none;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.5);
+    }
+    textarea{min-height:190px; resize:vertical}.big-textarea{min-height:360px; font-size:18px; line-height:1.85}.mini-textarea{min-height:98px}
+    .two-col{display:grid; grid-template-columns:1fr 1fr; gap:12px}.three-col{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+    .timer{display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin:12px 0; padding:12px; background:rgba(111,76,50,.08); border:1px solid rgba(111,76,50,.12); border-radius:18px}.time-display{font-size:26px; font-weight:900; color:var(--coffee-dark); min-width:96px; letter-spacing:.05em}
+    .progress{height:10px; border-radius:999px; background:rgba(91,61,34,.14); overflow:hidden; margin:8px 0 12px}.progress span{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--gold),#7f5b35); border-radius:inherit; transition:.2s ease}
+    .list-grid{display:grid; gap:8px; margin-top:10px}.list-row{display:grid; grid-template-columns:42px 1fr; gap:8px; align-items:center}.list-row .idx{text-align:center; color:var(--muted)}
+    .matrix-row{display:grid; grid-template-columns:1.15fr .85fr .85fr 1fr; gap:8px; margin-bottom:8px; align-items:center}.matrix-head{font-size:13px; color:var(--muted); font-weight:700}
+    .result-box{white-space:pre-wrap; background:rgba(66,43,24,.08); border:1px dashed rgba(91,61,34,.32); border-radius:18px; padding:14px; max-height:360px; overflow:auto; margin-top:12px}.hidden{display:none!important}
+    .toast{position:fixed; right:18px; bottom:18px; z-index:50; background:#3f291a; color:var(--paper-2); border-radius:16px; padding:12px 16px; box-shadow:0 16px 44px rgba(0,0,0,.25); opacity:0; transform:translateY(8px); pointer-events:none; transition:.18s ease}.toast.show{opacity:1; transform:translateY(0)}
+
+    .records-layout{display:grid; grid-template-columns:1fr 330px; gap:16px}.record-card{cursor:default; min-height:auto}.record-card h3{margin:0 0 4px}.record-meta{font-size:13px; color:var(--muted); margin-bottom:8px}.record-content{white-space:pre-wrap; max-height:180px; overflow:auto; background:rgba(255,255,255,.35); border-radius:14px; padding:10px; border:1px solid rgba(91,61,34,.1)}
+    .empty{padding:32px; text-align:center; color:var(--muted); border:1px dashed rgba(91,61,34,.28); border-radius:22px; background:rgba(255,248,234,.45)}
+
+
+    .timer-panel{border:1px solid rgba(91,61,34,.2); border-radius:22px; padding:16px; background:linear-gradient(180deg,rgba(255,248,234,.88),rgba(238,219,187,.68)); box-shadow:0 12px 28px rgba(47,33,18,.10); margin-bottom:12px}
+    .timer-panel h3{margin:0 0 8px;color:var(--coffee-dark)}
+    .timer-controls{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px}
+    .timer-presets{display:flex; gap:6px; flex-wrap:wrap; margin:8px 0}
+    .timer-presets button{font-size:12px; min-height:28px; padding:4px 9px; box-shadow:none}
+    .time-display{font-size:34px; display:block; margin:5px 0 6px; text-align:center}
+    .custom-time{display:flex; align-items:center; gap:6px}.custom-time input{max-width:92px; padding:7px 9px; border-radius:12px}
+    .prompt-button{white-space:normal; text-align:left; line-height:1.55}
+    .stem-card,.observe-card,.postcard-card,.option-card{border:1px solid rgba(91,61,34,.16); border-radius:20px; padding:14px; background:rgba(255,255,255,.34); box-shadow:0 8px 18px rgba(47,33,18,.06)}
+    .stem-line{font-weight:700; color:var(--coffee-dark); margin-bottom:8px; background:rgba(111,76,50,.08); border-radius:14px; padding:8px 10px}
+    .listInput{min-height:76px; line-height:1.75}
+    .observe-card .two-col,.postcard-card .two-col{margin-bottom:6px}
+    .option-grid{display:grid; grid-template-columns:1fr; gap:8px; margin:10px 0}
+    .option-card{cursor:pointer; transition:.15s ease}.option-card:hover{transform:translateY(-1px); background:rgba(255,255,255,.46)}
+    .helper-row{display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 12px}
+    .permission-box{min-height:130px!important; font-size:17px}
+    .main-work .work-card{min-height:620px}
+    @media(max-width:980px){.timer-panel{position:static}.time-display{text-align:left}}
+
+    @media(max-width:980px){.rooms,.cards{grid-template-columns:repeat(2,1fr)}.question-grid{grid-template-columns:1fr 1fr}.tool-layout,.records-layout{grid-template-columns:1fr}.side-note{position:static}.search-wrap{justify-content:flex-start}.topbar{position:static}.matrix-row{grid-template-columns:1fr}.matrix-head{display:none}}
+    @media(max-width:640px){.rooms,.cards,.question-grid,.two-col,.three-col{grid-template-columns:1fr}.hero{padding:28px 20px}.panel,.work-card,.tool-hero{padding:18px}.navlinks{max-height:92px; overflow:auto}.brand-mini{width:100%}.search-wrap{width:100%}.searchbox{width:100%}.big-textarea{min-height:280px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="navline">
+      <div class="brand-mini" onclick="goHome()" role="button">The Right To Write</div>
+      <div class="navlinks" id="topNav"></div>
+      <div class="search-wrap">
+        <div class="searchbox"><input id="searchInput" placeholder="搜尋工具、標籤、情境……例如：情緒、人生、壞文章" autocomplete="off"><span>⌕</span></div>
+        <button class="navbtn" onclick="showRecords()">本機紀錄／設定</button>
+      </div>
+    </div>
+  </div>
+
+  <main id="appRoot"></main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const CATEGORIES = [
+  {id:'start', icon:'Ⅰ', title:'我不知道怎麼開始', short:'破冰下筆', question:'今天你是卡在起點嗎？', desc:'怕寫不好、腦袋空白、沒有心情時，先讓手動起來。'},
+  {id:'clear', icon:'Ⅱ', title:'我腦中太吵，需要清空', short:'清空整理', question:'今天你需要先把雜念倒出來嗎？', desc:'用自由書寫、句型與問答，把混亂變成看得見的文字。'},
+  {id:'material', icon:'Ⅲ', title:'我想找到自己的題材', short:'人生素材', question:'今天你想挖出自己的故事礦脈嗎？', desc:'從地點、時間線、價值與偏好，找出真正有火花的題材。'},
+  {id:'sensory', icon:'Ⅳ', title:'我想寫得更具體', short:'感官觀察', question:'今天你想讓文字更有畫面嗎？', desc:'練習看見、聽見、觸碰與現場記錄，讓抽象想法落地。'},
+  {id:'well', icon:'Ⅴ', title:'我需要補充創作能量', short:'創作補水', question:'今天你的創作之井需要補水嗎？', desc:'不是逼自己產出，而是用快樂、空間與感官把井重新注滿。'},
+  {id:'self', icon:'Ⅵ', title:'我想和自己對話', short:'自我對話', question:'今天你想聽見更深層的自己嗎？', desc:'讓未來的我、年輕的我、理想生活與內在智慧開口。'},
+  {id:'protect', icon:'Ⅶ', title:'我被批評、恐懼或懷疑卡住', short:'創作保護', question:'今天你需要替自己的創作設邊界嗎？', desc:'辨識惡人、安全讀者、內在寫作者的恐懼與支柱。'},
+  {id:'practice', icon:'Ⅷ', title:'我想建立長期寫作修行', short:'長期修行', question:'今天你想把寫作變成可持續的生活節奏嗎？', desc:'建立契約、路線、時間縫隙與完整草稿的練習。'}
+];
+
+const TOOLS = [
+  {id:'start-now', cat:'start', title:'開始：此刻三頁', module:'freewrite', time:25, tags:['破冰','自由書寫','當下','身體感'], status:['腦袋空白','只是需要起點'], one:'從此刻的身體、情緒、心理狀態開始，不等靈感批准。', value:'降低起步門檻，讓「不知道寫什麼」變成第一句。', prompts:['我現在身體最明顯的感覺是……','我現在心裡其實正在想……','如果我不用寫得好，我會先承認……'], after:['我寫完後比較靠近什麼？','哪一句是我沒有預期會寫出的？','這段文字想被延伸成什麼？']},
+  {id:'bad-writing', cat:'start', title:'壞文章實驗室', module:'badstory', time:30, tags:['完美主義','荒謬','故事','放膽'], status:['怕寫很爛','太想寫好'], one:'故意把文章寫壞，讓完美主義先失去統治權。', value:'把「寫不好」改成遊戲規則，反而能重新啟動創作。', prompts:['越誇張越好。','越不合理越好。','讓人物做出不體面的選擇。'], after:['壞到哪裡反而有趣？','哪個荒謬點可以變成真正題材？','我是否比較不怕下筆了？']},
+  {id:'mood-door', cat:'start', title:'心情入口', module:'moodwrite', time:10, tags:['情緒','破冰','狀態覺察'], status:['沒有心情','情緒很滿'], one:'任何心情都可以成為下筆入口，不需要等心情變好。', value:'把情緒當作房間走進去，從那裡開始寫。', prompts:['這個心情像什麼天氣？','它想保護我什麼？','如果它能說話，它第一句會說……'], after:['寫作讓心情變重、變輕，還是變清楚？','我現在更想做什麼？','這份心情背後真正的需求是什麼？']},
+  {id:'rough-draft', cat:'start', title:'粗草稿小桌', module:'freewrite', time:20, tags:['草稿','遊戲','粗糙','主題'], status:['想先寫一點','不知道怎樣寫'], one:'先描述所在狀態，再挑一個小主題粗粗寫。', value:'把寫作從作品壓力降回文字遊戲。', prompts:['我現在所在的地方是……','我可能有興趣寫的五件事是……','我選這個題目，是因為……'], after:['這份草稿的中心在哪裡？','哪一段可以保留？','下一版只要補哪一件事？']},
+
+  {id:'morning-pages', cat:'clear', title:'晨間隨筆見證', module:'freewrite', time:30, tags:['晨間','意識流','清空','見證'], status:['腦中太吵','想建立每日節奏'], one:'用早晨的三頁意識流，替今天理出內在優先順序。', value:'在理性防衛啟動前，接住半夢半醒的真實思緒。', prompts:['今天醒來後，我第一個念頭是……','我一直掛心的是……','今天真正重要的可能是……'], after:['今天浮出的優先順序是什麼？','我需要對自己溫柔一點的地方是？','今天可以做的一個小行動是？']},
+  {id:'flashlight', cat:'clear', title:'手電筒：真誠句型', module:'stems', time:15, tags:['真誠','自問自答','句型','情緒整理'], status:['說不清感覺','需要挖真相'], one:'用半句話撬開表面，照見真正的感受與需求。', value:'當文字失溫時，用句型把自己往真相旁邊輕推一下。', stems:['如果我承認了，那麼我……','如果我不害怕，那麼我……','如果不是那麼愚蠢，那麼我會……','如果我願意讓自己知道，那麼我的感覺是……','我還沒準備好，但最終我需要……']},
+  {id:'iwish', cat:'clear', title:'我願清單', module:'list', count:25, tags:['願望','整合','方向','清單'], status:['支離破碎','不知道想要什麼'], one:'用二十五句「我願」把散掉的自己收回來。', value:'小願望和大願望一起出現時，內在方向會慢慢浮出。', starter:'我願', after:['哪三個願望最有生命力？','其中哪一個可以在一週內靠近一點？','我看見自己真正重視什麼？']},
+  {id:'night-note', cat:'clear', title:'睡前小記', module:'qna', time:10, tags:['睡前','潛意識','每日回顧','問題'], status:['今天很雜','想交給明天'], one:'睡前用幾句話整理今天，再留一個問題給明天。', value:'把未完成的想法交給夜晚消化，隔天再接回來。', questions:['今天發生了什麼微小但值得記得的事？','今天讓我卡住的是什麼？','我想交給潛意識沉澱的一個問題是？']},
+
+  {id:'place-memory', cat:'material', title:'地點記憶卡', module:'place', time:30, tags:['地點','回憶','人生階段','第一人稱'], status:['想找人生素材','想寫回憶'], one:'從曾住過或待過的地方，召回那個時期的自己。', value:'有形地點會帶出無形的精神位置。'},
+  {id:'timeline', cat:'material', title:'敘事時間線', module:'timeline', time:45, tags:['人生時間線','五年一格','題材庫'], status:['覺得人生沒題材','想整理自己'], one:'用自己的觀點重寫人生脈絡，不只接受別人的版本。', value:'把生命事件轉成可取用的故事節點。'},
+  {id:'pride-50', cat:'material', title:'珍視自身經驗', module:'list', count:50, tags:['自豪','價值','人生素材','自我理解'], status:['想知道自己重視什麼','想找主題'], one:'列出五十件自豪之事，找出你的價值線索。', value:'你珍視什麼，往往就會寫出什麼。', starter:'我自豪的是', after:['這些自豪之事共同顯示我重視什麼？','哪件事最能變成文章？','我的價值關鍵字是？']},
+  {id:'risk-map', cat:'material', title:'風險偏好分析', module:'preference', time:35, tags:['偏好','作品分析','風險','題材'], status:['不知道自己想寫哪種故事','想找火花'], one:'從喜歡的書、電影、童話，找出你真正著迷的風險。', value:'偏好不是雜亂喜好，而是創作方向的指紋。'},
+
+  {id:'concrete-10', cat:'sensory', title:'具體化與意象連結：觀察卡', module:'sensory', time:20, tags:['觀察','物件','具體描寫','視覺'], status:['文字太抽象','想練細節'], one:'從一件物品或畫面開始，慢慢寫出它的細節、聯想與情感重量。', value:'觀察力是意象資料庫的入口。', mode:'objects'},
+  {id:'sound-room', cat:'sensory', title:'聲音觀察室', module:'sound', time:30, tags:['聽覺','環境','擴大想像','感官'], status:['想寫聲音','想讓場景更立體'], one:'先聽見所在之處，再讓聲音打開更寬廣的人生想像。', value:'聽覺能帶出空間感，也能打開情緒尺度。'},
+  {id:'field-reporter', cat:'sensory', title:'現場採訪筆記', module:'field', time:45, tags:['外出','現場','人物觀察','筆記'], status:['想帶寫作出門','想像記者一樣觀察'], one:'到有人活動的地方，記錄眼睛與耳朵捕捉到的現場。', value:'好作品常常來自好筆記。'},
+
+  {id:'artist-date', cat:'well', title:'藝術之約抽籤', module:'water', time:60, tags:['補水','藝術之約','感官','不產出'], status:['創作之井乾了','太用力了'], one:'一個人去做感官探險，這次不要求產出。', value:'不是從井裡打水，而是先替井補水。'},
+  {id:'happiness-55', cat:'well', title:'幸福清單', module:'list', count:55, tags:['幸福','快樂','低潮急救','清單'], status:['心情低落','想找回簡單快樂'], one:'列出五十五件讓你快樂的事，替低潮開一扇窗。', value:'快樂不只是一種心情，也是一種可以練習的決心。', starter:'讓我快樂的是', after:['哪些快樂其實很容易取得？','我今天可以靠近哪一個？','我忘了自己原來喜歡什麼？']},
+  {id:'beloved-100', cat:'well', title:'字裡行間：喜愛事物', module:'list', count:100, tags:['喜愛','幸福感','壓力','補水'], status:['壓力太大','想接回喜歡的事'], one:'列出一百件喜愛事物，讓煩心事暫時退後。', value:'喜愛清單會把你從雜務拉回內在主線。', starter:'我喜歡', after:['這份清單裡出現最多的是什麼？','哪三樣能成為今天的小補水？','我想把哪個喜歡寫成一篇短文？']},
+  {id:'writing-station', cat:'well', title:'寫作站布置', module:'station', time:45, tags:['空間','儀式','文具','寫作站'], status:['想讓自己更容易坐下','需要儀式感'], one:'打造一個能暗示你坐下來寫的角落。', value:'空間會替習慣說話，物件也會替創作開門。'},
+
+  {id:'future-self', cat:'self', title:'來自未來的信', module:'letter', time:30, tags:['未來自我','書信','指引','智慧'], status:['需要遠景','想被未來的自己安慰'], one:'讓更年長、更有智慧的自己寫信給現在的你。', value:'把眼前困境放進更長的人生尺度裡。', from:'80歲的我', to:'現在的我', prompts:['我先想告訴你，不要太擔心的是……','以我現在看來，你真正想守住的是……','我希望你這週做的一個小行動是……']},
+  {id:'younger-self', cat:'self', title:'青春自我來信', module:'letter', time:30, tags:['內在小孩','青春自我','書信','願望'], status:['想接回年輕的自己','情緒被觸動'], one:'讓年輕的自己說出心願、擔憂與還沒放棄的夢。', value:'內在年輕部分常保留著最直接的渴望。', from:'年輕的我', to:'現在的我', prompts:['我一直希望你不要忘記……','我其實很害怕……','我想請你替我完成或保護的是……']},
+  {id:'ideal-day', cat:'self', title:'理想生活的一天', module:'ideal', time:45, tags:['理想生活','脆弱','願景','感謝'], status:['想像不到未來','想知道真正想要什麼'], one:'描寫真正幸福的一天，再回看目前生活已經擁有的事。', value:'承認夢想需要脆弱，但夢想清楚後才可能靠近。'},
+  {id:'inner-qna', cat:'self', title:'內在問答室', module:'qna', time:25, tags:['問答','內在智慧','接通','指引'], status:['想問自己問題','需要下一步'], one:'用問與答讓內在較深的部分接話。', value:'答案常比平常思維更簡單，也更直接。', questions:['我現在最需要建議的問題是？','如果我已經知道答案，那會是什麼？','這個答案要求我採取哪個小行動？']},
+
+  {id:'safe-reader', cat:'protect', title:'自保雷達：友善讀者', module:'protection', time:25, tags:['邊界','友善讀者','分享作品','自保'], status:['不知道能給誰看','怕被批評'], one:'分辨誰能支持你的作品，誰暫時不適合靠近初稿。', value:'感情好不等於創作安全，初稿需要被保護。'},
+  {id:'villain-wall', cat:'protect', title:'惡人牆', module:'villains', time:25, tags:['創作傷害','批評者','自我授權','修復'], status:['被過去批評卡住','想奪回主導權'], one:'辨識曾傷害創造力的人，再把話語權拿回來。', value:'被承認的傷害，才不會繼續在暗處吸乾創作力。'},
+  {id:'inner-writer', cat:'protect', title:'內在寫作者通信', module:'letter2', time:35, tags:['內在寫作者','支持','恐懼','成功'], status:['害怕成功','寫作卡住'], one:'讓內在寫作者說出害怕，再由成熟的你回信。', value:'知道卡住的原因，就比較知道如何解除危機。'},
+  {id:'support-pillar', cat:'protect', title:'走跳支柱', module:'stems', time:20, tags:['支柱','精神支持','外出','認可自己'], status:['想跨出去但害怕','需要支持感'], one:'到一個讓你安定的地方，寫出能支撐寫作的行動。', value:'冒險之前，先替自己找到支柱。', stems:['如果我讓自己＿＿，那會成為我的寫作支柱。','如果我嘗試＿＿，我對寫作會更有信心。','我已經藉由＿＿協助自己擁有寫作生涯。','我可以認可自己已經做到的是＿＿。']},
+
+  {id:'writing-contract', cat:'practice', title:'寫作的權利契約', module:'contract', time:30, tags:['契約','承諾','晨間隨筆','修行'], status:['想正式開始','需要承諾感'], one:'和自己簽下一份溫柔但認真的寫作契約。', value:'寫作不是等別人批准，而是自己宣告權利。'},
+  {id:'seven-day', cat:'practice', title:'七日輕量修行路線', module:'plan', time:15, tags:['七天','練習路線','打卡','陪跑'], status:['想試一週','不想太重'], one:'用七天完成一輪破冰、素材、感官、自我對話與承諾。', value:'小而完整的路線，比巨大計畫更容易開始。'},
+  {id:'time-lie', cat:'practice', title:'時間的謊言：十五分鐘', module:'postcard', time:15, tags:['時間','十五分鐘','短寫作','行動'], status:['覺得沒時間','只想寫一點'], one:'用十五分鐘完成短短的問候或訊息，證明自己其實有一點時間。', value:'寫作不一定要整片下午，有時只需要一個縫隙。'},
+  {id:'draft-to-send', cat:'practice', title:'現場與後製：完整草稿', module:'draftsend', time:45, tags:['草稿','實用寫作','後製','完成'], status:['想完成一份可用文字','想把草稿寫出去'], one:'先手寫完整草稿，再決定是否整理、寄出或分享。', value:'現場先讓文字成形，後製再讓它變得可用。'}
+];
+
+const MODULE_NAMES = {freewrite:'自由書寫計時器', badstory:'荒謬故事產生器', moodwrite:'情緒書寫器', stems:'句型續寫器', list:'清單生成器', qna:'問答對話器', place:'地點記憶卡', timeline:'人生時間線', preference:'偏好分析器', sensory:'感官觀察器', sound:'聲音觀察器', field:'現場採訪模板', water:'補水任務抽籤器', station:'寫作站清單', letter:'書信工具', ideal:'理想生活模擬器', protection:'創作防護雷達', villains:'惡人牆', letter2:'雙向書信工具', contract:'契約產生器', plan:'修行路線', postcard:'短寫作行動', draftsend:'完整草稿工作台'};
+
+let current = {view:'home', cat:null, tool:null, filter:''};
+let timer = {remaining:0, handle:null};
+const $ = sel => document.querySelector(sel);
+const root = $('#appRoot');
+
+function init(){ renderNav(); bindSearch(); goHome(); }
+function renderNav(){
+  const nav = $('#topNav');
+  nav.innerHTML = `<button class="navbtn" data-nav="home" onclick="goHome()">首頁</button>` + CATEGORIES.map(c=>`<button class="navbtn" data-nav="${c.id}" onclick="showCategory('${c.id}')">${c.icon} ${c.short}</button>`).join('');
+}
+function setActiveNav(id){ document.querySelectorAll('.navbtn[data-nav]').forEach(b=>b.classList.toggle('active', b.dataset.nav===id)); }
+function bindSearch(){ $('#searchInput').addEventListener('input', e=>{ current.filter=e.target.value.trim(); if(current.filter){ showSearch(current.filter); } else if(current.view==='search') goHome(); }); }
+function clearSearch(){ $('#searchInput').value=''; current.filter=''; }
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1800); }
+function esc(s=''){return String(s).replace(/[&<>"]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+function uid(){return Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4)}
+function today(){return new Date().toLocaleString('zh-TW',{hour12:false})}
+
+function goHome(){ stopTimer(); current={view:'home',cat:null,tool:null,filter:''}; clearSearch(); setActiveNav('home'); root.innerHTML = `
+  <section class="hero">
+    <span class="eyebrow">下筆輔助工具箱 · 書房練習小屋</span>
+    <h1>The Right To Write</h1>
+    <p class="subtitle">我想寫，但不知道要寫什麼、也不知道怎樣寫。那就先進一間房間，讓工具用問題、清單、書信、時間線與感官任務，把妳慢慢帶到紙頁前。</p>
+    <div class="hero-actions">
+      <button onclick="scrollToRooms()">今天我需要哪一種下筆輔助？</button>
+      <button class="secondary" onclick="showTool('start-now')">直接開始寫</button>
+      <button class="secondary" onclick="showRecords()">本機紀錄／設定</button>
+    </div>
+  </section>
+  <section class="panel" id="roomsPanel">
+    <h2>今天你需要哪一種下筆輔助？</h2>
+    <p class="lead">先不要從這些工具裡硬挑。看見現在的狀態，點進去，工具會再用問題幫你分流。</p>
+    <div class="grid rooms">${CATEGORIES.map(c=>roomCard(c)).join('')}</div>
+  </section>
+  <section class="panel">
+    <h2>這個工具箱想降低什麼？</h2>
+    <p class="lead">它不是要你立刻寫出漂亮文章，而是降低下筆難度與自我懷疑。你只要能在打開它之後，回答一個問題、填一格清單、寫一小段真話，就已經開始了。</p>
+  </section>`;
+}
+function scrollToRooms(){ document.getElementById('roomsPanel')?.scrollIntoView({behavior:'smooth'}); }
+function roomCard(c){ return `<article class="room-card" onclick="showCategory('${c.id}')"><div class="num">${c.icon} · ${esc(c.short)}</div><h3>${esc(c.title)}</h3><p>${esc(c.desc)}</p></article>`; }
+
+function showCategory(catId, statusFilter=''){
+  stopTimer(); clearSearch(); current={view:'category',cat:catId,tool:null,filter:''}; setActiveNav(catId);
+  const c=CATEGORIES.find(x=>x.id===catId); const tools=TOOLS.filter(t=>t.cat===catId);
+  const allStatus=[...new Set(tools.flatMap(t=>t.status||[]))].slice(0,6);
+  const filtered=statusFilter? tools.filter(t=>(t.status||[]).includes(statusFilter)) : tools;
+  root.innerHTML = `
+  <section class="panel">
+    <p class="breadcrumb"><button onclick="goHome()">首頁</button> ／ ${c.icon} ${esc(c.short)}</p>
+    <h2>${esc(c.question)}</h2>
+    <p class="lead">${esc(c.desc)}</p>
+    <div class="question-grid">
+      ${allStatus.map(s=>`<article class="question-card" onclick="showCategory('${catId}','${esc(s)}')"><strong>${esc(s)}</strong><span class="muted">點我推薦工具</span></article>`).join('')}
+      <article class="question-card" onclick="showCategory('${catId}')"><strong>我想自由看看</strong><span class="muted">顯示本室全部工具</span></article>
+    </div>
+  </section>
+  <section class="panel">
+    <h2>${statusFilter?`適合「${esc(statusFilter)}」的工具`:'選一個工具開始'}</h2>
+    <div class="grid cards">${filtered.map(toolCard).join('')}</div>
+  </section>`;
+}
+function toolCard(t){ return `<article class="tool-card" onclick="showTool('${t.id}')"><h3>${esc(t.title)}</h3><p>${esc(t.one)}</p><div class="module">${esc(MODULE_NAMES[t.module]||t.module)} · 約 ${t.time||t.count||15}${t.count?'格':' 分鐘'}</div><div class="tags">${t.tags.map(tag=>`<span class="tag">#${esc(tag)}</span>`).join('')}</div></article>`; }
+
+function showSearch(q){
+  stopTimer(); current={view:'search',cat:null,tool:null,filter:q}; setActiveNav('');
+  const needle=q.toLowerCase();
+  const results=TOOLS.filter(t=>[t.title,t.one,t.value,t.cat, ...(t.tags||[]), ...(t.status||[])].join(' ').toLowerCase().includes(needle));
+  root.innerHTML = `<section class="panel"><h2>搜尋：${esc(q)}</h2><p class="lead">可搜尋工具名稱、標籤、情境與說明。</p>${results.length?`<div class="grid cards">${results.map(toolCard).join('')}</div>`:`<div class="empty">找不到相關工具。可以試試「情緒」「人生」「聲音」「自保」「契約」。</div>`}</section>`;
+}
+
+function showTool(id){
+  stopTimer(); clearSearch(); const t=TOOLS.find(x=>x.id===id); if(!t) return;
+  current={view:'tool',cat:t.cat,tool:id,filter:''}; setActiveNav(t.cat); timer.defaultMinutes=t.time||15; timer.remaining=(t.time||15)*60;
+  const c=CATEGORIES.find(x=>x.id===t.cat);
+  root.innerHTML = `
+    <section class="tool-page">
+      <div class="tool-hero">
+        <p class="breadcrumb"><button onclick="goHome()">首頁</button> ／ <button onclick="showCategory('${c.id}')">${c.icon} ${esc(c.short)}</button></p>
+        <div class="tags">${t.tags.map(tag=>`<span class="tag">#${esc(tag)}</span>`).join('')}</div>
+        <h2 class="tool-title">${esc(t.title)}</h2>
+        <p class="lead">${esc(t.one)}</p>
+      </div>
+      <div class="tool-layout">
+        <div class="main-work"><div class="work-card" id="workArea">${renderModule(t)}</div></div>
+        <aside class="side-note">
+          ${timerPanel(t.time||15)}
+          <div class="note-box"><h3>這個工具在做什麼</h3><p>${esc(t.value||'把模糊狀態轉成可以開始書寫的入口。')}</p></div>
+          <div class="note-box"><h3>完成後回收引導</h3><p class="muted">點一下，就會帶入下方「完成後回收」欄位。</p><div class="helper-row">${(t.after||['哪一句最有能量？','我現在看見了什麼？','下一個小行動是什麼？']).map(x=>`<button class="small secondary prompt-button" onclick="appendToField('reflection','${esc(x).replace(/'/g,"&#39;")}：')">${esc(x)}</button>`).join('')}</div></div>
+          <div class="note-box"><h3>本次 Markdown</h3><p class="muted">可以複製，也可以下載成 .md。儲存後會放到「本機紀錄」。</p><div class="button-row"><button class="small secondary" onclick="copyCurrentMarkdown()">複製 Markdown</button><button class="small ghost" onclick="downloadCurrentMarkdown()">匯出本次 .md</button></div></div>
+        </aside>
+      </div>
+    </section>`;
+  hydrateModule(t); updateTime();
+}
+
+function renderModule(t){
+  const title = `<h2>${esc(MODULE_NAMES[t.module]||'書寫工具')}</h2><p class="muted">先跟著提示做，不用一次寫漂亮。這裡會把你這次輸入整理成 Markdown。</p>`;
+  if(['freewrite'].includes(t.module)) return title + promptChips(t.prompts) + `<label>書寫區</label><textarea id="mainText" class="big-textarea" placeholder="從這裡開始。不要急著整理，先讓手動起來……"></textarea>` + actionBar();
+  if(t.module==='moodwrite') return title + `<label>現在的心情</label><select id="mood"><option>煩躁</option><option>空白</option><option>難過</option><option>興奮</option><option>疲倦</option><option>平靜</option><option>不確定</option></select>` + promptChips(t.prompts) + `<label>從這份心情開始寫</label><textarea id="mainText" class="big-textarea"></textarea>` + actionBar();
+  if(t.module==='badstory') return title + `<div class="button-row"><button class="secondary" onclick="fillBadIngredients()">抽三個荒謬素材</button></div><div class="three-col"><div><label>人物</label><input id="badWho" placeholder="例如：退休偵探"></div><div><label>事件</label><input id="badWhat" placeholder="例如：在夜市遇見外星人"></div><div><label>禁忌要求</label><input id="badRule" placeholder="例如：越爛越好"></div></div><label>壞文章草稿</label><textarea id="mainText" class="big-textarea" placeholder="故意放膽、故意誇張、故意不要漂亮……"></textarea>` + actionBar();
+  if(t.module==='stems') return title + `<p class="muted">選一個句型，先把開頭帶進欄位，再接著寫。句型會一直顯示在上方，不會因為輸入後消失。</p><div class="list-grid">${(t.stems||[]).map((s,i)=>`<div class="stem-card"><div class="stem-line">${i+1}. ${esc(s)}</div><button class="small secondary" onclick="insertStemTo(this,'${esc(s).replace(/'/g,"&#39;")}')">把句型放進欄位</button><textarea class="stemInput mini-textarea" data-stem="${esc(s)}" placeholder="接著這一句寫下去……"></textarea></div>`).join('')}</div>` + actionBar();
+  if(t.module==='list') return title + `<label>清單目標</label><div class="row"><input type="number" id="targetCount" min="5" max="120" value="${t.count||25}" style="max-width:130px"><button class="secondary" onclick="buildListRows()">建立格子</button><span class="muted" id="listStatus"></span></div><p class="muted">每格會先放入「${esc(t.starter||'我想到')}」作為接寫開頭；不用一次填完。</p><div class="progress"><span id="listProgress"></span></div><div id="listRows" class="list-grid"></div>` + actionBar();
+  if(t.module==='qna') return title + `<div id="qnaRows" class="list-grid">${(t.questions||['我的問題是？','我聽到的回答是？','下一步是？']).map((q,i)=>`<div><label>${esc(q)}</label><textarea class="qnaInput mini-textarea"></textarea></div>`).join('')}</div><button class="secondary" onclick="addQnaRow()">再追問一層</button>` + actionBar();
+  if(t.module==='place') return title + `<div class="two-col"><div><label>地點</label><input id="placeName" placeholder="例如：高中宿舍、第一間租屋處、辦公室、老家房間、常去的咖啡館"></div><div><label>那時的年齡／年份</label><input id="placeAge" placeholder="例如：19歲、某一年夏天、剛開始工作時"></div></div><div class="three-col"><div><label>氣味</label><input id="placeSmell"></div><div><label>窗外／景物</label><input id="placeView"></div><div><label>那時的心情</label><input id="placeMood"></div></div><label>用第一人稱現在式，回到那個地方</label><textarea id="mainText" class="big-textarea" placeholder="我現在在……我看見……我其實……"></textarea>` + actionBar();
+  if(t.module==='timeline') return title + `<p class="muted">以五年為一段，也可以自己調整。重點是用你的版本記錄重要人物與事件。</p><div id="timelineRows" class="list-grid"></div><button class="secondary" onclick="addTimelineRow()">新增人生節點</button>` + actionBar();
+  if(t.module==='preference') return title + `<div class="two-col"><div><label>最常閱讀的三個主題</label><textarea id="readTopics" class="mini-textarea"></textarea></div><div><label>最常思考的三個主題</label><textarea id="thinkTopics" class="mini-textarea"></textarea></div></div><div class="two-col"><div><label>最愛的五本書</label><textarea id="books" class="mini-textarea"></textarea></div><div><label>最愛的五部電影／動漫／作品</label><textarea id="movies" class="mini-textarea"></textarea></div></div><label>它們共同的風險是什麼？角色可能失去什麼、得到什麼？</label><textarea id="risk" class="mini-textarea"></textarea><label>我目前最有火花的五個主題</label><textarea id="spark" class="mini-textarea"></textarea>` + actionBar();
+  if(t.module==='sensory') return title + `<p class="muted">從一格開始。可以寫眼前物品，也可以寫有情感分量的私人物件；寫完一格，再自己新增下一格。</p><div id="sensoryRows" class="list-grid"></div><button class="secondary" onclick="addSensoryRow('${t.mode||'objects'}')">新增一格觀察</button>` + actionBar();
+  if(t.module==='sound') return title + `<div class="three-col"><div><label>最近的聲音</label><input id="sNear"></div><div><label>最遠的聲音</label><input id="sFar"></div><div><label>持續的聲音</label><input id="sConst"></div></div><div class="two-col"><div><label>讓我安心的聲音</label><input id="sSafe"></div><div><label>讓我煩躁的聲音</label><input id="sAnnoy"></div></div><label>聽見這些聲音後，我想像的開闊人生</label><textarea id="mainText" class="big-textarea"></textarea>` + actionBar();
+  if(t.module==='field') return title + `<div class="three-col"><div><label>地點</label><input id="fieldPlace"></div><div><label>牆上／窗邊有什麼</label><input id="fieldWall"></div><div><label>誰在說話</label><input id="fieldWho"></div></div><label>現場筆記：看到、聽到、猜到、感覺到</label><textarea id="mainText" class="big-textarea"></textarea>` + actionBar();
+  if(t.module==='water') return title + `<label>我現在的創作之井</label><select id="wellState"><option>乾枯：什麼都不想寫</option><option>混濁：心裡很亂</option><option>太用力：一直想產出</option><option>還可以：想補一點靈感</option><option>很滿：想玩一下</option></select><div class="button-row"><button class="secondary" onclick="drawWaterTask()">抽一張補水任務</button></div><div id="waterTask" class="result-box">請先抽一張任務。提醒：這一題可以不產出。</div><div class="three-col"><div><label>我看見</label><textarea id="wSee" class="mini-textarea"></textarea></div><div><label>我感覺</label><textarea id="wFeel" class="mini-textarea"></textarea></div><div><label>我想帶回</label><textarea id="wBring" class="mini-textarea"></textarea></div></div>` + actionBar();
+  if(t.module==='station') return title + `<div class="two-col"><div><label>我想在哪裡寫</label><input id="stationPlace"></div><div><label>這個角落要給我的感覺</label><input id="stationMood"></div></div><label>必要物件</label><textarea id="stationItems" class="mini-textarea" placeholder="筆、紙、燈、靠枕、照片、香氣、杯子……"></textarea><label>我願意做的一個布置行動</label><textarea id="stationAction" class="mini-textarea"></textarea>` + actionBar();
+  if(t.module==='letter') return title + `<div class="two-col"><div><label>寄信者</label><input id="letterFrom" value="${esc(t.from||'未來的我')}"></div><div><label>收信者</label><input id="letterTo" value="${esc(t.to||'現在的我')}"></div></div>${promptChips(t.prompts)}<label>信件內容</label><textarea id="mainText" class="big-textarea" placeholder="親愛的……"></textarea><label>這封信給我的一句核心提醒</label><input id="letterCore">` + actionBar();
+  if(t.module==='ideal') return title + `<div class="three-col"><div><label>我幾點起床</label><input id="idealWake"></div><div><label>我住在哪裡</label><input id="idealHome"></div><div><label>我和誰一起生活／工作</label><input id="idealWho"></div></div><label>理想生活的一天</label><textarea id="mainText" class="big-textarea"></textarea><label>目前生活中已經值得感謝的25件事</label><textarea id="idealThanks" class="mini-textarea" placeholder="可以先寫幾件，不必一次完美。"></textarea>` + actionBar();
+  if(t.module==='protection') return title + `<p class="muted">支持度與風險可以用 1～5 分粗略評估。保護條款可直接點選帶入。</p><div class="matrix-row matrix-head"><div>人名／對象</div><div>支持度</div><div>批評風險</div><div>分享判斷</div></div><div id="protectRows"></div><button class="secondary" onclick="addProtectRow()">新增對象</button><label>我給初稿的保護條款</label><div class="option-grid">${protectOptions().map(x=>`<div class="option-card" onclick="appendToField('protectRule','${esc(x).replace(/'/g,"&#39;")}')">${esc(x)}</div>`).join('')}</div><textarea id="protectRule" class="mini-textarea" placeholder="點上方選項，或寫下自己的保護條款。"></textarea>` + actionBar();
+  if(t.module==='villains') return title + `<label>三個創作惡人／傷害聲音</label><textarea id="villains" class="mini-textarea" placeholder="不用公平，不用替他們辯護，先承認影響。"></textarea><label>我想證明給誰看，或者我想把話語權拿回來的地方</label><textarea id="showThem" class="mini-textarea"></textarea><label>我的自我授權句</label><textarea id="permission" class="mini-textarea permission-box">我可以無視創作惡人的意見，繼續寫出屬於自己的東西。</textarea>` + actionBar();
+  if(t.module==='letter2') return title + `<label>內在寫作者寫給我：我害怕的是……</label><textarea id="writerToMe" class="mini-textarea"></textarea><label>成熟的我回信：我會怎麼支持你……</label><textarea id="meToWriter" class="big-textarea"></textarea><label>我們接下來的合作約定</label><textarea id="writerDeal" class="mini-textarea"></textarea>` + actionBar();
+  if(t.module==='contract') return title + `<label>契約名稱</label><input id="contractName" value="我的寫作權利契約"><label>我承諾的練習</label><textarea id="contractItems" class="mini-textarea">晨間隨筆：我願意嘗試固定書寫。
+敘事時間線：我願意用自己的觀點整理人生。
+藝術之約：我願意定期替創作之井補水。</textarea><label>我給自己的保護條款</label><textarea id="contractProtect" class="mini-textarea"></textarea><div class="two-col"><div><label>日期</label><input id="contractDate" value="${new Date().toLocaleDateString('zh-TW')}"></div><div><label>簽名</label><input id="contractSign" placeholder="寫下你的名字"></div></div>` + actionBar();
+  if(t.module==='plan') return title + `<p class="muted">這是一條輕量路線，不是考核。每天只要完成一個入口即可。</p><div id="planList" class="list-grid"></div><label>七天後，我想看見的微小變化</label><textarea id="planGoal" class="mini-textarea"></textarea>` + actionBar();
+  if(t.module==='postcard') return title + `<p class="muted">預設十五分鐘，也可以用右側計時器自訂。不一定真的寄出，也可以當成訊息草稿。</p><div id="postRows" class="list-grid"></div><button class="secondary" onclick="addPostRow()">新增一張問候卡</button>` + actionBar();
+  if(t.module==='draftsend') return title + `<label>五種寫作可能派上用場的情況</label><p class="muted">可直接選，也可以在最後自訂。</p><div class="option-grid">${draftSituationOptions().map(x=>`<div class="option-card" onclick="setDraftSituation('${esc(x).replace(/'/g,"&#39;")}')">${esc(x)}</div>`).join('')}</div><textarea id="situations" class="mini-textarea" placeholder="補充其他可能派上用場的情況……"></textarea><label>我選擇這一個情況</label><input id="chosenSituation" placeholder="可點上方選項自動填入，或自己輸入"><label>完整草稿</label><textarea id="mainText" class="big-textarea"></textarea><label>後製決定</label><select id="afterDraft"><option>先保存，不急著用</option><option>整理成正式文字</option><option>寄出／發出</option><option>分享給友善讀者</option></select>` + actionBar();
+  return title + `<textarea id="mainText" class="big-textarea"></textarea>` + actionBar();
+}
+
+function timerPanel(min){ return `<div class="timer-panel"><h3>共用計時器</h3><span class="time-display" id="timeDisplay">${String(min).padStart(2,'0')}:00</span><div class="timer-presets"><button class="secondary" onclick="setTimerPreset(3)">3分</button><button class="secondary" onclick="setTimerPreset(10)">10分</button><button class="secondary" onclick="setTimerPreset(15)">15分</button><button class="secondary" onclick="setTimerPreset(25)">25分</button><button class="secondary" onclick="setTimerPreset(30)">30分</button><button class="secondary" onclick="setTimerPreset(45)">45分</button></div><div class="custom-time"><label style="margin:0">自訂</label><input type="number" id="customMinutes" min="1" max="180" value="${min}" onchange="setTimerPreset(Number(this.value)||15)"><span class="muted">分鐘</span></div><div class="timer-controls"><button class="small secondary" onclick="startTimer()">開始</button><button class="small ghost" onclick="pauseTimer()">暫停</button><button class="small ghost" onclick="resetTimer()">重設</button></div><p class="muted" style="margin:8px 0 0">時間只是扶手，不是壓力。</p></div>`; }
+function timerBlock(min){ return ''; }
+function promptChips(prompts=[]){ return prompts.length?`<div class="note-box"><h3>可以從這些句子開始</h3><p class="muted">點一下，會直接放到書寫欄位裡。</p><div class="tags">${prompts.map(p=>`<button class="small secondary prompt-button" onclick="insertToMain('${esc(p).replace(/'/g,"&#39;")}')">${esc(p)}</button>`).join('')}</div></div>`:''; }
+function reflectionBlock(t){ const prompts=(t.after||['哪一句最有能量？','我現在看見了什麼？']); return `<label>完成後回收</label><div class="helper-row">${prompts.map(p=>`<button class="small secondary prompt-button" onclick="appendToField('reflection','${esc(p).replace(/'/g,"&#39;")}：')">${esc(p)}</button>`).join('')}</div><textarea id="reflection" class="mini-textarea" placeholder="寫完後，不必總結大道理。只要記下：狀態有什麼改變？哪一句最有能量？下一步是什麼？"></textarea>`; }
+function actionBar(){ return `${reflectionBlock(getTool())}<div class="button-row" style="margin-top:16px"><button onclick="saveCurrentEntry()">儲存到本機紀錄</button><button class="secondary" onclick="copyCurrentMarkdown()">複製 Markdown</button><button class="ghost" onclick="downloadCurrentMarkdown()">匯出本次 .md</button></div><details style="margin-top:14px"><summary>預覽本次 Markdown</summary><div class="result-box" id="mdPreview"></div></details>`; }
+function insertToMain(text){ appendToField('mainText', text); }
+function appendToField(id,text){ const m=document.getElementById(id); if(m){ m.value += (m.value?'\n':'') + text + (text.endsWith('：')?' ':''); m.focus(); updatePreview(); } }
+function insertStemTo(btn, stem){ const ta=btn.parentElement.querySelector('.stemInput'); if(ta && !ta.value.trim()){ ta.value=stem+' '; ta.focus(); updatePreview(); } else if(ta){ ta.focus(); } }
+function insertToField(id,text){ const el=document.getElementById(id); if(el){ el.value=text; el.focus(); updatePreview(); } }
+function protectOptions(){ return ['這只是初稿，我允許它粗糙、不完整、不被立刻評價。','我只把初稿分享給能指出哪裡有生命力的人。','在第二稿之前，我不把文字交給會放大缺點的人。','對方即使出於好意，但如果會讓我萎縮，我可以暫時不分享。','我可以選擇只分享完成稿，不分享生成中的脆弱版本。']; }
+function draftSituationOptions(){ return ['寫一封我一直拖著沒寫的信','整理一份給同事或朋友的說明','寫一段文章開頭或草稿','回覆一則需要慎重處理的訊息','寫一份計畫、備忘錄或提案','自訂：我現在真正需要寫的是……']; }
+function setDraftSituation(text){ insertToField('chosenSituation', text); }
+function setTimerPreset(min){ timer.defaultMinutes=min; timer.remaining=min*60; const cm=$('#customMinutes'); if(cm) cm.value=min; updateTime(); }
+function getTimerMinutes(){ const v=Number($('#customMinutes')?.value||timer.defaultMinutes||15); return Math.max(1, Math.min(180, v)); }
+function startTimer(min){ const m=min||getTimerMinutes(); if(!timer.remaining || timer.remaining<=0) timer.remaining=m*60; clearInterval(timer.handle); timer.handle=setInterval(()=>{ timer.remaining--; updateTime(); if(timer.remaining<=0){ stopTimer(false); toast('時間到了。停一下，回頭看看你寫出了什麼。'); } },1000); updateTime(); }
+function pauseTimer(){ clearInterval(timer.handle); timer.handle=null; }
+function resetTimer(min){ const m=min||getTimerMinutes(); stopTimer(false); timer.remaining=m*60; updateTime(); }
+function stopTimer(clear=true){ clearInterval(timer.handle); timer.handle=null; if(clear) timer.remaining=0; }
+function updateTime(){ const d=$('#timeDisplay'); if(!d) return; const r=Math.max(0,timer.remaining || getTimerMinutes()*60); d.textContent=`${String(Math.floor(r/60)).padStart(2,'0')}:${String(r%60).padStart(2,'0')}`; }
+
+function buildListRows(){ const n=Math.max(1, Math.min(120, Number($('#targetCount')?.value||25))); const rows=$('#listRows'); if(!rows) return; rows.innerHTML=''; const starter=getTool().starter||'我想到'; for(let i=1;i<=n;i++){ rows.insertAdjacentHTML('beforeend', `<div class="list-row"><div class="idx">${i}</div><textarea class="listInput mini-textarea">${starter} </textarea></div>`); } document.querySelectorAll('.listInput').forEach(el=>el.addEventListener('input',()=>{updateListProgress(); updatePreview();})); updateListProgress(); updatePreview(); }
+function updateListProgress(){ const inputs=[...document.querySelectorAll('.listInput')]; const starter=getTool().starter||''; const filled=inputs.filter(i=>i.value.trim() && i.value.trim()!==starter).length; const pct=inputs.length? filled/inputs.length*100:0; $('#listProgress') && ($('#listProgress').style.width=pct+'%'); $('#listStatus') && ($('#listStatus').textContent=`${filled}/${inputs.length}`); }
+function addTimelineRow(){ const box=$('#timelineRows'); if(!box)return; const i=box.children.length+1; box.insertAdjacentHTML('beforeend', `<div class="two-col"><div><label>節點 ${i}：年齡／年份</label><input class="tlAge" placeholder="例如：15～20歲"></div><div><label>地點／人物</label><input class="tlPeople" placeholder="誰在場？在哪裡？"></div><div style="grid-column:1/-1"><label>事件與我自己的版本</label><textarea class="tlText mini-textarea"></textarea></div></div>`); box.querySelectorAll('input,textarea').forEach(el=>el.oninput=updatePreview); updatePreview(); }
+function addSensoryRow(mode='objects'){ const box=$('#sensoryRows'); if(!box)return; const i=box.children.length+1; box.insertAdjacentHTML('beforeend', `<div class="observe-card"><div class="two-col"><div><label>觀察 ${i}：物件／畫面</label><input class="senName" placeholder="例如：桌上的杯子、窗邊光線、舊鉛筆盒"></div><div><label>感官線索</label><input class="senSense" placeholder="顏色、材質、聲音、氣味、觸感"></div></div><label>它讓我想到什麼？它和我有什麼關係？</label><textarea class="senText mini-textarea" placeholder="先寫一個細節，再寫一個聯想。"></textarea></div>`); box.querySelectorAll('input,textarea').forEach(el=>el.oninput=updatePreview); updatePreview(); }
+function addProtectRow(){ const box=$('#protectRows'); if(!box)return; box.insertAdjacentHTML('beforeend', `<div class="matrix-row"><input class="pName" placeholder="人名／對象"><select class="pSupport"><option>5 很支持</option><option>4 支持</option><option>3 普通</option><option>2 有點消耗</option><option>1 不支持</option></select><select class="pRisk"><option>1 低風險</option><option>2 稍有風險</option><option>3 普通</option><option>4 高風險</option><option>5 很危險</option></select><select class="pJudge"><option>友善讀者</option><option>可談創作，不看初稿</option><option>只看完成稿</option><option>暫不分享</option><option>不適合談創作</option></select></div>`); box.querySelectorAll('input,select').forEach(el=>el.oninput=updatePreview); updatePreview(); }
+function addQnaRow(){ const box=$('#qnaRows'); if(!box)return; const i=box.children.length+1; box.insertAdjacentHTML('beforeend', `<div><label>追問 ${i}</label><textarea class="qnaInput mini-textarea"></textarea></div><div><label>回答 ${i}</label><textarea class="qnaInput mini-textarea"></textarea></div>`); box.querySelectorAll('textarea').forEach(el=>el.oninput=updatePreview); updatePreview(); }
+function addPostRow(){ const box=$('#postRows'); if(!box)return; const i=box.children.length+1; box.insertAdjacentHTML('beforeend', `<div class="postcard-card"><div class="two-col"><div><label>問候卡 ${i}：對象</label><input class="postWho" placeholder="我想問候誰？"></div><div><label>關係／想起他的原因</label><input class="postWhy" placeholder="為什麼是這個人？"></div></div><label>短短幾句真心問候</label><textarea class="postMsg mini-textarea" placeholder="不用漂亮，只要真心。"></textarea></div>`); box.querySelectorAll('input,textarea').forEach(el=>el.oninput=updatePreview); updatePreview(); }
+function buildPlan(){ const days=['Day 1｜開始：此刻三頁','Day 2｜心情入口：用一種情緒寫10分鐘','Day 3｜喜愛事物：列出20個也可以','Day 4｜地點記憶：寫一個住過的地方','Day 5｜具體化：觀察十件物品','Day 6｜未來來信：讓年長的自己說話','Day 7｜寫作契約：決定下一步']; const box=$('#planList'); box.innerHTML=days.map((d,i)=>`<label><input type="checkbox" class="planCheck"> ${d}</label>`).join(''); box.querySelectorAll('input').forEach(el=>el.oninput=updatePreview); updatePreview(); }
+function fillBadIngredients(){ const whos=['失憶的校長','退休偵探','會說台語的外星人','被詛咒的文具店老闆','把日記寫成預言的小學生','討厭人群的旅行家']; const whats=['在夜市抽中一艘太空船','收到來自未來的水餃食譜','發現貓其實是出版社主編','被迫參加宇宙作文比賽','在溫泉旅館遇見雙胞胎分身','把垃圾郵件誤認成神諭']; const rules=['越爛越好','每三句就要誇張一次','不能合理','要有八卦小報氣息','結尾必須荒謬地幸福','主角要理直氣壯地搞砸']; $('#badWho').value=pick(whos); $('#badWhat').value=pick(whats); $('#badRule').value=pick(rules); updatePreview(); }
+function drawWaterTask(){ const tasks=['去花店或市場，只看顏色，不急著買東西。','繞一條平常不走的小路，記住三個畫面。','去圖書館或書店，只翻封面吸引你的書。','泡一杯飲料，坐在窗邊十分鐘，不產出。','整理你的寫字桌，只留下三樣讓你想寫的物件。','去看一棵樹、一片雲或一段光，讓眼睛休息。','找一首會讓你變開闊的音樂，完整聽完。']; $('#waterTask').textContent=pick(tasks); updatePreview(); }
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function getTool(){ return TOOLS.find(t=>t.id===current.tool) || {}; }
+function collect(selector){ return [...document.querySelectorAll(selector)].map(el=>el.value?.trim()).filter(Boolean); }
+function val(id){ return document.getElementById(id)?.value?.trim() || ''; }
+function checked(selector){ return [...document.querySelectorAll(selector)].map((el,i)=>el.checked?`- [x] ${el.parentElement.textContent.trim()}`:`- [ ] ${el.parentElement.textContent.trim()}`).join('\n'); }
+
+function generateMarkdown(){ const t=getTool(); const c=CATEGORIES.find(x=>x.id===t.cat)||{}; let md=`# ${t.title}\n\n`; md+=`> 分類：${c.short||''}｜模組：${MODULE_NAMES[t.module]||t.module}\n> 時間：${today()}\n> 標籤：${(t.tags||[]).map(x=>'#'+x).join(' ')}\n\n`; md+=`## 這個工具\n${t.one||''}\n\n## 本次書寫\n`;
+  const main=val('mainText'); if(main) md+=main+'\n\n';
+  const mood=val('mood'); if(mood) md+=`目前心情：${mood}\n\n`;
+  const bad=[val('badWho'),val('badWhat'),val('badRule')].filter(Boolean); if(bad.length) md+=`荒謬素材：${bad.join('｜')}\n\n`;
+  const stems=[...document.querySelectorAll('.stemInput')].map(el=> el.value.trim()?`- ${el.value.trim()}`:'').filter(Boolean); if(stems.length) md+=`### 句型續寫\n${stems.join('\n')}\n\n`;
+  const list=[...document.querySelectorAll('.listInput')].map(el=>el.value.trim()).filter(x=>x && x!==((getTool().starter||'')+'').trim()); if(list.length) md+=`### 清單\n${list.map((x,i)=>`${i+1}. ${x}`).join('\n')}\n\n`;
+  const qna=collect('.qnaInput'); if(qna.length) md+=`### 問答\n${qna.map((x,i)=>`${i+1}. ${x}`).join('\n')}\n\n`;
+  if(val('placeName')||val('placeAge')) md+=`### 地點\n- 地點：${val('placeName')}\n- 年齡／年份：${val('placeAge')}\n- 氣味：${val('placeSmell')}\n- 景物：${val('placeView')}\n- 心情：${val('placeMood')}\n\n`;
+  const tls=[...document.querySelectorAll('.tlAge')].map((el,i)=>{const age=el.value.trim(), people=document.querySelectorAll('.tlPeople')[i].value.trim(), text=document.querySelectorAll('.tlText')[i].value.trim(); return (age||people||text)?`- ${age}｜${people}\n  ${text}`:''}).filter(Boolean); if(tls.length) md+=`### 人生時間線\n${tls.join('\n')}\n\n`;
+  ['readTopics','thinkTopics','books','movies','risk','spark'].forEach(id=>{ if(val(id)) md+=`### ${labelName(id)}\n${val(id)}\n\n`; });
+  const sens=[...document.querySelectorAll('.senName')].map((el,i)=>{const a=el.value.trim(), b=document.querySelectorAll('.senSense')[i].value.trim(), c=document.querySelectorAll('.senText')[i].value.trim(); return (a||b||c)?`- ${a}｜${b}\n  ${c}`:''}).filter(Boolean); if(sens.length) md+=`### 感官觀察\n${sens.join('\n')}\n\n`;
+  ['sNear','sFar','sConst','sSafe','sAnnoy','fieldPlace','fieldWall','fieldWho','wSee','wFeel','wBring','stationPlace','stationMood','stationItems','stationAction','letterFrom','letterTo','letterCore','idealWake','idealHome','idealWho','idealThanks','protectRule','villains','showThem','permission','writerToMe','meToWriter','writerDeal','contractName','contractItems','contractProtect','contractDate','contractSign','planGoal','situations','chosenSituation','afterDraft'].forEach(id=>{ if(val(id)) md+=`### ${labelName(id)}\n${val(id)}\n\n`; });
+  if($('#waterTask') && $('#waterTask').textContent && !$('#waterTask').textContent.includes('請先')) md+=`### 補水任務\n${$('#waterTask').textContent}\n\n`;
+  const prs=[...document.querySelectorAll('.pName')].map((el,i)=>{const name=el.value.trim(); if(!name) return ''; return `- ${name}｜支持：${document.querySelectorAll('.pSupport')[i].value}｜風險：${document.querySelectorAll('.pRisk')[i].value}｜判斷：${document.querySelectorAll('.pJudge')[i].value}`}).filter(Boolean); if(prs.length) md+=`### 創作防護雷達\n${prs.join('\n')}\n\n`;
+  if(document.querySelector('.planCheck')) md+=`### 七日打卡\n${checked('.planCheck')}\n\n`;
+  const posts=[...document.querySelectorAll('.postWho')].map((el,i)=>{const who=el.value.trim(), why=document.querySelectorAll('.postWhy')[i]?.value.trim()||'', msg=document.querySelectorAll('.postMsg')[i].value.trim(); return (who||why||msg)?`- 給 ${who}${why?'（'+why+'）':''}：${msg}`:''}).filter(Boolean); if(posts.length) md+=`### 問候卡\n${posts.join('\n')}\n\n`;
+  const ref=val('reflection'); if(ref) md+=`## 完成後回收\n${ref}\n\n`;
+  return md.trim()+"\n";
+}
+function labelName(id){ const map={readTopics:'最常閱讀的主題',thinkTopics:'最常思考的主題',books:'最愛的書',movies:'最愛的作品',risk:'共同的風險',spark:'有火花的主題',sNear:'最近的聲音',sFar:'最遠的聲音',sConst:'持續的聲音',sSafe:'安心的聲音',sAnnoy:'煩躁的聲音',fieldPlace:'現場地點',fieldWall:'牆上／窗邊',fieldWho:'誰在說話',wSee:'我看見',wFeel:'我感覺',wBring:'我想帶回',stationPlace:'寫作站位置',stationMood:'寫作站氣氛',stationItems:'必要物件',stationAction:'布置行動',letterFrom:'寄信者',letterTo:'收信者',letterCore:'核心提醒',idealWake:'起床時間',idealHome:'居住空間',idealWho:'同行者',idealThanks:'目前感謝',protectRule:'保護條款',villains:'創作惡人',showThem:'我要拿回話語權的地方',permission:'自我授權句',writerToMe:'內在寫作者來信',meToWriter:'成熟的我回信',writerDeal:'合作約定',contractName:'契約名稱',contractItems:'承諾練習',contractProtect:'契約保護條款',contractDate:'日期',contractSign:'簽名',planGoal:'七日後的微小變化',situations:'可能派上用場的情況',chosenSituation:'選擇的情況',afterDraft:'後製決定'}; return map[id]||id; }
+function updatePreview(){ const box=$('#mdPreview'); if(box) box.textContent=generateMarkdown(); }
+async function copyCurrentMarkdown(){ const md=generateMarkdown(); try{ await navigator.clipboard.writeText(md); toast('已複製 Markdown。'); }catch(e){ fallbackCopy(md); } }
+function fallbackCopy(text){ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('已複製 Markdown。'); }
+function downloadCurrentMarkdown(){ const t=getTool(); const md=generateMarkdown(); const blob=new Blob([md],{type:'text/markdown;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${(t.id||'writing')}-${new Date().toISOString().slice(0,10)}.md`; a.click(); URL.revokeObjectURL(a.href); }
+function saveCurrentEntry(){ const t=getTool(); const md=generateMarkdown(); const entries=getEntries(); entries.unshift({id:uid(), tool:t.title, toolId:t.id, cat:t.cat, date:today(), markdown:md}); localStorage.setItem('trtw_entries_v2', JSON.stringify(entries)); toast('已儲存到本機紀錄。'); }
+function getEntries(){ try{return JSON.parse(localStorage.getItem('trtw_entries_v2')||'[]')}catch(e){return []} }
+function showRecords(){ stopTimer(); clearSearch(); current={view:'records',cat:null,tool:null,filter:''}; setActiveNav(''); const entries=getEntries(); root.innerHTML=`
+  <section class="panel"><p class="breadcrumb"><button onclick="goHome()">首頁</button> ／ 本機紀錄／設定</p><h2>本機紀錄／設定</h2><p class="lead">這一頁專門放紀錄、複製、下載與清除，不擠在首頁，也不打擾工具頁的書寫。</p></section>
+  <section class="records-layout">
+    <div class="panel"><h2>我的書寫紀錄</h2>${entries.length?entries.map(recordCard).join(''):'<div class="empty">目前還沒有儲存紀錄。先去找一個工具寫一小段吧。</div>'}</div>
+    <aside class="panel"><h2>設定與匯出</h2><p class="muted">資料儲存在這個瀏覽器的 localStorage。換瀏覽器或清除資料會消失，重要內容請匯出或複製。</p><div class="button-row"><button onclick="copyAllRecords()">複製全部 Markdown</button><button class="secondary" onclick="downloadAllRecords()">下載全部 .md</button><button class="danger" onclick="clearRecords()">清除全部紀錄</button></div></aside>
+  </section>`; }
+function recordCard(r){ return `<article class="record-card"><h3>${esc(r.tool)}</h3><div class="record-meta">${esc(r.date)}</div><div class="record-content">${esc(r.markdown.slice(0,800))}${r.markdown.length>800?'\n……':''}</div><div class="button-row" style="margin-top:10px"><button class="small secondary" onclick="copyRecord('${r.id}')">複製</button><button class="small ghost" onclick="downloadRecord('${r.id}')">下載</button><button class="small danger" onclick="deleteRecord('${r.id}')">刪除</button></div></article>`; }
+function copyRecord(id){ const r=getEntries().find(x=>x.id===id); if(r) navigator.clipboard.writeText(r.markdown).then(()=>toast('已複製。')).catch(()=>fallbackCopy(r.markdown)); }
+function downloadRecord(id){ const r=getEntries().find(x=>x.id===id); if(!r)return; const blob=new Blob([r.markdown],{type:'text/markdown;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${r.toolId}-${r.date.slice(0,10).replaceAll('/','-')}.md`; a.click(); URL.revokeObjectURL(a.href); }
+function deleteRecord(id){ localStorage.setItem('trtw_entries_v2', JSON.stringify(getEntries().filter(x=>x.id!==id))); showRecords(); }
+function copyAllRecords(){ const all=getEntries().map(r=>r.markdown).join('\n---\n\n'); if(!all) return toast('沒有紀錄可複製。'); navigator.clipboard.writeText(all).then(()=>toast('已複製全部紀錄。')).catch(()=>fallbackCopy(all)); }
+function downloadAllRecords(){ const all=getEntries().map(r=>r.markdown).join('\n---\n\n'); if(!all) return toast('沒有紀錄可下載。'); const blob=new Blob([all],{type:'text/markdown;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`the-right-to-write-records-${new Date().toISOString().slice(0,10)}.md`; a.click(); URL.revokeObjectURL(a.href); }
+function clearRecords(){ if(confirm('確定清除全部本機紀錄？這個動作無法復原。')){ localStorage.removeItem('trtw_entries_v2'); showRecords(); } }
+
+init();
+</script>
+</body>
+</html>

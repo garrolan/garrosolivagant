@@ -3,6 +3,11 @@ title: "小工具"
 description: "把自由人生實驗室常用的小程式集中在一頁，之後要用時不用到處找連結。"
 draft: false
 tools:
+  - title: "The Right To Write（寫就對了）"
+    url: "https://garrolan.github.io/garrosolivagant/tools/the-right-to-write/"
+    category: "寫作工具"
+    description: "把不知道怎麼開始、怕寫不好、情緒卡住等狀態，轉成低壓力書寫練習，並支援本機紀錄與 Markdown 匯出。"
+    icon: "create"
   - title: "羅馬尼亞語旅行小卡APP"
     url: "https://garro-romania-language-cards.netlify.app/"
     category: "語言學習"
