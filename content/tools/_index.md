@@ -3,6 +3,11 @@ title: "小工具"
 description: "把自由人生實驗室常用的小程式集中在一頁，之後要用時不用到處找連結。"
 draft: false
 tools:
+  - title: "生命之輪 Life Wheel"
+    url: "https://garrolan.github.io/garrosolivagant/tools/life-wheel/"
+    category: "自我檢視"
+    description: "用 0～10 分為生活領域評分，生成彩色生命之輪、分析報告與 7 天生活小實驗卡。"
+    icon: "pie-chart"
   - title: "The Right To Write（寫就對了）"
     url: "https://garrolan.github.io/garrosolivagant/tools/the-right-to-write/"
     category: "寫作工具"
