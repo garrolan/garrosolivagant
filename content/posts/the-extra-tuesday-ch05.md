@@ -5,7 +5,7 @@ date: 2026-11-09T00:00:04+08:00
 categories: ["創作實驗"]
 tags: ["多出來的星期二", "原創小說", "連載小說"]
 author: "garrolan"
-cover: "images/the-extra-tuesday-cover.png"
+cover: "images/the-extra-tuesday/ch05-cover.jpg"
 description: "星期六早上八點二十分，周予安坐在餐桌前，電腦螢幕上開著一份名為「如果不做到六十歲」的試算表。"
 draft: false
 ---

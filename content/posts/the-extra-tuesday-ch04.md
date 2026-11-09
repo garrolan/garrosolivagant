@@ -5,7 +5,7 @@ date: 2026-11-09T00:00:05+08:00
 categories: ["創作實驗"]
 tags: ["多出來的星期二", "原創小說", "連載小說"]
 author: "garrolan"
-cover: "images/the-extra-tuesday-cover.png"
+cover: "images/the-extra-tuesday/ch04-cover.jpg"
 description: "星期三早上七點五十二分，周予安走進海源冷鏈物流公司的辦公大樓時，發現停車場的地面還留著昨夜下雨的痕跡。靠近倉庫的水泥地有幾處積水，兩輛冷藏貨車停在卸貨區，車尾門敞開，穿著深藍色制服的工作人員正把一箱箱貼著條碼的冷凍食品搬上棧板。"
 draft: false
 ---

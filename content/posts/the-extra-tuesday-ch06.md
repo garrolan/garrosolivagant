@@ -5,7 +5,7 @@ date: 2026-11-09T00:00:03+08:00
 categories: ["創作實驗"]
 tags: ["多出來的星期二", "原創小說", "連載小說"]
 author: "garrolan"
-cover: "images/the-extra-tuesday-cover.png"
+cover: "images/the-extra-tuesday/ch06-cover.jpg"
 description: "十一月十六日，星期一，早上八點二十三分，周予安在辦公室裡接到了今年第三通要求更改配送時間的電話。"
 draft: false
 ---

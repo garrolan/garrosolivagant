@@ -5,7 +5,7 @@ date: 2026-11-09T00:00:06+08:00
 categories: ["創作實驗"]
 tags: ["多出來的星期二", "原創小說", "連載小說"]
 author: "garrolan"
-cover: "images/the-extra-tuesday-cover.png"
+cover: "images/the-extra-tuesday/ch03-cover.jpg"
 description: "星期一下午五點二十三分，周予安終於把最後一封工作郵件寄了出去。"
 draft: false
 ---

@@ -5,7 +5,7 @@ date: 2026-11-09T00:00:08+08:00
 categories: ["創作實驗"]
 tags: ["多出來的星期二", "原創小說", "連載小說"]
 author: "garrolan"
-cover: "images/the-extra-tuesday-cover.png"
+cover: "images/the-extra-tuesday/ch01-cover.jpg"
 description: "周予安收到公司通知時，正坐在陽臺上喝咖啡。"
 draft: false
 ---

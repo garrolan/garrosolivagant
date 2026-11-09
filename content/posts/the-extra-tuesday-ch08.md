@@ -5,7 +5,7 @@ date: 2026-11-09T00:00:01+08:00
 categories: ["創作實驗"]
 tags: ["多出來的星期二", "原創小說", "連載小說"]
 author: "garrolan"
-cover: "images/the-extra-tuesday-cover.png"
+cover: "images/the-extra-tuesday/ch08-cover.jpg"
 description: "十二月十日，星期四，上午八點十二分，周予安回到海源冷鏈物流公司，發現辦公桌上放著兩份等待簽核的文件、一張便條紙，以及一盒包裝完整的鳳梨酥。"
 draft: false
 ---

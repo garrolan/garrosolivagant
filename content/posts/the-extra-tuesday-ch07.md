@@ -5,7 +5,7 @@ date: 2026-11-09T00:00:02+08:00
 categories: ["創作實驗"]
 tags: ["多出來的星期二", "原創小說", "連載小說"]
 author: "garrolan"
-cover: "images/the-extra-tuesday-cover.png"
+cover: "images/the-extra-tuesday/ch07-cover.jpg"
 description: "十二月八日，星期二，上午七點四十二分，周予安站在蘇澳新站的月臺上，把背包從右肩換到左肩，低頭確認手機裡的電子車票。"
 draft: false
 ---
